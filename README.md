@@ -26,3 +26,8 @@ for (var cnt = 0; cnt < 10; cnt++) {
   console.log(filter.singleStep(cnt));
 }
 ```
+
+Limitations:
+-   filters are calculated with bilinear transform. Fc must always be lower than Fs/4
+-   filter orders over 3 are not supported, yet
+-   only butterworth and bessel filters are implemented, yet
