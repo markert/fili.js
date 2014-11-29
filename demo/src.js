@@ -12,17 +12,17 @@ $(document).ready(function () {
   //1.02331395383  0.611194546878 0.510317824749
   //1.9047076123    1.68916826762   1.60391912877 
   var coeffs_Bessel = [];
-  coeffs_Bessel.push(coeffsCalculator.bq({
+  coeffs_Bessel.push(coeffsCalculator.lowpass({
     Q: 1.02331395383,
     Fs: 96000,
     Fc: 1.9047076123 * 9600
   }));
-  coeffs_Bessel.push(coeffsCalculator.bq({
+  coeffs_Bessel.push(coeffsCalculator.lowpass({
     Q: 0.611194546878,
     Fs: 96000,
     Fc: 1.68916826762 * 9600
   }));
-  coeffs_Bessel.push(coeffsCalculator.bq({
+  coeffs_Bessel.push(coeffsCalculator.lowpass({
     Q: 0.510317824749,
     Fs: 96000,
     Fc: 1.60391912877 * 9600
@@ -32,17 +32,17 @@ $(document).ready(function () {
   //0.541  0.707 1.93
   //1    1   1
   var coeffs_Butterworth = [];
-  coeffs_Butterworth.push(coeffsCalculator.bq({
+  coeffs_Butterworth.push(coeffsCalculator.lowpass({
     Q: 0.541,
     Fs: 96000,
     Fc: 9600
   }));
-  coeffs_Butterworth.push(coeffsCalculator.bq({
+  coeffs_Butterworth.push(coeffsCalculator.lowpass({
     Q: 0.707,
     Fs: 96000,
     Fc: 9600
   }));
-  coeffs_Butterworth.push(coeffsCalculator.bq({
+  coeffs_Butterworth.push(coeffsCalculator.lowpass({
     Q: 1.93,
     Fs: 96000,
     Fc: 9600
