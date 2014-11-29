@@ -24,7 +24,7 @@
       coeffs.b = [];
       coeffs.k = 1;
       return coeffs;
-    }
+    };
     var self = {
       lowpass: function (params) {
         var coeffs = initCoeffs();
@@ -44,7 +44,7 @@
       },
       notch: function (params) {
         var coeffs = initCoeffs();
-        var p = preCalc(params, coeffs);
+        preCalc(params, coeffs);
         coeffs.b.push(1);
         coeffs.b.push(-2 * coeffs.b[0]);
         coeffs.b.push(coeffs.b[0]);
