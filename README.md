@@ -10,7 +10,7 @@ Usage:
 var coeffCalculator = new CalcCascades();
 
 // calculate filter coefficients
-var filterCoeffs = filterCalculator.getCoefficients({
+var filterCoeffs = coeffCalculator.getCoefficients({
     order: 3, // cascade 3 biquad filters
     characteristic: 'butterworth',
     behavior: 'lowpass',
