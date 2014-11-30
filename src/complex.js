@@ -29,15 +29,15 @@
         };
         return x;
       },
-      add: function (p,q) {
-          var x = {
+      add: function (p, q) {
+        var x = {
           re: p.re + q.re,
           im: p.im + q.im
         };
         return x;
       },
-      sub: function (p,q) {
-          var x = {
+      sub: function (p, q) {
+        var x = {
           re: p.re - q.re,
           im: p.im - q.im
         };
