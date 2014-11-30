@@ -37,7 +37,7 @@
     var biquadResponse = function (params, s) {
       var Fs = params.Fs,
         Fr = params.Fr;
-      var theta = 2 * Math.PI * Fs / Fr;
+      var theta = Math.PI * Fr / Fs;
       var sin = Math.sin(theta);
       var sin2 = sin * sin;
       var x = (1 + sin2) / ((1 - sin2) - 4 * sin2);
