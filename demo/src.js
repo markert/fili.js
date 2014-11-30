@@ -32,6 +32,11 @@ $(document).ready(function () {
   var outButterworth = [];
   var ostr = '';
   var cnt = 0;
+  var x = filterBessel.response({
+    Fs: 96000,
+    Fr: 600
+  });
+  console.log(x);
   sim.onclick = function () {
     var val = input.value;
     outBessel.push(filterBessel.singleStep(val));
