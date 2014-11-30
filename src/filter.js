@@ -7,6 +7,35 @@
   // stage structure e.g. {k:1, a:[1.1, -1.2], b:[0.3, -1.2, -0.4], z:[0, 0]}
   var Filter = function (filter) {
     var f = filter;
+    var cone = {
+      re: 1,
+      im: 0
+    };
+    var cf = [];
+    for (var cnt = 0; cnt < f.length; cnt++) {
+      cf[cnt] = {};
+      var s = f[cnt];
+      cf[cnt].b0 = {
+        re: s.b[0],
+        im: 0
+      };
+      cf[cnt].b1 = {
+        re: s.b[1],
+        im: 0
+      };
+      cf[cnt].b2 = {
+        re: s.b[2],
+        im: 0
+      };
+      cf[cnt].a1 = {
+        re: s.a[0],
+        im: 0
+      };
+      cf[cnt].a2 = {
+        re: s.a[1],
+        im: 0
+      };
+    }
     var complex = new Complex();
     var runStage = function (s, input) {
       var temp = input * s.k - s.a[0] * s.z[0] - s.a[1] * s.z[1];
@@ -37,37 +66,17 @@
     var biquadResponse = function (params, s) {
       var Fs = params.Fs,
         Fr = params.Fr;
+      // z = exp(j*omega*pi) = cos(omega*pi) + j*sin(omega*pi)
+      // z^-1 = exp(-j*omega*pi)
+      // omega is between 0 and 1. 1 is the Nyquist frequency.
       var theta = -Math.PI * (Fr / Fs) * 2;
-      var b0 = {
-        re: s.b[0],
-        im: 0
-      };
-      var b1 = {
-        re: s.b[1],
-        im: 0
-      };
-      var b2 = {
-        re: s.b[2],
-        im: 0
-      };
-      var a1 = {
-        re: s.a[0],
-        im: 0
-      };
-      var a2 = {
-        re: s.a[1],
-        im: 0
-      };
-      var one = {
-        re: 1,
-        im: 0
-      };
       var z = {
         re: Math.cos(theta),
         im: Math.sin(theta)
       };
-      var p = complex.add(b0, complex.mul(z, complex.add(b1, complex.mul(b2, z))));
-      var q = complex.add(one, complex.mul(z, complex.add(a1, complex.mul(a2, z))));
+      // (b0 + b1*z^-1 + b2*z^-2) / (1 + a1*z^⁻1 + a2*z^-2)
+      var p = complex.add(s.b0, complex.mul(z, complex.add(s.b1, complex.mul(s.b2, z))));
+      var q = complex.add(cone, complex.mul(z, complex.add(s.a1, complex.mul(s.a2, z))));
       var h = complex.div(p, q);
       var res = {
         magnitude: complex.magnitude(h),
@@ -89,11 +98,15 @@
           magnitude: 1,
           phase: 1
         };
-        for (cnt = 0; cnt < f.length; cnt++) {
-          var r = biquadResponse(params, f[cnt]);
+        for (cnt = 0; cnt < cf.length; cnt++) {
+          var r = biquadResponse(params, cf[cnt]);
+          // a cascade of biquads results in the multiplication of H(z)
+          // H_casc(z) = H_0(z) * H_1(z) * ... * H_n(z)
           res.magnitude *= r.magnitude;
+          // phase is wrapped -> unwrap before using
           res.phase *= r.phase;
         }
+        console.log(res)
         return res;
       }
     };
