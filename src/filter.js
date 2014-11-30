@@ -85,6 +85,23 @@
       return res;
     };
 
+    var calcResponse = function (params) {
+      var cnt = 0;
+      var res = {
+        magnitude: 1,
+        phase: 1
+      };
+      for (cnt = 0; cnt < cf.length; cnt++) {
+        var r = biquadResponse(params, cf[cnt]);
+        // a cascade of biquads results in the multiplication of H(z)
+        // H_casc(z) = H_0(z) * H_1(z) * ... * H_n(z)
+        res.magnitude *= r.magnitude;
+        // phase is wrapped -> unwrap before using
+        res.phase *= r.phase;
+      }
+      return res;
+    };
+
     var self = {
       singleStep: function (input) {
         return runFilter(input);
@@ -92,21 +109,19 @@
       multiStep: function (input) {
         return runMultiFilter(input);
       },
-      response: function (params) {
+      responsePoint: function (params) {
+        return calcResponse(params);
+      },
+      response: function (resolution) {
+        var res = [];
         var cnt = 0;
-        var res = {
-          magnitude: 1,
-          phase: 1
-        };
-        for (cnt = 0; cnt < cf.length; cnt++) {
-          var r = biquadResponse(params, cf[cnt]);
-          // a cascade of biquads results in the multiplication of H(z)
-          // H_casc(z) = H_0(z) * H_1(z) * ... * H_n(z)
-          res.magnitude *= r.magnitude;
-          // phase is wrapped -> unwrap before using
-          res.phase *= r.phase;
+        var r = resolution * 2;
+        for (cnt = 0; cnt < resolution; cnt++) {
+          res[cnt] = calcResponse({
+            Fs: r,
+            Fr: cnt
+          });
         }
-        console.log(res)
         return res;
       }
     };
