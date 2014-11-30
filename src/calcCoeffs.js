@@ -13,6 +13,7 @@
       pre.alpha = Math.sin(w) / (2 * Q);
       pre.cw = Math.cos(w);
       pre.a0 = 1 + pre.alpha;
+      coeffs.a0 = pre.a0;
       coeffs.a.push((-2 * pre.cw) / pre.a0);
       coeffs.a.push((1 - pre.alpha) / pre.a0);
       return pre;
@@ -32,6 +33,8 @@
         coeffs.b.push((1 - p.cw) / (2 * p.a0));
         coeffs.b.push(2 * coeffs.b[0]);
         coeffs.b.push(coeffs.b[0]);
+        // coeffs.omegaMax = Math.pow((Math.PI * (params.Fc / params.Fs)), 2) * (1 - (1 / (2 * Math.pow(params.Q, 2))));
+        // coeffs.ampMax = (Math.abs(coeffs.a0) * params.Q) / (Math.pow((Math.PI * (params.Fc / params.Fs)), 2) * Math.sqrt(1 - (1 / (4 * Math.pow(params.Q, 2)))));
         return coeffs;
       },
       highpass: function (params) {
