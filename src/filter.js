@@ -37,18 +37,14 @@
     var biquadResponse = function (params, s) {
       var Fs = params.Fs,
         Fr = params.Fr;
-      var theta = Math.PI * Fr / Fs;
-      var sin = Math.sin(theta);
-      var sin2 = sin * sin;
-      var x = (1 + sin2) / ((1 - sin2) - 4 * sin2);
-      var y = 2 * sin / ((1 - sin2) - 4 * sin2);
+      var theta = -Math.PI * (Fr / Fs) * 0.5;
       var p = {
-        re: s.b[0] + s.b[1] / (1 + sin2) + s.b[2] * x,
-        im: s.b[1] * sin / (1 - sin2) + s.b[2] * y
+        re: s.b[0] + s.b[1] * Math.cos(theta) + s.b[2] * Math.cos(2 * theta),
+        im: s.b[1] * Math.sin(theta) - s.b[2] * Math.sin(2 * theta)
       };
       var q = {
-        re: 1 + s.a[0] / (1 + sin2) + s.a[1] * x,
-        im: s.a[0] * sin / (1 - sin2) + s.a[1] * y
+        re: 1 + s.a[0] * Math.cos(theta) + s.a[1] * Math.cos(2 * theta),
+        im: s.a[0] * Math.sin(theta) + s.a[1] * Math.sin(2 * theta)
       };
       var h = complex.div(p, q);
       var res = {
@@ -73,6 +69,7 @@
         };
         for (cnt = 0; cnt < f.length; cnt++) {
           var r = biquadResponse(params, f[cnt]);
+          console.log(r);
           res.magnitude *= r.magnitude;
           res.phase *= r.phase;
         }
