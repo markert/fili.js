@@ -25,6 +25,11 @@ var filter = new Filter(filterCoeffs);
 for (var cnt = 0; cnt < 10; cnt++) {
   console.log(filter.singleStep(cnt));
 }
+
+// get the filter impact on magnitude and phase
+// returns array of n objects
+// Fs = 1000 n = 100, so the array represents 0Hz, 10Hz, 20Hz....
+var response = filter.response(100);
 ```
 
 Limitations:
