@@ -12,7 +12,7 @@ var coeffCalculator = new CalcCascades();
 // calculate filter coefficients
 var filterCoeffs = coeffCalculator.getCoefficients({
     order: 3, // cascade 3 biquad filters
-    characteristic: 'butterworth',
+    characteristic: 'butterworth', // 'bessel' also possible
     behavior: 'lowpass',
     Fs: 1000, // sampling frequency
     Fc: 100 // cutoff frequency
@@ -26,10 +26,15 @@ for (var cnt = 0; cnt < 10; cnt++) {
   console.log(filter.singleStep(cnt));
 }
 
-// get the filter impact on magnitude and phase
+// get the filter impact on magnitude, phase, unwrapped phase, phase delay and group delay
 // returns array of n objects
 // Fs = 1000 n = 100, so the array represents 0Hz, 10Hz, 20Hz....
 var response = filter.response(100);
+
+// simulate filter with any input
+// useful to get impuls response
+// does not change the state of the filter (no impact on z)
+var simulation = filter.simulate([1,0,0,0,0,0,0,0,0,0,0]);
 ```
 
 Limitations:
