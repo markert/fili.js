@@ -49,20 +49,20 @@
       return out;
     };
 
-    var runFilter = function (input) {
+    var runFilter = function (input, coeffs) {
       var out = input;
       var cnt = 0;
-      for (cnt = 0; cnt < f.length; cnt++) {
+      for (cnt = 0; cnt < coeffs.length; cnt++) {
         out = runStage(f[cnt], out);
       }
       return out;
     };
 
-    var runMultiFilter = function (input) {
+    var runMultiFilter = function (input, coeffs) {
       var cnt = 0;
       var out = [];
       for (cnt = 0; cnt < input.length; cnt++) {
-        out.push(runFilter(input[cnt]));
+        out.push(runFilter(input[cnt], coeffs));
       }
       return out;
     };
@@ -106,6 +106,19 @@
       return res;
     };
 
+    var calcInputResponse = function (input) {
+      var tempF = [];
+      for (var cnt = 0; cnt < f.length; cnt++) {
+        tempF[cnt] = {
+          a: [f[cnt].a[0], f[cnt].a[1]],
+          b: [f[cnt].b[0], f[cnt].b[1], f[cnt].b[2]],
+          k: f[cnt].k,
+          z: [0, 0]
+        };
+      }
+      return runMultiFilter(input, tempF);
+    };
+
     var evaluatePhase = function (res) {
       var xcnt = 0;
       var cnt = 0;
@@ -143,10 +156,13 @@
 
     var self = {
       singleStep: function (input) {
-        return runFilter(input);
+        return runFilter(input, f);
       },
       multiStep: function (input) {
-        return runMultiFilter(input);
+        return runMultiFilter(input, f);
+      },
+      simulate: function (input) {
+        return calcInputResponse(input);
       },
       responsePoint: function (params) {
         return calcResponse(params);
