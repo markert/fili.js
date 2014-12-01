@@ -32,9 +32,8 @@ for (var cnt = 0; cnt < 10; cnt++) {
 var response = filter.response(100);
 
 // simulate filter with any input
-// useful to get impuls response
 // does not change the state of the filter (no impact on z)
-var simulation = filter.simulate([1,0,0,0,0,0,0,0,0,0,0]);
+var simulation = filter.simulate([1,0,0,2,-1,0,0,1,5,0,0]);
 
 // get the step response of the filter for 100 samples
 // returns the filter output, max and min of the ripple
