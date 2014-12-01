@@ -35,6 +35,11 @@ var response = filter.response(100);
 // useful to get impuls response
 // does not change the state of the filter (no impact on z)
 var simulation = filter.simulate([1,0,0,0,0,0,0,0,0,0,0]);
+
+// get the step response of the filter for 100 samples
+// returns the filter output, max and min of the ripple
+// filter.impulseResponse(100) does the same for an impulse.
+var stepResponse = filter.stepResponse(100);
 ```
 
 Limitations:
