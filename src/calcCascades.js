@@ -43,7 +43,8 @@
           filter.push(getCoeffs[params.behavior]({
             Fs: params.Fs,
             Fc: params.Fc * table[params.characteristic].f[params.order - 1][cnt],
-            Q: table[params.characteristic].q[params.order - 1][cnt]
+            Q: table[params.characteristic].q[params.order - 1][cnt],
+            preGain: params.preGain || false
           }));
         }
         return filter;

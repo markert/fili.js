@@ -23,24 +23,33 @@
       coeffs.z = [0, 0];
       coeffs.a = [];
       coeffs.b = [];
-      coeffs.k = 1;
       return coeffs;
     };
     var self = {
       lowpass: function (params) {
         var coeffs = initCoeffs();
         var p = preCalc(params, coeffs);
-        coeffs.b.push((1 - p.cw) / (2 * p.a0));
+        if (params.preGain) {
+          coeffs.k = (1 - p.cw) * 0.5;
+          coeffs.b.push(1 / (p.a0));
+        } else {
+          coeffs.k = 1;
+          coeffs.b.push((1 - p.cw) / (2 * p.a0));
+        }
         coeffs.b.push(2 * coeffs.b[0]);
         coeffs.b.push(coeffs.b[0]);
-        // coeffs.omegaMax = Math.pow((Math.PI * (params.Fc / params.Fs)), 2) * (1 - (1 / (2 * Math.pow(params.Q, 2))));
-        // coeffs.ampMax = (Math.abs(coeffs.a0) * params.Q) / (Math.pow((Math.PI * (params.Fc / params.Fs)), 2) * Math.sqrt(1 - (1 / (4 * Math.pow(params.Q, 2)))));
         return coeffs;
       },
       highpass: function (params) {
         var coeffs = initCoeffs();
         var p = preCalc(params, coeffs);
-        coeffs.b.push((1 + p.cw) / (2 * p.a0));
+        if (params.preGain) {
+          coeffs.k = (1 + p.cw) * 0.5;
+          coeffs.b.push(1 / (p.a0));
+        } else {
+          coeffs.k = 1;
+          coeffs.b.push((1 + p.cw) / (2 * p.a0));
+        }
         coeffs.b.push(-2 * coeffs.b[0]);
         coeffs.b.push(coeffs.b[0]);
         return coeffs;
