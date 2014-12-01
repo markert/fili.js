@@ -53,7 +53,7 @@
       var out = input;
       var cnt = 0;
       for (cnt = 0; cnt < coeffs.length; cnt++) {
-        out = runStage(f[cnt], out);
+        out = runStage(coeffs[cnt], out);
       }
       return out;
     };
@@ -106,7 +106,7 @@
       return res;
     };
 
-    var calcInputResponse = function (input) {
+    var reinit = function () {
       var tempF = [];
       for (var cnt = 0; cnt < f.length; cnt++) {
         tempF[cnt] = {
@@ -116,6 +116,11 @@
           z: [0, 0]
         };
       }
+      return tempF;
+    };
+
+    var calcInputResponse = function (input) {
+      var tempF = reinit();
       return runMultiFilter(input, tempF);
     };
 
@@ -146,12 +151,43 @@
           res[cnt].unwrappedPhase = phase[cnt];
         }
 
-        res[cnt].phaseDelay = res[cnt].unwrappedPhase / (tpi * tpi * cnt / res.length);
+        res[cnt].phaseDelay = res[cnt].unwrappedPhase / (cnt / res.length);
         res[cnt].groupDelay = (res[cnt].unwrappedPhase - res[cnt - 1].unwrappedPhase) / (1 / res.length);
       }
       res[0].unwrappedPhase = res[1].unwrappedPhase;
       res[0].phaseDelay = res[1].phaseDelay;
       res[0].groupDelay = res[1].groupDelay;
+    };
+
+    var predefinedResponse = function (def, length) {
+      var tempF = reinit();
+      var ret = {};
+      var input = [];
+      var cnt = 0;
+      for (cnt = 0; cnt < length; cnt++) {
+        input.push(def(cnt));
+      }
+      ret.out = calcInputResponse(input);
+      var maxFound = false;
+      var minFound = false;
+      for (cnt = 0; cnt < length - 1; cnt++) {
+        if (ret.out[cnt] > ret.out[cnt + 1] && !maxFound) {
+          maxFound = true;
+          ret.max = {
+            sample: cnt,
+            value: ret.out[cnt]
+          };
+        }
+        if (maxFound && !minFound && ret.out[cnt] < ret.out[cnt + 1]) {
+          minFound = true;
+          ret.min = {
+            sample: cnt,
+            value: ret.out[cnt]
+          };
+          break;
+        }
+      }
+      return ret;
     };
 
     var self = {
@@ -163,6 +199,20 @@
       },
       simulate: function (input) {
         return calcInputResponse(input);
+      },
+      stepResponse: function (length) {
+        return predefinedResponse(function (val) {
+          return 1;
+        }, length);
+      },
+      impulseResponse: function (length) {
+        return predefinedResponse(function (val) {
+          if (val === 0) {
+            return 1;
+          } else {
+            return 0;
+          }
+        }, length);
       },
       responsePoint: function (params) {
         return calcResponse(params);
