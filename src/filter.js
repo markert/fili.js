@@ -35,6 +35,10 @@
         re: s.a[1],
         im: 0
       };
+      cf[cnt].k = {
+        re: s.k,
+        im: 0
+      };
     }
     var complex = new Complex();
     var runStage = function (s, input) {
@@ -75,7 +79,7 @@
         im: Math.sin(theta)
       };
       // (b0 + b1*z^-1 + b2*z^-2) / (1 + a1*z^⁻1 + a2*z^-2)
-      var p = complex.add(s.b0, complex.mul(z, complex.add(s.b1, complex.mul(s.b2, z))));
+      var p = complex.mul(s.k, complex.add(s.b0, complex.mul(z, complex.add(s.b1, complex.mul(s.b2, z)))));
       var q = complex.add(cone, complex.mul(z, complex.add(s.a1, complex.mul(s.a2, z))));
       var h = complex.div(p, q);
       var res = {
