@@ -12,7 +12,7 @@ var coeffCalculator = new CalcCascades();
 // calculate filter coefficients
 var filterCoeffs = coeffCalculator.getCoefficients({
     order: 3, // cascade 3 biquad filters
-    characteristic: 'butterworth',
+    characteristic: 'butterworth', // 'bessel' also possible
     behavior: 'lowpass',
     Fs: 1000, // sampling frequency
     Fc: 100 // cutoff frequency
