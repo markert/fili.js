@@ -89,7 +89,7 @@
       var cnt = 0;
       var res = {
         magnitude: 1,
-        phase: 1
+        phase: 0
       };
       for (cnt = 0; cnt < cf.length; cnt++) {
         var r = biquadResponse(params, cf[cnt]);
@@ -97,9 +97,41 @@
         // H_casc(z) = H_0(z) * H_1(z) * ... * H_n(z)
         res.magnitude *= r.magnitude;
         // phase is wrapped -> unwrap before using
-        res.phase *= r.phase;
+        res.phase += r.phase;
       }
       return res;
+    };
+
+    var unwrapPhase = function (res) {
+      var xcnt = 0;
+      var cnt = 0;
+      var pi = Math.PI;
+      var tpi = 2 * pi;
+      var phase = [];
+      for (cnt = 0; cnt < res.length; cnt++) {
+        phase.push(res[cnt].phase);
+      }
+      for (cnt = 1; cnt < phase.length; cnt++) {
+        var diff = phase[cnt] - phase[cnt - 1];
+        if (diff > pi) {
+          for (xcnt = cnt; xcnt < phase.length; xcnt++) {
+            phase[xcnt] -= tpi;
+          }
+        } else if (diff < -pi) {
+          for (xcnt = cnt; xcnt < phase.length; xcnt++) {
+            phase[xcnt] += tpi;
+          }
+        }
+        if (phase[cnt] < 0) {
+          res[cnt].unwrappedPhase = -phase[cnt];
+        } else {
+          res[cnt].unwrappedPhase = phase[cnt];
+        }
+
+        res[cnt].phaseDelay = res[cnt].unwrappedPhase / (cnt / res.length);
+      }
+      res[0].unwrappedPhase = res[1].unwrappedPhase;
+      res[0].phaseDelay = res[1].phaseDelay;
     };
 
     var self = {
@@ -122,6 +154,7 @@
             Fr: cnt
           });
         }
+        unwrapPhase(res);
         return res;
       }
     };
