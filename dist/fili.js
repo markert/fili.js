@@ -1,12 +1,12 @@
-/*! fili 0.0.3 30-11-2014 */
+/*! fili 0.0.4 02-12-2014 */
 /*! Author: Florian Markert */
 /*! License: MIT */
-/* global CalcCoeffs, define */
+/* global IirCoeffs, define */
 /*jslint bitwise: true */
 (function (window) {
   'use strict';
 
-  var getCoeffs = new CalcCoeffs();
+  var getCoeffs = new IirCoeffs();
   var table = {
     bessel: {
       q: [
@@ -34,22 +34,34 @@
     }
   };
 
+  var calcCoeffs = function (params, behavior) {
+    var filter = [];
+    var cnt = 0;
+    if (params.order > 3) {
+      params.order = 3;
+    }
+    for (cnt = 0; cnt < params.order; cnt++) {
+      filter.push(getCoeffs[behavior]({
+        Fs: params.Fs,
+        Fc: params.Fc * table[params.characteristic].f[params.order - 1][cnt],
+        Q: table[params.characteristic].q[params.order - 1][cnt],
+        preGain: params.preGain || false
+      }));
+    }
+    return filter;
+  };
+
   var CalcCascades = function () {
     var cnt = 0;
     var self = {
-      getCoefficients: function (params) {
-        var filter = [];
-        if (params.order > 3) {
-          params.order = 3;
-        }
-        for (cnt = 0; cnt < params.order; cnt++) {
-          filter.push(getCoeffs[params.behavior]({
-            Fs: params.Fs,
-            Fc: params.Fc * table[params.characteristic].f[params.order - 1][cnt],
-            Q: table[params.characteristic].q[params.order - 1][cnt]
-          }));
-        }
-        return filter;
+      lowpass: function (params) {
+        return calcCoeffs(params, 'lowpass');
+      },
+      highpass: function (params) {
+        return calcCoeffs(params, 'highpass');
+      },
+      notch: function (params) {
+        return calcCoeffs(params, 'notch');
       }
     };
     return self;
@@ -60,81 +72,6 @@
     window.CalcCascades = CalcCascades;
     if (typeof define === 'function' && define.amd) {
       define(CalcCascades);
-    }
-  }
-})(window);
-;/* global define */
-/*jslint bitwise: true */
-(function (window) {
-  'use strict';
-
-  var CalcCoeffs = function () {
-    var preCalc = function (params, coeffs) {
-      var Q = params.Q,
-        Fc = params.Fc,
-        Fs = params.Fs;
-      var pre = {};
-      var w = 2 * Math.PI * Fc / Fs;
-      pre.alpha = Math.sin(w) / (2 * Q);
-      pre.cw = Math.cos(w);
-      pre.a0 = 1 + pre.alpha;
-      coeffs.a0 = pre.a0;
-      coeffs.a.push((-2 * pre.cw) / pre.a0);
-      coeffs.a.push((1 - pre.alpha) / pre.a0);
-      return pre;
-    };
-    var initCoeffs = function () {
-      var coeffs = {};
-      coeffs.z = [0, 0];
-      coeffs.a = [];
-      coeffs.b = [];
-      coeffs.k = 1;
-      return coeffs;
-    };
-    var self = {
-      lowpass: function (params) {
-        var coeffs = initCoeffs();
-        var p = preCalc(params, coeffs);
-        coeffs.b.push((1 - p.cw) / (2 * p.a0));
-        coeffs.b.push(2 * coeffs.b[0]);
-        coeffs.b.push(coeffs.b[0]);
-        // coeffs.omegaMax = Math.pow((Math.PI * (params.Fc / params.Fs)), 2) * (1 - (1 / (2 * Math.pow(params.Q, 2))));
-        // coeffs.ampMax = (Math.abs(coeffs.a0) * params.Q) / (Math.pow((Math.PI * (params.Fc / params.Fs)), 2) * Math.sqrt(1 - (1 / (4 * Math.pow(params.Q, 2)))));
-        return coeffs;
-      },
-      highpass: function (params) {
-        var coeffs = initCoeffs();
-        var p = preCalc(params, coeffs);
-        coeffs.b.push((1 + p.cw) / (2 * p.a0));
-        coeffs.b.push(-2 * coeffs.b[0]);
-        coeffs.b.push(coeffs.b[0]);
-        return coeffs;
-      },
-      notch: function (params) {
-        var coeffs = initCoeffs();
-        preCalc(params, coeffs);
-        coeffs.b.push(1);
-        coeffs.b.push(-2 * coeffs.b[0]);
-        coeffs.b.push(coeffs.b[0]);
-        return coeffs;
-      },
-      bandpass: function (params) {
-        var coeffs = initCoeffs();
-        var p = preCalc(params, coeffs);
-        coeffs.b.push(p.alpha * params.Q);
-        coeffs.b.push(0);
-        coeffs.b.push(coeffs.b[0]);
-        return coeffs;
-      }
-    };
-    return self;
-  };
-  if (typeof module === 'object' && module && typeof module.exports === 'object') {
-    module.exports = CalcCoeffs;
-  } else {
-    window.CalcCoeffs = CalcCoeffs;
-    if (typeof define === 'function' && define.amd) {
-      define(CalcCoeffs);
     }
   }
 })(window);
@@ -201,317 +138,244 @@
     }
   }
 })(window);
-;var FFT = (function () {
-  /* global define */
+;/* global define */
+/*jslint bitwise: true */
+(function (window) {
   'use strict';
 
-  var FFT = function () {
-      initialize.apply(this, arguments);
-    },
-    $this = FFT.prototype;
-
-  var FFT_PARAMS = {
-    get: function (n) {
-      return FFT_PARAMS[n] || (function () {
-        /* jshint bitwise: false */
-        var bitrev = (function () {
-          var x, i, j, k, n2;
-          x = new Int32Array(n);
-          n2 = n >> 1;
-          i = j = 0;
-          for (;;) {
-            x[i] = j;
-            if (++i >= n) {
-              break;
-            }
-            k = n2;
-            while (k <= j) {
-              j -= k;
-              k >>= 1;
-            }
-            j += k;
-          }
-          return x;
-        }());
-        var i, k = Math.floor(Math.log(n) / Math.LN2);
-        var sintable = new Float64Array((1 << k) - 1);
-        var costable = new Float64Array((1 << k) - 1);
-        var PI2 = Math.PI * 2;
-
-        for (i = sintable.length; i--;) {
-          sintable[i] = Math.sin(PI2 * (i / n));
-          costable[i] = Math.cos(PI2 * (i / n));
+  var FirCoeffs = function () {
+    // note: coefficients are equal to impulse response
+    var calcImpulseResponse = function (params) {
+      var Fs = params.Fs,
+        Fc = params.Fc,
+        o = params.order;
+      var omega = 2 * Math.PI * Fc / Fs;
+      var cnt = 0;
+      var dc = 0;
+      var ret = [];
+      // sinc function is considered to be
+      // the ideal impulse response
+      // do an idft and use Hamming window afterwards
+      for (cnt = 0; cnt <= o; cnt++) {
+        if (cnt - o / 2 === 0) {
+          ret[cnt] = omega;
+        } else {
+          ret[cnt] = Math.sin(omega * (cnt - o / 2)) / (cnt - o / 2);
+          // Hamming window                
+          ret[cnt] *= (0.54 - 0.46 * Math.cos(2 * Math.PI * cnt / o));
         }
-        FFT_PARAMS[n] = {
-          bitrev: bitrev,
-          sintable: sintable,
-          costable: costable
-        };
-        return FFT_PARAMS[n];
-      }());
-    }
-  };
-
-  var initialize = function (n) {
-    /* jshint bitwise: false */
-    n = (typeof n === 'number') ? n : 512;
-    n = 1 << Math.ceil(Math.log(n) * Math.LOG2E);
-
-    this.length = n;
-    this.buffer = new Float64Array(n);
-    this.real = new Float64Array(n);
-    this.imag = new Float64Array(n);
-    this._real = new Float64Array(n);
-    this._imag = new Float64Array(n);
-
-    var params = FFT_PARAMS.get(n);
-    this._bitrev = params.bitrev;
-    this._sintable = params.sintable;
-    this._costable = params.costable;
-  };
-
-  $this.forward = function (_buffer, wf) {
-    var buffer, real, imag, bitrev, sintable, costable, window;
-    var i, j, n, k, k2, h, d, c, s, ik, dx, dy;
-    var winObj = {};
-
-    buffer = this.buffer;
-    real = this.real;
-    imag = this.imag;
-    bitrev = this._bitrev;
-    sintable = this._sintable;
-    window = this._window;
-    costable = this._costable;
-    n = buffer.length;
-    winObj.name = wf;
-    winObj.N = n;
-    winObj.a = 0.5;
-    winObj.n = 0;
-    var win = this.windowFunctions(winObj);
-    if (typeof win === 'number') {
-      for (i = 0; i < n; ++i) {
-        winObj.n = i;
-        buffer[i] = _buffer[i] * this.windowFunctions(winObj);
+        dc = dc + ret[cnt];
       }
-    } else {
-      for (i = 0; i < n; ++i) {
-        buffer[i] = _buffer[i] * win[i];
+      // normalize
+      for (cnt = 0; cnt <= o; cnt++) {
+        ret[cnt] /= dc;
       }
-    }
-
-    for (i = n; i--;) {
-      real[i] = buffer[bitrev[i]];
-      imag[i] = 0.0;
-    }
-
-    for (k = 1; k < n; k = k2) {
-      h = 0;
-      k2 = k + k;
-      d = n / k2;
-      for (j = 0; j < k; j++) {
-        c = costable[h];
-        s = sintable[h];
-        for (i = j; i < n; i += k2) {
-          ik = i + k;
-          dx = s * imag[ik] + c * real[ik];
-          dy = c * imag[ik] - s * real[ik];
-          real[ik] = real[i] - dx;
-          real[i] += dx;
-          imag[ik] = imag[i] - dy;
-          imag[i] += dy;
-        }
-        h += d;
-      }
-    }
-    return {
-      real: real,
-      imag: imag
+      return ret;
     };
-  };
-
-  $this.inverse = function (_real, _imag) {
-    var buffer, real, imag, bitrev, sintable, costable;
-    var i, j, n, k, k2, h, d, c, s, ik, dx, dy;
-
-    buffer = this.buffer;
-    real = this._real;
-    imag = this._imag;
-    bitrev = this._bitrev;
-    sintable = this._sintable;
-    costable = this._costable;
-    n = buffer.length;
-
-    for (i = n; i--;) {
-      j = bitrev[i];
-      real[i] = +_real[j];
-      imag[i] = -_imag[j];
-    }
-
-    for (k = 1; k < n; k = k2) {
-      h = 0;
-      k2 = k + k;
-      d = n / k2;
-      for (j = 0; j < k; j++) {
-        c = costable[h];
-        s = sintable[h];
-        for (i = j; i < n; i += k2) {
-          ik = i + k;
-          dx = s * imag[ik] + c * real[ik];
-          dy = c * imag[ik] - s * real[ik];
-          real[ik] = real[i] - dx;
-          real[i] += dx;
-          imag[ik] = imag[i] - dy;
-          imag[i] += dy;
-        }
-        h += d;
+    // invert for highpass from lowpass
+    var invert = function (h) {
+      var cnt;
+      for (cnt = 0; cnt < h.length; cnt++) {
+        h[cnt] = -h[cnt];
       }
-    }
-
-    for (i = n; i--;) {
-      buffer[i] = real[i] / n;
-    }
-    return buffer;
-  };
-
-  var WindowFunctions = (function () {
-    var PI = Math.PI;
-    var PI2 = Math.PI * 2;
-    var abs = Math.abs;
-    var pow = Math.pow;
-    var cos = Math.cos;
-    var sin = Math.sin;
-    var sinc = function (x) {
-      return sin(PI * x) / (PI * x);
+      h[(h.length - 1) / 2] ++;
+      return h;
     };
-    var E = Math.E;
-
-    var windowCalculation = {
-      rectangular: {
-        calc: function () {
-          return 1;
-        },
-        values: [],
-        correction: 1
+    var self = {
+      lowpass: function (params) {
+        return calcImpulseResponse(params);
       },
-      none: {
-        calc: function () {
-          return 1;
-        },
-        values: [],
-        correction: 1
-      },
-      hann: {
-        calc: function (n, N) {
-          return 0.5 * (1 - cos((PI2 * n) / (N - 1)));
-        },
-        values: [],
-        correction: 2
-      },
-      hamming: {
-        calc: function (n, N) {
-          return 0.54 - 0.46 * cos((PI2 * n) / (N - 1));
-        },
-        values: [],
-        correction: 1.8518999946875638
-      },
-      tukery: {
-        calc: function (n, N, a) {
-          if (n < (a * (N - 1)) / 2) {
-            return 0.5 * (1 + cos(PI * (((2 * n) / (a * (N - 1))) - 1)));
-          } else if ((N - 1) * (1 - (a / 2)) < n) {
-            return 0.5 * (1 + cos(PI * (((2 * n) / (a * (N - 1))) - (2 / a) + 1)));
-          } else {
-            return 1;
-          }
-        },
-        values: [],
-        correction: 4 / 3
-      },
-      cosine: {
-        calc: function (n, N) {
-          return sin((PI * n) / (N - 1));
-        },
-        values: [],
-        correction: 1.570844266360796
-      },
-      lanczos: {
-        calc: function (n, N) {
-          return sinc(((2 * n) / (N - 1)) - 1);
-        },
-        values: [],
-        correction: 1.6964337576195783
-      },
-      triangular: {
-        calc: function (n, N) {
-          return (2 / (N + 1)) * (((N + 1) / 2) - abs(n - ((N - 1) / 2)));
-        },
-        values: [],
-        correction: 2
-      },
-      bartlett: {
-        calc: function (n, N) {
-          return (2 / (N - 1)) * (((N - 1) / 2) - abs(n - ((N - 1) / 2)));
-        },
-        values: [],
-        correction: 2
-      },
-      gaussian: {
-        calc: function (n, N, a) {
-          return pow(E, -0.5 * pow((n - (N - 1) / 2) / (a * (N - 1) / 2), 2));
-        },
-        values: [],
-        correction: 5 / 3
-      },
-      bartlettHann: {
-        calc: function (n, N) {
-          return 0.62 - 0.48 * abs((n / (N - 1)) - 0.5) - 0.38 * cos((PI2 * n) / (N - 1));
-        },
-        values: [],
-        correction: 2
-      },
-      blackman: {
-        calc: function (n, N, a) {
-          var a0 = (1 - a) / 2,
-            a1 = 0.5,
-            a2 = a / 2;
-          return a0 - a1 * cos((PI2 * n) / (N - 1)) + a2 * cos((4 * PI * n) / (N - 1));
-        },
-        values: [],
-        correction: 4 / 3
+      highpass: function (params) {
+        return invert(calcImpulseResponse(params));
       }
     };
+    return self;
+  };
 
-    var getValue = function (params) {
-      if (windowCalculation[params.name].values.length !== params.N) {
-        if (params.n === 0) {
-          windowCalculation[params.name].values.length = 0;
-        }
-        windowCalculation[params.name].values[params.n] = windowCalculation[params.name].correction * windowCalculation[params.name].calc(params.n, params.N, params.a);
-        return windowCalculation[params.name].values[params.n];
-      }
-      return windowCalculation[params.name].values;
-    };
-    return getValue;
-  }());
-
-  $this.windowFunctions = WindowFunctions;
-
-  if (typeof define === 'function' && define.amd) {
-    define(FFT);
-  } else if (typeof module === 'object' && module.exports) {
-    module.exports = FFT;
+  if (typeof module === 'object' && module && typeof module.exports === 'object') {
+    module.exports = FirCoeffs;
   } else {
-    return FFT;
+    window.FirCoeffs = FirCoeffs;
+    if (typeof define === 'function' && define.amd) {
+      define(FirCoeffs);
+    }
   }
-}());
-;/* global define, Complex */
+})(window);
+;/* global define, evaluatePhase */
+/*jslint bitwise: true */
+(function (window) {
+  'use strict';
+
+  var FirFilter = function (filter) {
+    // note: coefficients are equal to input response
+    var f = filter;
+    var initZero = function (cnt) {
+      var r = [];
+      for (cnt = 0; cnt < cnt; cnt++) {
+        r.push(0);
+      }
+      return r;
+    };
+    var z = initZero(f.length - 1);
+    var cnt = 0;
+    var doStep = function (input, d) {};
+
+    var re = [];
+    var im = [];
+    var dft = function (coeffs) {
+      re.length = 0;
+      im.length = 0;
+      var ret = [];
+      var n = coeffs.length;
+      var half = n / 2;
+      var cnt = 0;
+      var k = 0;
+      var c = 2 * Math.PI / n;
+      for (k = 0; k <= half; k++) {
+        re[k] = 0;
+        im[k] = 0;
+      }
+      for (k = 0; k <= half; k++) {
+        for (cnt = 0; cnt < n; cnt++) {
+          re[k] += coeffs[cnt] * Math.cos(c * k * cnt);
+          im[k] -= coeffs[cnt] * Math.sin(c * k * cnt);
+        }
+        ret[k] = {};
+        ret[k].magnitude = Math.sqrt(re[k] * re[k] + im[k] * im[k]);
+        ret[k].dBmagnitude = 20 * Math.log(ret[k].magnitude) * Math.LOG10E;
+        if (re[k] === 0) {
+          re[k] = -Number.MAX_VALUE;
+        }
+        ret[k].phase = Math.atan2(re[k], im[k]);
+      }
+      return ret;
+    };
+    var self = {
+      response: function () {
+        var input = [];
+        var cnt = 0;
+        for (cnt = 0; cnt < f.length * 2; cnt++) {
+          if (f[cnt]) {
+            input.push(f[cnt]);
+          } else {
+            input.push(0);
+          }
+        }
+        var res = dft(input);
+        evaluatePhase(res);
+        return res;
+      },
+      singleStep: function (input) {
+
+      },
+      multiStep: function (input) {
+
+      }
+    };
+    return self;
+  };
+
+  if (typeof module === 'object' && module && typeof module.exports === 'object') {
+    module.exports = FirFilter;
+  } else {
+    window.FirFilter = FirFilter;
+    if (typeof define === 'function' && define.amd) {
+      define(FirFilter);
+    }
+  }
+})(window);
+;/* global define */
+/*jslint bitwise: true */
+(function (window) {
+  'use strict';
+
+  var IirCoeffs = function () {
+    var preCalc = function (params, coeffs) {
+      var Q = params.Q,
+        Fc = params.Fc,
+        Fs = params.Fs;
+      var pre = {};
+      var w = 2 * Math.PI * Fc / Fs;
+      pre.alpha = Math.sin(w) / (2 * Q);
+      pre.cw = Math.cos(w);
+      pre.a0 = 1 + pre.alpha;
+      coeffs.a0 = pre.a0;
+      coeffs.a.push((-2 * pre.cw) / pre.a0);
+      coeffs.a.push((1 - pre.alpha) / pre.a0);
+      return pre;
+    };
+    var initCoeffs = function () {
+      var coeffs = {};
+      coeffs.z = [0, 0];
+      coeffs.a = [];
+      coeffs.b = [];
+      return coeffs;
+    };
+    var self = {
+      lowpass: function (params) {
+        var coeffs = initCoeffs();
+        var p = preCalc(params, coeffs);
+        if (params.preGain) {
+          coeffs.k = (1 - p.cw) * 0.5;
+          coeffs.b.push(1 / (p.a0));
+        } else {
+          coeffs.k = 1;
+          coeffs.b.push((1 - p.cw) / (2 * p.a0));
+        }
+        coeffs.b.push(2 * coeffs.b[0]);
+        coeffs.b.push(coeffs.b[0]);
+        return coeffs;
+      },
+      highpass: function (params) {
+        var coeffs = initCoeffs();
+        var p = preCalc(params, coeffs);
+        if (params.preGain) {
+          coeffs.k = (1 + p.cw) * 0.5;
+          coeffs.b.push(1 / (p.a0));
+        } else {
+          coeffs.k = 1;
+          coeffs.b.push((1 + p.cw) / (2 * p.a0));
+        }
+        coeffs.b.push(-2 * coeffs.b[0]);
+        coeffs.b.push(coeffs.b[0]);
+        return coeffs;
+      },
+      notch: function (params) {
+        var coeffs = initCoeffs();
+        preCalc(params, coeffs);
+        coeffs.b.push(1);
+        coeffs.b.push(-2 * coeffs.b[0]);
+        coeffs.b.push(coeffs.b[0]);
+        return coeffs;
+      },
+      bandpass: function (params) {
+        var coeffs = initCoeffs();
+        var p = preCalc(params, coeffs);
+        coeffs.b.push(p.alpha * params.Q);
+        coeffs.b.push(0);
+        coeffs.b.push(coeffs.b[0]);
+        return coeffs;
+      }
+    };
+    return self;
+  };
+  if (typeof module === 'object' && module && typeof module.exports === 'object') {
+    module.exports = IirCoeffs;
+  } else {
+    window.IirCoeffs = IirCoeffs;
+    if (typeof define === 'function' && define.amd) {
+      define(IirCoeffs);
+    }
+  }
+})(window);
+;/* global define, Complex, evaluatePhase */
 /*jslint bitwise: true */
 (function (window) {
   'use strict';
 
   // params: array of biquad coefficient objects and z registers
   // stage structure e.g. {k:1, a:[1.1, -1.2], b:[0.3, -1.2, -0.4], z:[0, 0]}
-  var Filter = function (filter) {
+  var IirFilter = function (filter) {
     var f = filter;
     var cone = {
       re: 1,
@@ -541,6 +405,10 @@
         re: s.a[1],
         im: 0
       };
+      cf[cnt].k = {
+        re: s.k,
+        im: 0
+      };
     }
     var complex = new Complex();
     var runStage = function (s, input) {
@@ -551,20 +419,20 @@
       return out;
     };
 
-    var runFilter = function (input) {
+    var runFilter = function (input, coeffs) {
       var out = input;
       var cnt = 0;
-      for (cnt = 0; cnt < f.length; cnt++) {
-        out = runStage(f[cnt], out);
+      for (cnt = 0; cnt < coeffs.length; cnt++) {
+        out = runStage(coeffs[cnt], out);
       }
       return out;
     };
 
-    var runMultiFilter = function (input) {
+    var runMultiFilter = function (input, coeffs) {
       var cnt = 0;
       var out = [];
       for (cnt = 0; cnt < input.length; cnt++) {
-        out.push(runFilter(input[cnt]));
+        out.push(runFilter(input[cnt], coeffs));
       }
       return out;
     };
@@ -580,8 +448,8 @@
         re: Math.cos(theta),
         im: Math.sin(theta)
       };
-      // (b0 + b1*z^-1 + b2*z^-2) / (1 + a1*z^⁻1 + a2*z^-2)
-      var p = complex.add(s.b0, complex.mul(z, complex.add(s.b1, complex.mul(s.b2, z))));
+      // k * (b0 + b1*z^-1 + b2*z^-2) / (1 + a1*z^⁻1 + a2*z^-2)
+      var p = complex.mul(s.k, complex.add(s.b0, complex.mul(z, complex.add(s.b1, complex.mul(s.b2, z)))));
       var q = complex.add(cone, complex.mul(z, complex.add(s.a1, complex.mul(s.a2, z))));
       var h = complex.div(p, q);
       var res = {
@@ -595,7 +463,7 @@
       var cnt = 0;
       var res = {
         magnitude: 1,
-        phase: 1
+        phase: 0
       };
       for (cnt = 0; cnt < cf.length; cnt++) {
         var r = biquadResponse(params, cf[cnt]);
@@ -603,17 +471,83 @@
         // H_casc(z) = H_0(z) * H_1(z) * ... * H_n(z)
         res.magnitude *= r.magnitude;
         // phase is wrapped -> unwrap before using
-        res.phase *= r.phase;
+        res.phase += r.phase;
       }
+      res.dBmagnitude = 20 * Math.log(res.magnitude) * Math.LOG10E;
       return res;
+    };
+
+    var reinit = function () {
+      var tempF = [];
+      for (var cnt = 0; cnt < f.length; cnt++) {
+        tempF[cnt] = {
+          a: [f[cnt].a[0], f[cnt].a[1]],
+          b: [f[cnt].b[0], f[cnt].b[1], f[cnt].b[2]],
+          k: f[cnt].k,
+          z: [0, 0]
+        };
+      }
+      return tempF;
+    };
+
+    var calcInputResponse = function (input) {
+      var tempF = reinit();
+      return runMultiFilter(input, tempF);
+    };
+
+    var predefinedResponse = function (def, length) {
+      var ret = {};
+      var input = [];
+      var cnt = 0;
+      for (cnt = 0; cnt < length; cnt++) {
+        input.push(def(cnt));
+      }
+      ret.out = calcInputResponse(input);
+      var maxFound = false;
+      var minFound = false;
+      for (cnt = 0; cnt < length - 1; cnt++) {
+        if (ret.out[cnt] > ret.out[cnt + 1] && !maxFound) {
+          maxFound = true;
+          ret.max = {
+            sample: cnt,
+            value: ret.out[cnt]
+          };
+        }
+        if (maxFound && !minFound && ret.out[cnt] < ret.out[cnt + 1]) {
+          minFound = true;
+          ret.min = {
+            sample: cnt,
+            value: ret.out[cnt]
+          };
+          break;
+        }
+      }
+      return ret;
     };
 
     var self = {
       singleStep: function (input) {
-        return runFilter(input);
+        return runFilter(input, f);
       },
       multiStep: function (input) {
-        return runMultiFilter(input);
+        return runMultiFilter(input, f);
+      },
+      simulate: function (input) {
+        return calcInputResponse(input);
+      },
+      stepResponse: function (length) {
+        return predefinedResponse(function () {
+          return 1;
+        }, length);
+      },
+      impulseResponse: function (length) {
+        return predefinedResponse(function (val) {
+          if (val === 0) {
+            return 1;
+          } else {
+            return 0;
+          }
+        }, length);
       },
       responsePoint: function (params) {
         return calcResponse(params);
@@ -628,17 +562,54 @@
             Fr: cnt
           });
         }
+        evaluatePhase(res);
         return res;
       }
     };
     return self;
   };
   if (typeof module === 'object' && module && typeof module.exports === 'object') {
-    module.exports = Filter;
+    module.exports = IirFilter;
   } else {
-    window.Filter = Filter;
+    window.IirFilter = IirFilter;
     if (typeof define === 'function' && define.amd) {
-      define(Filter);
+      define(IirFilter);
     }
   }
 })(window);
+;  'use strict';
+
+  var evaluatePhase = function (res) {
+    var xcnt = 0;
+    var cnt = 0;
+    var pi = Math.PI;
+    var tpi = 2 * pi;
+    var phase = [];
+    for (cnt = 0; cnt < res.length; cnt++) {
+      phase.push(res[cnt].phase);
+    }
+    res[0].unwrappedPhase = res[1].unwrappedPhase;
+    for (cnt = 1; cnt < phase.length; cnt++) {
+      var diff = phase[cnt] - phase[cnt - 1];
+      if (diff > pi) {
+        for (xcnt = cnt; xcnt < phase.length; xcnt++) {
+          phase[xcnt] -= tpi;
+        }
+      } else if (diff < -pi) {
+        for (xcnt = cnt; xcnt < phase.length; xcnt++) {
+          phase[xcnt] += tpi;
+        }
+      }
+      if (phase[cnt] < 0) {
+        res[cnt].unwrappedPhase = -phase[cnt];
+      } else {
+        res[cnt].unwrappedPhase = phase[cnt];
+      }
+
+      res[cnt].phaseDelay = res[cnt].unwrappedPhase / (cnt / res.length);
+      res[cnt].groupDelay = (res[cnt].unwrappedPhase - res[cnt - 1].unwrappedPhase) / (1 / res.length);
+    }
+    res[0].unwrappedPhase = res[1].unwrappedPhase;
+    res[0].phaseDelay = res[1].phaseDelay;
+    res[0].groupDelay = res[1].groupDelay;
+  };
