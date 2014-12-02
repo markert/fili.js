@@ -31,23 +31,34 @@
     }
   };
 
+  var calcCoeffs = function (params, behavior) {
+    var filter = [];
+    var cnt = 0;
+    if (params.order > 3) {
+      params.order = 3;
+    }
+    for (cnt = 0; cnt < params.order; cnt++) {
+      filter.push(getCoeffs[behavior]({
+        Fs: params.Fs,
+        Fc: params.Fc * table[params.characteristic].f[params.order - 1][cnt],
+        Q: table[params.characteristic].q[params.order - 1][cnt],
+        preGain: params.preGain || false
+      }));
+    }
+    return filter;
+  };
+
   var CalcCascades = function () {
     var cnt = 0;
     var self = {
-      getCoefficients: function (params) {
-        var filter = [];
-        if (params.order > 3) {
-          params.order = 3;
-        }
-        for (cnt = 0; cnt < params.order; cnt++) {
-          filter.push(getCoeffs[params.behavior]({
-            Fs: params.Fs,
-            Fc: params.Fc * table[params.characteristic].f[params.order - 1][cnt],
-            Q: table[params.characteristic].q[params.order - 1][cnt],
-            preGain: params.preGain || false
-          }));
-        }
-        return filter;
+      lowpass: function (params) {
+        return calcCoeffs(params, 'lowpass');
+      },
+      highpass: function (params) {
+        return calcCoeffs(params, 'highpass');
+      },
+      notch: function (params) {
+        return calcCoeffs(params, 'notch');
       }
     };
     return self;
