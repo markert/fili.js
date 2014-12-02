@@ -3,7 +3,7 @@
 (function (window) {
   'use strict';
 
-  var CalcCoeffs = function () {
+  var IirCoeffs = function () {
     var preCalc = function (params, coeffs) {
       var Q = params.Q,
         Fc = params.Fc,
@@ -74,11 +74,11 @@
     return self;
   };
   if (typeof module === 'object' && module && typeof module.exports === 'object') {
-    module.exports = CalcCoeffs;
+    module.exports = IirCoeffs;
   } else {
-    window.CalcCoeffs = CalcCoeffs;
+    window.IirCoeffs = IirCoeffs;
     if (typeof define === 'function' && define.amd) {
-      define(CalcCoeffs);
+      define(IirCoeffs);
     }
   }
 })(window);

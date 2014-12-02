@@ -5,7 +5,7 @@
 
   // params: array of biquad coefficient objects and z registers
   // stage structure e.g. {k:1, a:[1.1, -1.2], b:[0.3, -1.2, -0.4], z:[0, 0]}
-  var Filter = function (filter) {
+  var IirFilter = function (filter) {
     var f = filter;
     var cone = {
       re: 1,
@@ -199,11 +199,11 @@
     return self;
   };
   if (typeof module === 'object' && module && typeof module.exports === 'object') {
-    module.exports = Filter;
+    module.exports = IirFilter;
   } else {
-    window.Filter = Filter;
+    window.IirFilter = IirFilter;
     if (typeof define === 'function' && define.amd) {
-      define(Filter);
+      define(IirFilter);
     }
   }
 })(window);

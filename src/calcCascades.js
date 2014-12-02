@@ -1,9 +1,9 @@
-/* global CalcCoeffs, define */
+/* global IirCoeffs, define */
 /*jslint bitwise: true */
 (function (window) {
   'use strict';
 
-  var getCoeffs = new CalcCoeffs();
+  var getCoeffs = new IirCoeffs();
   var table = {
     bessel: {
       q: [
