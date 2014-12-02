@@ -10,16 +10,29 @@ $(document).ready(function () {
   var beir = document.getElementById('beir_val');
   var sim = document.getElementById('f_sim');
 
+  var inval = document.getElementById('in_val');
+  var run = document.getElementById('f_run');
+
   fs.value = 1000;
   fc.value = 100;
   io.value = 3;
   fo.value = 100;
   beir.value = 20;
   buir.value = 40;
+  inval.value = 1;
+
+  var besselOut = [];
+  var butterworthOut = [];
+  var iirCalculator = new CalcCascades();
+  var firCalculator = new FirCoeffs();
+  var filterBessel, filterButterworth, filterFir;
+  var runCounter = 0;
 
   sim.onclick = function () {
-    var iirCalculator = new CalcCascades();
-    var firCalculator = new FirCoeffs();
+
+    besselOut.length = 0;
+    butterworthOut.length = 0;
+    runCounter = 0;
 
     var coeffsBessel = iirCalculator.lowpass({
       order: io.value,
@@ -41,9 +54,9 @@ $(document).ready(function () {
       Fc: fc.value
     });
 
-    var filterBessel = new IirFilter(coeffsBessel);
-    var filterButterworth = new IirFilter(coeffsButterworth);
-    var filterFir = new FirFilter(coeffsFir);
+    filterBessel = new IirFilter(coeffsBessel);
+    filterButterworth = new IirFilter(coeffsButterworth);
+    filterFir = new FirFilter(coeffsFir);
     var cnt = 0;
     var iirBeRe = filterBessel.response(480);
     var iirBeReMag = [];
@@ -128,6 +141,28 @@ $(document).ready(function () {
       color: '#0000FF'
     }]);
   };
+
+  run.onclick = function () {
+    besselOut.push([runCounter, filterBessel.singleStep(parseFloat(inval.value))]);
+    butterworthOut.push([runCounter, filterButterworth.singleStep(parseFloat(inval.value))]);
+    runCounter++;
+    $.plot($('#berun'), [{
+      data: besselOut,
+      color: '#FF00FF'
+    }]);
+    $.plot($('#burun'), [{
+      data: butterworthOut,
+      color: '#00FFFF'
+    }]);
+  };
+  $.plot($('#berun'), [{
+    data: besselOut,
+    color: '#FF00FF'
+  }]);
+  $.plot($('#burun'), [{
+    data: butterworthOut,
+    color: '#00FFFF'
+  }]);
 
   sim.click();
 
