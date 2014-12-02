@@ -49,7 +49,6 @@
   };
 
   var CalcCascades = function () {
-    var cnt = 0;
     var self = {
       lowpass: function (params) {
         return calcCoeffs(params, 'lowpass');
