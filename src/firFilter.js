@@ -6,6 +6,18 @@
   var FirFilter = function (filter) {
     // note: coefficients are equal to input response
     var f = filter;
+    var initZero = function(cnt) {
+        var r = [];
+    for (cnt = 0; cnt < cnt; cnt++) {
+        r.push(0);
+    }    
+    return r;
+    };
+    var z = initZero(f.length-1);
+    var cnt = 0;    
+    var doStep = function (input, d) {
+    };
+    
     var re = [];
     var im = [];
     var dft = function (coeffs) {
@@ -50,6 +62,12 @@
         var res = dft(input);
         evaluatePhase(res);
         return res;
+      },
+      singleStep: function (input) {
+          
+      },
+      multiStep: function (input) {
+          
       }
     };
     return self;
