@@ -3,20 +3,61 @@
 
 <head>
   <script src="jquery-1.11.1.min.js"></script>
+  <script src="jquery.flot.min.js"></script>
   <script src="../src/complex.js"></script>
-  <script src="../src/calcCoeffs.js"></script>
+  <script src="../src/iirCoeffs.js"></script>
+  <script src="../src/firCoeffs.js"></script>
+  <script src="../src/utils.js"></script>
   <script src="../src/calcCascades.js"></script>
-  <script src="../src/filter.js"></script>
+  <script src="../src/iirFilter.js"></script>
+  <script src="../src/firFilter.js"></script>
   <script src="src.js"></script>
 </head>
 
 <body>
 
-  Value:
-  <input id="f_val" type="text" name="fval">
+  Fs:
+  <input id="fs_val" type="text" name="fsval">
+  <br> Fc:
+  <input id="fc_val" type="text" name="fcval">
+  <br> IIR order:
+  <input id="iir_val" type="text" name="iirval">
+  <br> Bessel Impulse Response Length:
+  <input id="beir_val" type="text" name="beirval">
+  <br> Butterworth Impulse Response Length:
+  <input id="buir_val" type="text" name="beirval">
+  <br> FIR order:
+  <input id="fir_val" type="text" name="firval">
+  <br>
   <br>Simulate
   <input id="f_sim" type="button" value="sim">
-  <br><span id="f_coeffs"> 0 </span>
+  <br>
+  <br>IIR Bessel Magnitude
+  <div id="iirmag" style="width:600px;height:300px;"></div>
+  <br>
+  <br>IIR Bessel Group Delay
+  <div id="iirgroup" style="width:600px;height:300px;"></div>
+  <br>
+  <br>IIR Bessel Impulse Response
+  <div id="iirimp" style="width:600px;height:300px;"></div>
+  <br>
+  <br>IIR Butterworth Magnitude
+  <div id="iirbmag" style="width:600px;height:300px;"></div>
+  <br>
+  <br>IIR Butterworth Group Delay
+  <div id="iirbgroup" style="width:600px;height:300px;"></div>
+  <br>
+  <br>IIR Butterworth Impulse Response
+  <div id="iirbimp" style="width:600px;height:300px;"></div>
+  <br>
+  <br>FIR Magnitude (dB)
+  <div id="firmag" style="width:600px;height:300px;"></div>
+  <br>
+  <br>FIR Group Delay
+  <div id="firgroup" style="width:600px;height:300px;"></div>
+  <br>
+  <br>FIR Impulse Response
+  <div id="firimp" style="width:600px;height:300px;"></div>
   <br><span id="f_res"> 0 </span>
 
   <br>
