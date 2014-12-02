@@ -23,6 +23,7 @@ $(document).ready(function () {
 
   var besselOut = [];
   var butterworthOut = [];
+  var unfilteredOut = [];
   var iirCalculator = new CalcCascades();
   var firCalculator = new FirCoeffs();
   var filterBessel, filterButterworth, filterFir;
@@ -32,6 +33,7 @@ $(document).ready(function () {
 
     besselOut.length = 0;
     butterworthOut.length = 0;
+    unfilteredOut.length = 0;
     runCounter = 0;
 
     var coeffsBessel = iirCalculator.lowpass({
@@ -145,23 +147,34 @@ $(document).ready(function () {
   run.onclick = function () {
     besselOut.push([runCounter, filterBessel.singleStep(parseFloat(inval.value))]);
     butterworthOut.push([runCounter, filterButterworth.singleStep(parseFloat(inval.value))]);
+    unfilteredOut.push([runCounter, parseFloat(inval.value)]);
     runCounter++;
-    $.plot($('#berun'), [{
+    $.plot($('#unrun'), [{
+      data: unfilteredOut,
+      color: '#FFFF00',
+      label: 'original'
+    }, {
       data: besselOut,
-      color: '#FF00FF'
-    }]);
-    $.plot($('#burun'), [{
+      color: '#FF0000',
+      label: 'bessel'
+    }, {
       data: butterworthOut,
-      color: '#00FFFF'
+      color: '#00FF00',
+      label: 'butterworth'
     }]);
   };
-  $.plot($('#berun'), [{
+  $.plot($('#unrun'), [{
+    data: unfilteredOut,
+    color: '#FFFF00',
+    label: 'original'
+  }, {
     data: besselOut,
-    color: '#FF00FF'
-  }]);
-  $.plot($('#burun'), [{
+    color: '#FF0000',
+    label: 'bessel'
+  }, {
     data: butterworthOut,
-    color: '#00FFFF'
+    color: '#00FF00',
+    label: 'butterworth'
   }]);
 
   sim.click();
