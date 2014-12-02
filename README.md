@@ -10,10 +10,9 @@ Usage IIR Filters:
 var iirCalculator = new CalcCascades();
 
 // calculate filter coefficients
-var iirFilterCoeffs = iirCalculator.getCoefficients({
+var iirFilterCoeffs = iirCalculator.lowpass({
     order: 3, // cascade 3 biquad filters
     characteristic: 'butterworth', // 'bessel' also possible
-    behavior: 'lowpass',
     Fs: 1000, // sampling frequency
     Fc: 100 // cutoff frequency
   });
