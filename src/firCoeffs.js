@@ -4,7 +4,7 @@
   'use strict';
 
   var FirCoeffs = function () {
-    // note: coefficients are equal to input response
+    // note: coefficients are equal to impulse response
     var calcImpulseResponse = function (params) {
       var Fs = params.Fs,
         Fc = params.Fc,
@@ -13,6 +13,9 @@
       var cnt = 0;
       var dc = 0;
       var ret = [];
+      // sinc function is considered to be
+      // the ideal impulse response
+      // do an idft and use Hamming window afterwards
       for (cnt = 0; cnt < o; cnt++) {
         if (cnt - o / 2 === 0) {
           ret[cnt] = omega;
@@ -23,6 +26,7 @@
         }
         dc = dc + ret[cnt];
       }
+      // normalize
       for (cnt = 0; cnt < o; cnt++) {
         ret[cnt] /= dc;
       }
