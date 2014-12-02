@@ -63,7 +63,6 @@ var firFilter = new FirFilter(filterCoeffs);
 
 
 // get the filter impact on magnitude, phase, unwrapped phase, phase delay and group delay
-// returns array of n objects
-// Fs = 1000 n = 100, so the array represents 0Hz, 10Hz, 20Hz....
-var response = FirFilter.response(100);
+// returns array of filter order objects
+var response = FirFilter.response();
 ```
