@@ -16,7 +16,7 @@
       // sinc function is considered to be
       // the ideal impulse response
       // do an idft and use Hamming window afterwards
-      for (cnt = 0; cnt < o; cnt++) {
+      for (cnt = 0; cnt <= o; cnt++) {
         if (cnt - o / 2 === 0) {
           ret[cnt] = omega;
         } else {
@@ -27,7 +27,7 @@
         dc = dc + ret[cnt];
       }
       // normalize
-      for (cnt = 0; cnt < o; cnt++) {
+      for (cnt = 0; cnt <= o; cnt++) {
         ret[cnt] /= dc;
       }
       return ret;
