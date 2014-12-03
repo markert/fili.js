@@ -30,7 +30,7 @@
       }
 
       res[cnt].phaseDelay = res[cnt].unwrappedPhase / (cnt / res.length);
-      res[cnt].groupDelay = (res[cnt].unwrappedPhase - res[cnt - 1].unwrappedPhase) / (1 / res.length);
+      res[cnt].groupDelay = (res[cnt].unwrappedPhase - res[cnt - 1].unwrappedPhase) / (pi / res.length);
     }
     res[0].phaseDelay = res[1].phaseDelay;
     res[0].groupDelay = res[1].groupDelay;
