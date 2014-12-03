@@ -23,6 +23,7 @@ $(document).ready(function () {
 
   var besselOut = [];
   var butterworthOut = [];
+  var firOut = [];
   var unfilteredOut = [];
   var iirCalculator = new CalcCascades();
   var firCalculator = new FirCoeffs();
@@ -33,6 +34,7 @@ $(document).ready(function () {
 
     besselOut.length = 0;
     butterworthOut.length = 0;
+    firOut.length = 0;
     unfilteredOut.length = 0;
     runCounter = 0;
 
@@ -147,20 +149,25 @@ $(document).ready(function () {
   run.onclick = function () {
     besselOut.push([runCounter, filterBessel.singleStep(parseFloat(inval.value))]);
     butterworthOut.push([runCounter, filterButterworth.singleStep(parseFloat(inval.value))]);
+    firOut.push([runCounter, filterFir.singleStep(parseFloat(inval.value))]);
     unfilteredOut.push([runCounter, parseFloat(inval.value)]);
     runCounter++;
     $.plot($('#unrun'), [{
       data: unfilteredOut,
       color: '#FFFF00',
-      label: 'original'
+      label: 'Original'
     }, {
       data: besselOut,
       color: '#FF0000',
-      label: 'bessel'
+      label: 'Bessel'
     }, {
       data: butterworthOut,
       color: '#00FF00',
-      label: 'butterworth'
+      label: 'Butterworth'
+    }, {
+      data: firOut,
+      color: '#0000FF',
+      label: 'FIR'
     }]);
   };
   $.plot($('#unrun'), [{
@@ -175,6 +182,10 @@ $(document).ready(function () {
     data: butterworthOut,
     color: '#00FF00',
     label: 'butterworth'
+  }, {
+    data: firOut,
+    color: '#0000FF',
+    label: 'FIR'
   }]);
 
   sim.click();
