@@ -43,7 +43,7 @@
         if (re[k] === 0) {
           re[k] = -Number.MAX_VALUE;
         }
-        ret[k].phase = Math.atan2(re[k], im[k]);
+        ret[k].phase = Math.atan2(im[k], re[k]);
       }
       return ret;
     };
