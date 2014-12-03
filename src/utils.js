@@ -9,7 +9,9 @@
     for (cnt = 0; cnt < res.length; cnt++) {
       phase.push(res[cnt].phase);
     }
-    res[0].unwrappedPhase = res[1].unwrappedPhase;
+    res[0].unwrappedPhase = res[0].phase;
+    res[0].groupDelay = 0;
+    // TODO: more sophisticated phase unwrapping needed
     for (cnt = 1; cnt < phase.length; cnt++) {
       var diff = phase[cnt] - phase[cnt - 1];
       if (diff > pi) {
@@ -30,7 +32,6 @@
       res[cnt].phaseDelay = res[cnt].unwrappedPhase / (cnt / res.length);
       res[cnt].groupDelay = (res[cnt].unwrappedPhase - res[cnt - 1].unwrappedPhase) / (1 / res.length);
     }
-    res[0].unwrappedPhase = res[1].unwrappedPhase;
     res[0].phaseDelay = res[1].phaseDelay;
     res[0].groupDelay = res[1].groupDelay;
   };
