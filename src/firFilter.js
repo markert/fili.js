@@ -8,14 +8,25 @@
     var f = filter;
     var initZero = function (cnt) {
       var r = [];
-      for (cnt = 0; cnt < cnt; cnt++) {
+      var i;
+      for (i = 0; i < cnt; i++) {
         r.push(0);
       }
       return r;
     };
     var z = initZero(f.length - 1);
     var cnt = 0;
-    var doStep = function (input, d) {};
+    var doStep = function (input, d) {
+      for (cnt = d.length - 1; cnt > 0; cnt--) {
+        d[cnt] = d[cnt - 1];
+      }
+      d[0] = input;
+      var out = 0;
+      for (cnt = 0; cnt < d.length; cnt++) {
+        out += (f[cnt] * d[cnt]);
+      }
+      return out;
+    };
 
     var re = [];
     var im = [];
@@ -63,10 +74,14 @@
         return res;
       },
       singleStep: function (input) {
-
+        return doStep(input, z);
       },
       multiStep: function (input) {
-
+        var out = [];
+        for (cnt = 0; cnt < input.length; cnt++) {
+          out.push(doStep(input[cnt], z));
+        }
+        return out;
       }
     };
     return self;
