@@ -20,7 +20,7 @@ var iirFilterCoeffs = iirCalculator.lowpass({
 // create a filter instance from the calculated coeffs
 var iirFilter = new IirFilter(filterCoeffs);
 
-// simulate the filter with 10 samples from a ramp
+// run the filter with 10 samples from a ramp
 for (var cnt = 0; cnt < 10; cnt++) {
   console.log(iirFilter.singleStep(cnt));
 }
@@ -61,6 +61,10 @@ var firFilterCoeffs = firCalculator.lowpass({
 // create a filter instance from the calculated coeffs
 var firFilter = new FirFilter(filterCoeffs);
 
+// run the filter with 10 samples from a ramp
+for (var cnt = 0; cnt < 10; cnt++) {
+  console.log(firFilter.singleStep(cnt));
+}
 
 // get the filter impact on magnitude, phase, unwrapped phase, phase delay and group delay
 // returns array of filter order objects
