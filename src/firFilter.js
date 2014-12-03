@@ -12,19 +12,20 @@
       for (i = 0; i < cnt; i++) {
         r.push(0);
       }
-      return r;
+      return {
+        buf: r,
+        pointer: 0
+      };
     };
     var z = initZero(f.length - 1);
     var cnt = 0;
     var doStep = function (input, d) {
-      for (cnt = d.length - 1; cnt > 0; cnt--) {
-        d[cnt] = d[cnt - 1];
-      }
-      d[0] = input;
+      d.buf[d.pointer] = input;
       var out = 0;
-      for (cnt = 0; cnt < d.length; cnt++) {
-        out += (f[cnt] * d[cnt]);
+      for (cnt = 0; cnt < d.buf.length; cnt++) {
+        out += (f[cnt] * d.buf[(d.pointer + cnt) % d.buf.length]);
       }
+      d.pointer += 1 % d.buf.length;
       return out;
     };
 
