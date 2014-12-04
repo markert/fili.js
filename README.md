@@ -38,6 +38,22 @@ var simulation = iirFilter.simulate([1,0,0,2,-1,0,0,1,5,0,0]);
 // returns the filter output, max and min of the ripple
 // filter.impulseResponse(100) does the same for an impulse.
 var stepResponse = iirFilter.stepResponse(100);
+
+// initialize filter for testing
+var testFilter = new IirFilter(filterCoeffs);
+var filterTester = new FilterTester(testFilter);
+
+// check if filter is stable for the specified input range
+// returns true for stable filter
+var stable = filterTester.directedRandomStability({
+    steps: 10000, // filter steps per test
+    tests: 100, // numbers of tests (random, ramp, impulses, steps)
+    offset: 5, // offset of input
+    pp: 10, // peak to peak of input
+    maxStable: 20, // values over this border will be considered as unstable 
+    minStable: -10, // values under this border will be considered as unstable
+    setup: 1000 // steps until initial setup of filter is complete
+  });
 ```
 
 Limitations:
@@ -69,4 +85,20 @@ for (var cnt = 0; cnt < 10; cnt++) {
 // get the filter impact on magnitude, phase, unwrapped phase, phase delay and group delay
 // returns array of filter order objects
 var response = FirFilter.response();
+
+// initialize filter for testing
+var testFilter = new FirFilter(filterCoeffs);
+var filterTester = new FilterTester(testFilter);
+
+// check if filter is stable for the specified input range
+// returns true for stable filter
+var stable = filterTester.directedRandomStability({
+    steps: 10000, // filter steps per test
+    tests: 100, // numbers of tests (random, ramp, impulses, steps)
+    offset: 5, // offset of input
+    pp: 10, // peak to peak of input
+    maxStable: 20, // values over this border will be considered as unstable 
+    minStable: -10, // values under this border will be considered as unstable
+    setup: 1000 // steps until initial setup of filter is complete
+  });
 ```
