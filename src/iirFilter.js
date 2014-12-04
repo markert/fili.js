@@ -194,6 +194,11 @@
         }
         evaluatePhase(res);
         return res;
+      },
+      reinit: function () {
+        for (cnt = 0; cnt < f.length; cnt++) {
+          f[cnt].z = [0, 0];
+        }
       }
     };
     return self;

@@ -83,6 +83,9 @@
           out.push(doStep(input[cnt], z));
         }
         return out;
+      },
+      reinit: function () {
+        z = initZero(f.length - 1);
       }
     };
     return self;
