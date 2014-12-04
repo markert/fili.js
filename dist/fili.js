@@ -1,4 +1,4 @@
-/*! fili 0.0.4 02-12-2014 */
+/*! fili 0.0.5 04-12-2014 */
 /*! Author: Florian Markert */
 /*! License: MIT */
 /* global IirCoeffs, define */
@@ -52,7 +52,6 @@
   };
 
   var CalcCascades = function () {
-    var cnt = 0;
     var self = {
       lowpass: function (params) {
         return calcCoeffs(params, 'lowpass');
@@ -211,14 +210,26 @@
     var f = filter;
     var initZero = function (cnt) {
       var r = [];
-      for (cnt = 0; cnt < cnt; cnt++) {
+      var i;
+      for (i = 0; i < cnt; i++) {
         r.push(0);
       }
-      return r;
+      return {
+        buf: r,
+        pointer: 0
+      };
     };
     var z = initZero(f.length - 1);
     var cnt = 0;
-    var doStep = function (input, d) {};
+    var doStep = function (input, d) {
+      d.buf[d.pointer] = input;
+      var out = 0;
+      for (cnt = 0; cnt < d.buf.length; cnt++) {
+        out += (f[cnt] * d.buf[(d.pointer + cnt) % d.buf.length]);
+      }
+      d.pointer += 1 % d.buf.length;
+      return out;
+    };
 
     var re = [];
     var im = [];
@@ -246,7 +257,7 @@
         if (re[k] === 0) {
           re[k] = -Number.MAX_VALUE;
         }
-        ret[k].phase = Math.atan2(re[k], im[k]);
+        ret[k].phase = Math.atan2(im[k], re[k]);
       }
       return ret;
     };
@@ -266,10 +277,17 @@
         return res;
       },
       singleStep: function (input) {
-
+        return doStep(input, z);
       },
       multiStep: function (input) {
-
+        var out = [];
+        for (cnt = 0; cnt < input.length; cnt++) {
+          out.push(doStep(input[cnt], z));
+        }
+        return out;
+      },
+      reinit: function () {
+        z = initZero(f.length - 1);
       }
     };
     return self;
@@ -564,6 +582,11 @@
         }
         evaluatePhase(res);
         return res;
+      },
+      reinit: function () {
+        for (cnt = 0; cnt < f.length; cnt++) {
+          f[cnt].z = [0, 0];
+        }
       }
     };
     return self;
@@ -574,6 +597,113 @@
     window.IirFilter = IirFilter;
     if (typeof define === 'function' && define.amd) {
       define(IirFilter);
+    }
+  }
+})(window);
+;/* global define */
+/*jslint bitwise: true */
+(function (window) {
+  'use strict';
+
+  var TestFilter = function (filter) {
+    var f = filter;
+
+    var simData = [];
+    var cnt;
+
+    var randomValues = function (params) {
+      for (cnt = 0; cnt < params.steps; cnt++) {
+        simData.push(f.singleStep(((Math.random() - 0.5) * params.pp) + params.offset));
+      }
+    };
+
+    var stepValues = function (params) {
+      var max = params.offset + params.pp;
+      var min = params.offset - params.pp;
+      for (cnt = 0; cnt < params.steps; cnt++) {
+        if ((cnt % 200) < 100) {
+          simData.push(f.singleStep(max));
+        } else {
+          simData.push(f.singleStep(min));
+        }
+      }
+    };
+
+    var impulseValues = function (params) {
+      var max = params.offset + params.pp;
+      var min = params.offset - params.pp;
+      for (cnt = 0; cnt < params.steps; cnt++) {
+        if (cnt % 100 === 0) {
+          simData.push(f.singleStep(max));
+        } else {
+          simData.push(f.singleStep(min));
+        }
+      }
+    };
+
+    var rampValues = function (params) {
+      var max = params.offset + params.pp;
+      var min = params.offset - params.pp;
+      var val = min;
+      var diff = (max - min) / 100;
+      for (cnt = 0; cnt < params.steps; cnt++) {
+        if (cnt % 200 < 100) {
+          val += diff;
+        } else {
+          val -= diff;
+        }
+        simData.push(f.singleStep(val));
+      }
+    };
+
+    var self = {
+      randomStability: function (params) {
+        f.reinit();
+        simData.length = 0;
+        randomValues(params);
+        for (cnt = params.setup; cnt < simData.length; cnt++) {
+          if (simData[cnt] > params.maxStable || simData[cnt] < params.minStable) {
+            return simData[cnt];
+          }
+        }
+        return true;
+      },
+      directedRandomStability: function (params) {
+        f.reinit();
+        simData.length = 0;
+        var i;
+        for (i = 0; i < params.tests; i++) {
+          var choose = Math.random();
+          if (choose < 0.25) {
+            randomValues(params);
+          } else if (choose < 0.5) {
+            stepValues(params);
+          } else if (choose < 0.75) {
+            impulseValues(params);
+          } else {
+            rampValues(params);
+          }
+        }
+        randomValues(params);
+        for (cnt = params.setup; cnt < simData.length; cnt++) {
+          if (simData[cnt] > params.maxStable || simData[cnt] < params.minStable) {
+            return simData[cnt];
+          }
+        }
+        return true;
+      },
+      evaluateBehavior: function (params) {
+
+      }
+    };
+    return self;
+  };
+  if (typeof module === 'object' && module && typeof module.exports === 'object') {
+    module.exports = TestFilter;
+  } else {
+    window.TestFilter = TestFilter;
+    if (typeof define === 'function' && define.amd) {
+      define(TestFilter);
     }
   }
 })(window);
@@ -588,7 +718,9 @@
     for (cnt = 0; cnt < res.length; cnt++) {
       phase.push(res[cnt].phase);
     }
-    res[0].unwrappedPhase = res[1].unwrappedPhase;
+    res[0].unwrappedPhase = res[0].phase;
+    res[0].groupDelay = 0;
+    // TODO: more sophisticated phase unwrapping needed
     for (cnt = 1; cnt < phase.length; cnt++) {
       var diff = phase[cnt] - phase[cnt - 1];
       if (diff > pi) {
@@ -607,9 +739,8 @@
       }
 
       res[cnt].phaseDelay = res[cnt].unwrappedPhase / (cnt / res.length);
-      res[cnt].groupDelay = (res[cnt].unwrappedPhase - res[cnt - 1].unwrappedPhase) / (1 / res.length);
+      res[cnt].groupDelay = (res[cnt].unwrappedPhase - res[cnt - 1].unwrappedPhase) / (pi / res.length);
     }
-    res[0].unwrappedPhase = res[1].unwrappedPhase;
     res[0].phaseDelay = res[1].phaseDelay;
     res[0].groupDelay = res[1].groupDelay;
   };
