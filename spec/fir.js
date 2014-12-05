@@ -1,0 +1,71 @@
+describe('iir.js', function () {
+
+  var firCalculator;
+
+  before(function () {
+    firCalculator = new FirCoeffs();
+  });
+
+  after(function () {});
+
+  describe('fir-lp', function () {
+
+    var filterCoeffs, filter;
+    it('can calculate coeffs', function () {
+      filterCoeffs = firCalculator.lowpass({
+        order: 100,
+        Fs: 4000,
+        Fc: 500
+      });
+      filterCoeffs.should.be.an.Array;
+      filterCoeffs[44].should.be.a.Number;
+      filterCoeffs.length.should.equal(101);
+
+    });
+
+    it('can generate a filter', function () {
+      filter = new FirFilter(filterCoeffs);
+      filter.should.be.an.Object;
+    });
+
+    it('can do a single step', function () {
+      var out = filter.singleStep(10);
+      out.should.be.a.Number;
+      out.should.not.equal(0);
+    });
+
+    it('can do multiple steps', function () {
+      var simInput = [];
+      for (var i = 0; i < 10000; i++) {
+        simInput.push(i % 10 - 5);
+      }
+      var out = filter.multiStep(simInput);
+      out.should.be.an.Array;
+      out.length.should.equal(10000);
+      out[111].should.not.equal(simInput[111]);
+    });
+
+    it('calculates filter response', function () {
+      var r = filter.response();
+      r.should.be.an.Array;
+      r.length.should.equal(102);
+      r[20].should.be.an.Object;
+      r[20].magnitude.should.be.a.Number;
+      r[20].dBmagnitude.should.be.a.Number;
+      r[20].phase.should.be.a.Number;
+      r[20].unwrappedPhase.should.be.a.Number;
+      r[20].phaseDelay.should.be.a.Number;
+      r[20].groupDelay.should.be.a.Number;
+
+      r[20].magnitude.should.not.equal(0);
+      r[20].dBmagnitude.should.not.equal(0);
+      r[20].phase.should.not.equal(0);
+      r[20].unwrappedPhase.should.not.equal(0);
+      r[20].phaseDelay.should.not.equal(0);
+      r[20].groupDelay.should.not.equal(0);
+
+    });
+
+  });
+
+});
