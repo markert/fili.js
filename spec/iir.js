@@ -142,6 +142,10 @@ describe('iir.js', function () {
       r.dBmagnitude.should.not.equal(0);
       r.phase.should.not.equal(0);
     });
+    
+    it('reinit does not crash', function () {
+        filter.reinit();
+    });
 
   });
 
@@ -276,6 +280,10 @@ describe('iir.js', function () {
       r.magnitude.should.not.equal(0);
       r.dBmagnitude.should.not.equal(0);
       r.phase.should.not.equal(0);
+    });
+    
+    it('reinit does not crash', function () {
+        filter.reinit();
     });
 
   });
@@ -412,6 +420,10 @@ describe('iir.js', function () {
       r.dBmagnitude.should.not.equal(0);
       r.phase.should.not.equal(0);
     });
+    
+    it('reinit does not crash', function () {
+        filter.reinit();
+    });
 
   });
 
@@ -546,6 +558,10 @@ describe('iir.js', function () {
       r.magnitude.should.not.equal(0);
       r.dBmagnitude.should.not.equal(0);
       r.phase.should.not.equal(0);
+    });
+    
+    it('reinit does not crash', function () {
+        filter.reinit();
     });
 
   });
