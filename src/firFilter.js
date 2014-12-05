@@ -25,7 +25,7 @@
       for (cnt = 0; cnt < d.buf.length; cnt++) {
         out += (f[cnt] * d.buf[(d.pointer + cnt) % d.buf.length]);
       }
-      d.pointer += 1 % d.buf.length;
+      d.pointer = (d.pointer + 1) % (d.buf.length);
       return out;
     };
 
@@ -79,8 +79,9 @@
       },
       multiStep: function (input) {
         var out = [];
-        for (cnt = 0; cnt < input.length; cnt++) {
-          out.push(doStep(input[cnt], z));
+        var i;
+        for (i = 0; i < input.length; i++) {
+          out.push(doStep(input[i], z));
         }
         return out;
       },
