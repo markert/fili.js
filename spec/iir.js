@@ -150,12 +150,12 @@ describe('iir.js', function () {
     var filterCoeffs, filter;
     it('can calculate coeffs', function () {
       filterCoeffs = iirCascadeCalculator.highpass({
-        order: 3,
+        order: 2,
         characteristic: 'bessel',
         Fs: 4000,
         Fc: 500
       });
-      filterCoeffs.length.should.equal(3);
+      filterCoeffs.length.should.equal(2);
       filterCoeffs[0].should.be.an.Object;
       filterCoeffs[1].a.length.should.equal(2);
       filterCoeffs[1].b.length.should.equal(3);
@@ -420,12 +420,12 @@ describe('iir.js', function () {
     var filterCoeffs, filter;
     it('can calculate coeffs', function () {
       filterCoeffs = iirCascadeCalculator.lowpass({
-        order: 3,
+        order: 2,
         characteristic: 'butterworth',
         Fs: 8000,
         Fc: 1234
       });
-      filterCoeffs.length.should.equal(3);
+      filterCoeffs.length.should.equal(2);
       filterCoeffs[0].should.be.an.Object;
       filterCoeffs[1].a.length.should.equal(2);
       filterCoeffs[1].b.length.should.equal(3);
