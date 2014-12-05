@@ -183,6 +183,7 @@
         return calcResponse(params);
       },
       response: function (resolution) {
+        var resolution = resolution || 100;
         var res = [];
         var cnt = 0;
         var r = resolution * 2;
