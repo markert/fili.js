@@ -19,7 +19,7 @@ module.exports = function (grunt) {
       options: {
         banner: '/*! <%= pkg.name %> <%= pkg.version %> <%= grunt.template.today("dd-mm-yyyy") %> */\n' +
           '/*! Author: <%= pkg.author %> */\n' +
-          '/*! License: <%= pkg.license %> */\n',
+          '/*! License: <%= pkg.license %> */\n'
       },
       dist: {
         files: {
@@ -30,7 +30,7 @@ module.exports = function (grunt) {
     jsbeautifier: {
       files: ['app/scripts/*.js',
         'src/**/*.js',
-        'test/**/*.js',
+        'spec/**/*.js',
         'demo/**/*.js',
         'demo/**/*.html',
         'Gruntfile.js',
