@@ -3,6 +3,7 @@
 (function (window) {
   'use strict';
 
+  // implements a windowed sinc filter
   var FirCoeffs = function () {
     // note: coefficients are equal to impulse response
     var calcImpulseResponse = function (params) {
@@ -41,12 +42,35 @@
       h[(h.length - 1) / 2] ++;
       return h;
     };
+    var bs = function (params) {
+      var lp = calcImpulseResponse({
+        order: params.order,
+        Fs: params.Fs,
+        Fc: params.F2
+      });
+      var hp = invert(calcImpulseResponse({
+        order: params.order,
+        Fs: params.Fs,
+        Fc: params.F1
+      }));
+      var out = [];
+      for (var i = 0; i < lp.length; i++) {
+        out.push(lp[i] + hp[i]);
+      }
+      return out;
+    };
     var self = {
       lowpass: function (params) {
         return calcImpulseResponse(params);
       },
       highpass: function (params) {
         return invert(calcImpulseResponse(params));
+      },
+      bandstop: function (params) {
+        return bs(params);
+      },
+      bandpass: function (params) {
+        return invert(bs(params));
       }
     };
     return self;
