@@ -42,12 +42,14 @@ Run Filter
 
 ```javascript
 // run the filter with 10 samples from a ramp
+// returns single value
 for (var cnt = 0; cnt < 10; cnt++) {
   console.log(filter.singleStep(cnt));
 }
 
 // run the filter from input array
-filter.multiStep([1,10,-5,3,1.112,17]);
+// returns array
+console.log(filter.multiStep([1,10,-5,3,1.112,17]));
 ```
 
 Evaluate Filter:
@@ -56,10 +58,13 @@ Evaluate Filter:
 // get the filter impact on magnitude, phase, unwrapped phase, phase delay and group delay
 // returns array of n objects
 // Fs = 1000 n = 100, so the array represents 0Hz, 10Hz, 20Hz....
+// returns array of objects
+// {dBmagnitude: -4, groupDelay: 2, magnitude: 0, phase: -7, phaseDelay: 12, unwrappedPhase: 7}
 var response = filter.response(100);
 
 // get the filter impact on magnitude, phase, unwrapped phase, phase delay and group delay
 // for a defined frequency
+// returns one object
 var responsePoint = firFilter.responsePoint({
     Fs: 1000,  // sampling frequency
     Fr: 123 // frequency of interest
