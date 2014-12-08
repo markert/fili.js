@@ -1,5 +1,5 @@
 $(document).ready(function () {
-  /* global CalcCascades, FirFilter, CalcCascades, FirCoeffs, IirFilter */
+  /* global CalcCascades, FirFilter, CalcCascades, FirCoeffs, IirFilter, TestFilter */
   'use strict';
 
   var fs = document.getElementById('fs_val');

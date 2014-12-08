@@ -90,7 +90,7 @@
         }
         return true;
       },
-      evaluateBehavior: function (params) {
+      evaluateBehavior: function () {
 
       }
     };

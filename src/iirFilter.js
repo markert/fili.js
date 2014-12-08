@@ -1,4 +1,4 @@
-/* global define, Complex, evaluatePhase */
+/* global define, evaluatePhase, runMultiFilter, complex */
 /*jslint bitwise: true */
 (function (window) {
   'use strict';
@@ -173,7 +173,7 @@
         return calcResponse(params);
       },
       response: function (resolution) {
-        var resolution = resolution || 100;
+        resolution = resolution || 100;
         var res = [];
         var cnt = 0;
         var r = resolution * 2;
