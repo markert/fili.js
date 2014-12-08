@@ -30,6 +30,13 @@ for (var cnt = 0; cnt < 10; cnt++) {
 // Fs = 1000 n = 100, so the array represents 0Hz, 10Hz, 20Hz....
 var response = iirFilter.response(100);
 
+// get the filter impact on magnitude, phase, unwrapped phase, phase delay and group delay
+// for a defined frequency
+var responsePoint = iirFilter.responsePoint({
+    Fs: 1000,  // sampling frequency
+    Fr: 123 // frequency of interest
+  });
+
 // simulate filter with any input
 // does not change the state of the filter (no impact on z)
 var simulation = iirFilter.simulate([1,0,0,2,-1,0,0,1,5,0,0]);
@@ -83,8 +90,16 @@ for (var cnt = 0; cnt < 10; cnt++) {
 }
 
 // get the filter impact on magnitude, phase, unwrapped phase, phase delay and group delay
-// returns array of filter order objects
-var response = FirFilter.response();
+// returns array of n objects
+// Fs = 1000 n = 100, so the array represents 0Hz, 10Hz, 20Hz....
+var response = firFilter.response(100);
+
+// get the filter impact on magnitude, phase, unwrapped phase, phase delay and group delay
+// for a defined frequency
+var responsePoint = firFilter.responsePoint({
+    Fs: 1000,  // sampling frequency
+    Fr: 123 // frequency of interest
+  });
 
 // initialize filter for testing
 var testFilter = new FirFilter(filterCoeffs);
