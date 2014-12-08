@@ -5,6 +5,8 @@ A digital filter library for javascript
 
 Generate IIR Filters:
 
+IIR filters are composed of n Biquad filters.
+
 ```javascript
 //  Instance of a filter coefficient calculator
 var iirCalculator = new CalcCascades();
@@ -22,6 +24,8 @@ var iirFilter = new IirFilter(filterCoeffs);
 ```
 
 Generate FIR Filters:   
+
+FIR filter calculation is done with a windowed sinc function
 
 ```javascript
 //  Instance of a filter coefficient calculator
