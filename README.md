@@ -54,6 +54,11 @@ for (var cnt = 0; cnt < 10; cnt++) {
 // run the filter from input array
 // returns array
 console.log(filter.multiStep([1,10,-5,3,1.112,17]));
+
+// simulate the filter
+// does not change the internal state
+// returns array
+console.log(filter.simulate([-3,-2,-1,5,6,33]));
 ```
 
 Evaluate Filter:
