@@ -35,21 +35,12 @@
       d.pointer = (d.pointer + 1) % (d.buf.length);
       return out;
     };
-    var runMultiFilter = function (input, d) {
-      var out = [];
-      var i;
-      for (i = 0; i < input.length; i++) {
-        out.push(doStep(input[i], d));
-      }
-      return out;
-    };
 
     var calcInputResponse = function (input) {
       var tempF = initZero(f.length - 1);
-      return runMultiFilter(input, tempF);
+      return runMultiFilter(input, tempF, doStep);
     };
 
-    var complex = new Complex();
     var calcResponse = function (params, s) {
       var Fs = params.Fs,
         Fr = params.Fr;
@@ -99,8 +90,8 @@
       singleStep: function (input) {
         return doStep(input, z);
       },
-      multiStep: function (input) {
-        return runMultiFilter(input, z);
+      multiStep: function (input, overwrite) {
+        return runMultiFilter(input, z, doStep, overwrite);
       },
       reinit: function () {
         z = initZero(f.length - 1);

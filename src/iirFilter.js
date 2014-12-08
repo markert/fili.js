@@ -40,7 +40,6 @@
         im: 0
       };
     }
-    var complex = new Complex();
     var runStage = function (s, input) {
       var temp = input * s.k - s.a[0] * s.z[0] - s.a[1] * s.z[1];
       var out = s.b[0] * temp + s.b[1] * s.z[0] + s.b[2] * s.z[1];
@@ -49,20 +48,11 @@
       return out;
     };
 
-    var runFilter = function (input, coeffs) {
+    var doStep = function (input, coeffs) {
       var out = input;
       var cnt = 0;
       for (cnt = 0; cnt < coeffs.length; cnt++) {
         out = runStage(coeffs[cnt], out);
-      }
-      return out;
-    };
-
-    var runMultiFilter = function (input, coeffs) {
-      var cnt = 0;
-      var out = [];
-      for (cnt = 0; cnt < input.length; cnt++) {
-        out.push(runFilter(input[cnt], coeffs));
       }
       return out;
     };
@@ -122,7 +112,7 @@
 
     var calcInputResponse = function (input) {
       var tempF = reinit();
-      return runMultiFilter(input, tempF);
+      return runMultiFilter(input, tempF, doStep);
     };
 
     var predefinedResponse = function (def, length) {
@@ -157,10 +147,10 @@
 
     var self = {
       singleStep: function (input) {
-        return runFilter(input, f);
+        return doStep(input, f);
       },
-      multiStep: function (input) {
-        return runMultiFilter(input, f);
+      multiStep: function (input, overwrite) {
+        return runMultiFilter(input, f, doStep, overwrite);
       },
       simulate: function (input) {
         return calcInputResponse(input);
