@@ -6,6 +6,14 @@
   var FirFilter = function (filter) {
     // note: coefficients are equal to input response
     var f = filter;
+    var b = [];
+    var cnt = 0;
+    for (cnt = 0; cnt < f.length; cnt++) {
+      b[cnt] = {
+        re: f[cnt],
+        im: 0
+      };
+    }
     var initZero = function (cnt) {
       var r = [];
       var i;
@@ -18,7 +26,6 @@
       };
     };
     var z = initZero(f.length - 1);
-    var cnt = 0;
     var doStep = function (input, d) {
       d.buf[d.pointer] = input;
       var out = 0;
@@ -31,46 +38,51 @@
 
     var re = [];
     var im = [];
-    var dft = function (coeffs) {
-      re.length = 0;
-      im.length = 0;
-      var ret = [];
-      var n = coeffs.length;
-      var half = n / 2;
-      var cnt = 0;
-      var k = 0;
-      var c = 2 * Math.PI / n;
-      for (k = 0; k <= half; k++) {
-        re[k] = 0;
-        im[k] = 0;
+    var complex = new Complex();
+    var calcResponse = function (params, s) {
+      var Fs = params.Fs,
+        Fr = params.Fr;
+      // z = exp(j*omega*pi) = cos(omega*pi) + j*sin(omega*pi)
+      // z^-1 = exp(-j*omega*pi)
+      // omega is between 0 and 1. 1 is the Nyquist frequency.
+      var theta = -Math.PI * (Fr / Fs) * 2;
+      var z = [];
+      for (var i = 0; i < f.length - 1; i++) {
+        z[i] = {
+          re: Math.cos(theta * i),
+          im: Math.sin(theta * i)
+        };
       }
-      for (k = 0; k <= half; k++) {
-        for (cnt = 0; cnt < n; cnt++) {
-          re[k] += coeffs[cnt] * Math.cos(c * k * cnt);
-          im[k] -= coeffs[cnt] * Math.sin(c * k * cnt);
-        }
-        ret[k] = {};
-        ret[k].magnitude = Math.sqrt(re[k] * re[k] + im[k] * im[k]);
-        ret[k].dBmagnitude = 20 * Math.log(ret[k].magnitude) * Math.LOG10E;
-        if (re[k] === 0) {
-          re[k] = -Number.MAX_VALUE;
-        }
-        ret[k].phase = Math.atan2(im[k], re[k]);
+      var h = {
+        re: 0,
+        im: 0
+      };
+      for (var i = 0; i < f.length - 1; i++) {
+        h = complex.add(h, complex.mul(b[i], z[i]));
       }
-      return ret;
+      var m = complex.magnitude(h);
+      var res = {
+        magnitude: m,
+        phase: complex.phase(h),
+        dBmagnitude: 20 * Math.log(m) * Math.LOG10E
+      };
+      return res;
     };
     var self = {
-      response: function () {
-        var input = [];
+      responsePoint: function (params) {
+        return calcResponse(params);
+      },
+      response: function (resolution) {
+        var resolution = resolution || 100;
+        var res = [];
         var cnt = 0;
-        for (cnt = 0; cnt < f.length * 2; cnt++) {
-          if (f[cnt]) {
-            input.push(f[cnt]);
-          } else {
-            input.push(0);
-          }
+        var r = resolution * 2;
+        for (cnt = 0; cnt < resolution; cnt++) {
+          res[cnt] = calcResponse({
+            Fs: r,
+            Fr: cnt
+          });
         }
-        var res = dft(input);
         evaluatePhase(res);
         return res;
       },
