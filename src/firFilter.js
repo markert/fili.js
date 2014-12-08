@@ -35,9 +35,20 @@
       d.pointer = (d.pointer + 1) % (d.buf.length);
       return out;
     };
+    var runMultiFilter = function (input, d) {
+      var out = [];
+      var i;
+      for (i = 0; i < input.length; i++) {
+        out.push(doStep(input[i], d));
+      }
+      return out;
+    };
 
-    var re = [];
-    var im = [];
+    var calcInputResponse = function (input) {
+      var tempF = initZero(f.length - 1);
+      return runMultiFilter(input, tempF);
+    };
+
     var complex = new Complex();
     var calcResponse = function (params, s) {
       var Fs = params.Fs,
@@ -46,19 +57,15 @@
       // z^-1 = exp(-j*omega*pi)
       // omega is between 0 and 1. 1 is the Nyquist frequency.
       var theta = -Math.PI * (Fr / Fs) * 2;
-      var z = [];
-      for (var i = 0; i < f.length - 1; i++) {
-        z[i] = {
-          re: Math.cos(theta * i),
-          im: Math.sin(theta * i)
-        };
-      }
       var h = {
         re: 0,
         im: 0
       };
       for (var i = 0; i < f.length - 1; i++) {
-        h = complex.add(h, complex.mul(b[i], z[i]));
+        h = complex.add(h, complex.mul(b[i], {
+          re: Math.cos(theta * i),
+          im: Math.sin(theta * i)
+        }));
       }
       var m = complex.magnitude(h);
       var res = {
@@ -86,16 +93,14 @@
         evaluatePhase(res);
         return res;
       },
+      simulate: function (input) {
+        return calcInputResponse(input);
+      },
       singleStep: function (input) {
         return doStep(input, z);
       },
       multiStep: function (input) {
-        var out = [];
-        var i;
-        for (i = 0; i < input.length; i++) {
-          out.push(doStep(input[i], z));
-        }
-        return out;
+        return runMultiFilter(input, z);
       },
       reinit: function () {
         z = initZero(f.length - 1);
