@@ -1,4 +1,4 @@
-/*! fili 0.0.5 04-12-2014 */
+/*! fili 0.0.6 08-12-2014 */
 /*! Author: Florian Markert */
 /*! License: MIT */
 /* global IirCoeffs, define */
@@ -142,6 +142,7 @@
 (function (window) {
   'use strict';
 
+  // implements a windowed sinc filter
   var FirCoeffs = function () {
     // note: coefficients are equal to impulse response
     var calcImpulseResponse = function (params) {
@@ -180,12 +181,35 @@
       h[(h.length - 1) / 2] ++;
       return h;
     };
+    var bs = function (params) {
+      var lp = calcImpulseResponse({
+        order: params.order,
+        Fs: params.Fs,
+        Fc: params.F2
+      });
+      var hp = invert(calcImpulseResponse({
+        order: params.order,
+        Fs: params.Fs,
+        Fc: params.F1
+      }));
+      var out = [];
+      for (var i = 0; i < lp.length; i++) {
+        out.push(lp[i] + hp[i]);
+      }
+      return out;
+    };
     var self = {
       lowpass: function (params) {
         return calcImpulseResponse(params);
       },
       highpass: function (params) {
         return invert(calcImpulseResponse(params));
+      },
+      bandstop: function (params) {
+        return bs(params);
+      },
+      bandpass: function (params) {
+        return invert(bs(params));
       }
     };
     return self;
@@ -208,6 +232,14 @@
   var FirFilter = function (filter) {
     // note: coefficients are equal to input response
     var f = filter;
+    var b = [];
+    var cnt = 0;
+    for (cnt = 0; cnt < f.length; cnt++) {
+      b[cnt] = {
+        re: f[cnt],
+        im: 0
+      };
+    }
     var initZero = function (cnt) {
       var r = [];
       var i;
@@ -220,71 +252,81 @@
       };
     };
     var z = initZero(f.length - 1);
-    var cnt = 0;
     var doStep = function (input, d) {
       d.buf[d.pointer] = input;
       var out = 0;
       for (cnt = 0; cnt < d.buf.length; cnt++) {
         out += (f[cnt] * d.buf[(d.pointer + cnt) % d.buf.length]);
       }
-      d.pointer += 1 % d.buf.length;
+      d.pointer = (d.pointer + 1) % (d.buf.length);
+      return out;
+    };
+    var runMultiFilter = function (input, d) {
+      var out = [];
+      var i;
+      for (i = 0; i < input.length; i++) {
+        out.push(doStep(input[i], d));
+      }
       return out;
     };
 
-    var re = [];
-    var im = [];
-    var dft = function (coeffs) {
-      re.length = 0;
-      im.length = 0;
-      var ret = [];
-      var n = coeffs.length;
-      var half = n / 2;
-      var cnt = 0;
-      var k = 0;
-      var c = 2 * Math.PI / n;
-      for (k = 0; k <= half; k++) {
-        re[k] = 0;
-        im[k] = 0;
+    var calcInputResponse = function (input) {
+      var tempF = initZero(f.length - 1);
+      return runMultiFilter(input, tempF);
+    };
+
+    var complex = new Complex();
+    var calcResponse = function (params, s) {
+      var Fs = params.Fs,
+        Fr = params.Fr;
+      // z = exp(j*omega*pi) = cos(omega*pi) + j*sin(omega*pi)
+      // z^-1 = exp(-j*omega*pi)
+      // omega is between 0 and 1. 1 is the Nyquist frequency.
+      var theta = -Math.PI * (Fr / Fs) * 2;
+      var h = {
+        re: 0,
+        im: 0
+      };
+      for (var i = 0; i < f.length - 1; i++) {
+        h = complex.add(h, complex.mul(b[i], {
+          re: Math.cos(theta * i),
+          im: Math.sin(theta * i)
+        }));
       }
-      for (k = 0; k <= half; k++) {
-        for (cnt = 0; cnt < n; cnt++) {
-          re[k] += coeffs[cnt] * Math.cos(c * k * cnt);
-          im[k] -= coeffs[cnt] * Math.sin(c * k * cnt);
-        }
-        ret[k] = {};
-        ret[k].magnitude = Math.sqrt(re[k] * re[k] + im[k] * im[k]);
-        ret[k].dBmagnitude = 20 * Math.log(ret[k].magnitude) * Math.LOG10E;
-        if (re[k] === 0) {
-          re[k] = -Number.MAX_VALUE;
-        }
-        ret[k].phase = Math.atan2(im[k], re[k]);
-      }
-      return ret;
+      var m = complex.magnitude(h);
+      var res = {
+        magnitude: m,
+        phase: complex.phase(h),
+        dBmagnitude: 20 * Math.log(m) * Math.LOG10E
+      };
+      return res;
     };
     var self = {
-      response: function () {
-        var input = [];
+      responsePoint: function (params) {
+        return calcResponse(params);
+      },
+      response: function (resolution) {
+        var resolution = resolution || 100;
+        var res = [];
         var cnt = 0;
-        for (cnt = 0; cnt < f.length * 2; cnt++) {
-          if (f[cnt]) {
-            input.push(f[cnt]);
-          } else {
-            input.push(0);
-          }
+        var r = resolution * 2;
+        for (cnt = 0; cnt < resolution; cnt++) {
+          res[cnt] = calcResponse({
+            Fs: r,
+            Fr: cnt
+          });
         }
-        var res = dft(input);
         evaluatePhase(res);
         return res;
+      },
+      simulate: function (input) {
+        return calcInputResponse(input);
       },
       singleStep: function (input) {
         return doStep(input, z);
       },
       multiStep: function (input) {
-        var out = [];
-        for (cnt = 0; cnt < input.length; cnt++) {
-          out.push(doStep(input[cnt], z));
-        }
-        return out;
+        return runMultiFilter(input, z);
       },
       reinit: function () {
         z = initZero(f.length - 1);
@@ -361,6 +403,7 @@
       notch: function (params) {
         var coeffs = initCoeffs();
         preCalc(params, coeffs);
+        coeffs.k = 1;
         coeffs.b.push(1);
         coeffs.b.push(-2 * coeffs.b[0]);
         coeffs.b.push(coeffs.b[0]);
@@ -369,8 +412,18 @@
       bandpass: function (params) {
         var coeffs = initCoeffs();
         var p = preCalc(params, coeffs);
+        coeffs.k = 1;
         coeffs.b.push(p.alpha * params.Q);
         coeffs.b.push(0);
+        coeffs.b.push(coeffs.b[0]);
+        return coeffs;
+      },
+      bandstop: function (params) {
+        var coeffs = initCoeffs();
+        var p = preCalc(params, coeffs);
+        coeffs.k = 1;
+        coeffs.b.push(1);
+        coeffs.b.push(-2 * p.cw);
         coeffs.b.push(coeffs.b[0]);
         return coeffs;
       }
@@ -571,6 +624,7 @@
         return calcResponse(params);
       },
       response: function (resolution) {
+        var resolution = resolution || 100;
         var res = [];
         var cnt = 0;
         var r = resolution * 2;
