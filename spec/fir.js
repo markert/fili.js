@@ -45,10 +45,21 @@ describe('iir.js', function () {
       out[111].should.not.equal(simInput[111]);
     });
 
+    it('can simulate multiple steps', function () {
+      var simInput = [];
+      for (var i = 0; i < 10000; i++) {
+        simInput.push(i % 10 - 5);
+      }
+      var out = filter.simulate(simInput);
+      out.should.be.an.Array;
+      out.length.should.equal(10000);
+      out[111].should.not.equal(simInput[111]);
+    });
+
     it('calculates filter response', function () {
-      var r = filter.response();
+      var r = filter.response(200);
       r.should.be.an.Array;
-      r.length.should.equal(102);
+      r.length.should.equal(200);
       r[20].should.be.an.Object;
       r[20].magnitude.should.be.a.Number;
       r[20].dBmagnitude.should.be.a.Number;
@@ -109,10 +120,21 @@ describe('iir.js', function () {
       out[111].should.not.equal(simInput[111]);
     });
 
+    it('can simulate multiple steps', function () {
+      var simInput = [];
+      for (var i = 0; i < 10000; i++) {
+        simInput.push(i % 10 - 5);
+      }
+      var out = filter.simulate(simInput);
+      out.should.be.an.Array;
+      out.length.should.equal(10000);
+      out[111].should.not.equal(simInput[111]);
+    });
+
     it('calculates filter response', function () {
-      var r = filter.response();
+      var r = filter.response(200);
       r.should.be.an.Array;
-      r.length.should.equal(102);
+      r.length.should.equal(200);
       r[20].should.be.an.Object;
       r[20].magnitude.should.be.a.Number;
       r[20].dBmagnitude.should.be.a.Number;
@@ -174,10 +196,21 @@ describe('iir.js', function () {
       out[111].should.not.equal(simInput[111]);
     });
 
+    it('can simulate multiple steps', function () {
+      var simInput = [];
+      for (var i = 0; i < 10000; i++) {
+        simInput.push(i % 10 - 5);
+      }
+      var out = filter.simulate(simInput);
+      out.should.be.an.Array;
+      out.length.should.equal(10000);
+      out[111].should.not.equal(simInput[111]);
+    });
+
     it('calculates filter response', function () {
-      var r = filter.response();
+      var r = filter.response(200);
       r.should.be.an.Array;
-      r.length.should.equal(102);
+      r.length.should.equal(200);
       r[20].should.be.an.Object;
       r[20].magnitude.should.be.a.Number;
       r[20].dBmagnitude.should.be.a.Number;
@@ -239,10 +272,21 @@ describe('iir.js', function () {
       out[111].should.not.equal(simInput[111]);
     });
 
+    it('can simulate multiple steps', function () {
+      var simInput = [];
+      for (var i = 0; i < 10000; i++) {
+        simInput.push(i % 10 - 5);
+      }
+      var out = filter.simulate(simInput);
+      out.should.be.an.Array;
+      out.length.should.equal(10000);
+      out[111].should.not.equal(simInput[111]);
+    });
+
     it('calculates filter response', function () {
-      var r = filter.response();
+      var r = filter.response(200);
       r.should.be.an.Array;
-      r.length.should.equal(102);
+      r.length.should.equal(200);
       r[20].should.be.an.Object;
       r[20].magnitude.should.be.a.Number;
       r[20].dBmagnitude.should.be.a.Number;
