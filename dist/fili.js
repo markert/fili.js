@@ -1,4 +1,4 @@
-/*! fili 0.0.6 08-12-2014 */
+/*! fili 0.0.7 08-12-2014 */
 /*! Author: Florian Markert */
 /*! License: MIT */
 /* global IirCoeffs, define */
@@ -71,69 +71,6 @@
     window.CalcCascades = CalcCascades;
     if (typeof define === 'function' && define.amd) {
       define(CalcCascades);
-    }
-  }
-})(window);
-;/* global define */
-/*jslint bitwise: true */
-(function (window) {
-  'use strict';
-
-  var Complex = function () {
-
-    var self = {
-      div: function (p, q) {
-        var a = p.re,
-          b = p.im,
-          c = q.re,
-          d = q.im;
-        var n = (c * c + d * d);
-        var x = {
-          re: (a * c + b * d) / n,
-          im: (b * c - a * d) / n
-        };
-        return x;
-      },
-      mul: function (p, q) {
-        var a = p.re,
-          b = p.im,
-          c = q.re,
-          d = q.im;
-        var x = {
-          re: (a * c - b * d),
-          im: (a + b) * (c + d) - a * c - b * d
-        };
-        return x;
-      },
-      add: function (p, q) {
-        var x = {
-          re: p.re + q.re,
-          im: p.im + q.im
-        };
-        return x;
-      },
-      sub: function (p, q) {
-        var x = {
-          re: p.re - q.re,
-          im: p.im - q.im
-        };
-        return x;
-      },
-      phase: function (n) {
-        return Math.atan2(n.im, n.re);
-      },
-      magnitude: function (n) {
-        return Math.sqrt(n.re * n.re + n.im * n.im);
-      }
-    };
-    return self;
-  };
-  if (typeof module === 'object' && module && typeof module.exports === 'object') {
-    module.exports = Complex;
-  } else {
-    window.Complex = Complex;
-    if (typeof define === 'function' && define.amd) {
-      define(Complex);
     }
   }
 })(window);
@@ -224,7 +161,7 @@
     }
   }
 })(window);
-;/* global define, evaluatePhase */
+;/* global define, evaluatePhase, runMultiFilter, complex */
 /*jslint bitwise: true */
 (function (window) {
   'use strict';
@@ -261,22 +198,13 @@
       d.pointer = (d.pointer + 1) % (d.buf.length);
       return out;
     };
-    var runMultiFilter = function (input, d) {
-      var out = [];
-      var i;
-      for (i = 0; i < input.length; i++) {
-        out.push(doStep(input[i], d));
-      }
-      return out;
-    };
 
     var calcInputResponse = function (input) {
       var tempF = initZero(f.length - 1);
-      return runMultiFilter(input, tempF);
+      return runMultiFilter(input, tempF, doStep);
     };
 
-    var complex = new Complex();
-    var calcResponse = function (params, s) {
+    var calcResponse = function (params) {
       var Fs = params.Fs,
         Fr = params.Fr;
       // z = exp(j*omega*pi) = cos(omega*pi) + j*sin(omega*pi)
@@ -306,7 +234,7 @@
         return calcResponse(params);
       },
       response: function (resolution) {
-        var resolution = resolution || 100;
+        resolution = resolution || 100;
         var res = [];
         var cnt = 0;
         var r = resolution * 2;
@@ -325,8 +253,8 @@
       singleStep: function (input) {
         return doStep(input, z);
       },
-      multiStep: function (input) {
-        return runMultiFilter(input, z);
+      multiStep: function (input, overwrite) {
+        return runMultiFilter(input, z, doStep, overwrite);
       },
       reinit: function () {
         z = initZero(f.length - 1);
@@ -439,7 +367,7 @@
     }
   }
 })(window);
-;/* global define, Complex, evaluatePhase */
+;/* global define, evaluatePhase, runMultiFilter, complex */
 /*jslint bitwise: true */
 (function (window) {
   'use strict';
@@ -481,7 +409,6 @@
         im: 0
       };
     }
-    var complex = new Complex();
     var runStage = function (s, input) {
       var temp = input * s.k - s.a[0] * s.z[0] - s.a[1] * s.z[1];
       var out = s.b[0] * temp + s.b[1] * s.z[0] + s.b[2] * s.z[1];
@@ -490,20 +417,11 @@
       return out;
     };
 
-    var runFilter = function (input, coeffs) {
+    var doStep = function (input, coeffs) {
       var out = input;
       var cnt = 0;
       for (cnt = 0; cnt < coeffs.length; cnt++) {
         out = runStage(coeffs[cnt], out);
-      }
-      return out;
-    };
-
-    var runMultiFilter = function (input, coeffs) {
-      var cnt = 0;
-      var out = [];
-      for (cnt = 0; cnt < input.length; cnt++) {
-        out.push(runFilter(input[cnt], coeffs));
       }
       return out;
     };
@@ -563,7 +481,7 @@
 
     var calcInputResponse = function (input) {
       var tempF = reinit();
-      return runMultiFilter(input, tempF);
+      return runMultiFilter(input, tempF, doStep);
     };
 
     var predefinedResponse = function (def, length) {
@@ -598,10 +516,10 @@
 
     var self = {
       singleStep: function (input) {
-        return runFilter(input, f);
+        return doStep(input, f);
       },
-      multiStep: function (input) {
-        return runMultiFilter(input, f);
+      multiStep: function (input, overwrite) {
+        return runMultiFilter(input, f, doStep, overwrite);
       },
       simulate: function (input) {
         return calcInputResponse(input);
@@ -624,7 +542,7 @@
         return calcResponse(params);
       },
       response: function (resolution) {
-        var resolution = resolution || 100;
+        resolution = resolution || 100;
         var res = [];
         var cnt = 0;
         var r = resolution * 2;
@@ -746,7 +664,7 @@
         }
         return true;
       },
-      evaluateBehavior: function (params) {
+      evaluateBehavior: function () {
 
       }
     };
@@ -761,40 +679,100 @@
     }
   }
 })(window);
-;  'use strict';
+;/* exported complex, evaluatePhase, runMultiFilter */
+'use strict';
 
-  var evaluatePhase = function (res) {
-    var xcnt = 0;
-    var cnt = 0;
-    var pi = Math.PI;
-    var tpi = 2 * pi;
-    var phase = [];
-    for (cnt = 0; cnt < res.length; cnt++) {
-      phase.push(res[cnt].phase);
+var evaluatePhase = function (res) {
+  var xcnt = 0;
+  var cnt = 0;
+  var pi = Math.PI;
+  var tpi = 2 * pi;
+  var phase = [];
+  for (cnt = 0; cnt < res.length; cnt++) {
+    phase.push(res[cnt].phase);
+  }
+  res[0].unwrappedPhase = res[0].phase;
+  res[0].groupDelay = 0;
+  // TODO: more sophisticated phase unwrapping needed
+  for (cnt = 1; cnt < phase.length; cnt++) {
+    var diff = phase[cnt] - phase[cnt - 1];
+    if (diff > pi) {
+      for (xcnt = cnt; xcnt < phase.length; xcnt++) {
+        phase[xcnt] -= tpi;
+      }
+    } else if (diff < -pi) {
+      for (xcnt = cnt; xcnt < phase.length; xcnt++) {
+        phase[xcnt] += tpi;
+      }
     }
-    res[0].unwrappedPhase = res[0].phase;
-    res[0].groupDelay = 0;
-    // TODO: more sophisticated phase unwrapping needed
-    for (cnt = 1; cnt < phase.length; cnt++) {
-      var diff = phase[cnt] - phase[cnt - 1];
-      if (diff > pi) {
-        for (xcnt = cnt; xcnt < phase.length; xcnt++) {
-          phase[xcnt] -= tpi;
-        }
-      } else if (diff < -pi) {
-        for (xcnt = cnt; xcnt < phase.length; xcnt++) {
-          phase[xcnt] += tpi;
-        }
-      }
-      if (phase[cnt] < 0) {
-        res[cnt].unwrappedPhase = -phase[cnt];
-      } else {
-        res[cnt].unwrappedPhase = phase[cnt];
-      }
+    if (phase[cnt] < 0) {
+      res[cnt].unwrappedPhase = -phase[cnt];
+    } else {
+      res[cnt].unwrappedPhase = phase[cnt];
+    }
 
-      res[cnt].phaseDelay = res[cnt].unwrappedPhase / (cnt / res.length);
-      res[cnt].groupDelay = (res[cnt].unwrappedPhase - res[cnt - 1].unwrappedPhase) / (pi / res.length);
-    }
-    res[0].phaseDelay = res[1].phaseDelay;
-    res[0].groupDelay = res[1].groupDelay;
-  };
+    res[cnt].phaseDelay = res[cnt].unwrappedPhase / (cnt / res.length);
+    res[cnt].groupDelay = (res[cnt].unwrappedPhase - res[cnt - 1].unwrappedPhase) / (pi / res.length);
+  }
+  res[0].phaseDelay = res[1].phaseDelay;
+  res[0].groupDelay = res[1].groupDelay;
+};
+
+var runMultiFilter = function (input, d, doStep, overwrite) {
+  var out = [];
+  if (overwrite) {
+    out = input;
+  }
+  var i;
+  for (i = 0; i < input.length; i++) {
+    out[i] = doStep(input[i], d);
+  }
+  return out;
+};
+
+var complex = {
+
+  div: function (p, q) {
+    var a = p.re,
+      b = p.im,
+      c = q.re,
+      d = q.im;
+    var n = (c * c + d * d);
+    var x = {
+      re: (a * c + b * d) / n,
+      im: (b * c - a * d) / n
+    };
+    return x;
+  },
+  mul: function (p, q) {
+    var a = p.re,
+      b = p.im,
+      c = q.re,
+      d = q.im;
+    var x = {
+      re: (a * c - b * d),
+      im: (a + b) * (c + d) - a * c - b * d
+    };
+    return x;
+  },
+  add: function (p, q) {
+    var x = {
+      re: p.re + q.re,
+      im: p.im + q.im
+    };
+    return x;
+  },
+  sub: function (p, q) {
+    var x = {
+      re: p.re - q.re,
+      im: p.im - q.im
+    };
+    return x;
+  },
+  phase: function (n) {
+    return Math.atan2(n.im, n.re);
+  },
+  magnitude: function (n) {
+    return Math.sqrt(n.re * n.re + n.im * n.im);
+  }
+};
