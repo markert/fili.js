@@ -61,6 +61,23 @@ $(document).ready(function () {
     filterBessel = new IirFilter(coeffsBessel);
     filterButterworth = new IirFilter(coeffsButterworth);
     filterFir = new FirFilter(coeffsFir);
+    var tc = iirCalculator.lowpass({
+      order: io.value,
+      characteristic: 'butterworth',
+      Fs: fs.value,
+      Fc: fc.value
+    });
+    var tf = new IirFilter(tc);
+    var tester = new TestFilter(tf);
+    console.log(tester.directedRandomStability({
+      steps: 10000,
+      tests: 100,
+      offset: 5,
+      maxStable: 20,
+      minStable: -7,
+      pp: 10,
+      setup: 1000
+    }));
     var cnt = 0;
     var iirBeRe = filterBessel.response(480);
     var iirBeReMag = [];
@@ -117,7 +134,7 @@ $(document).ready(function () {
       color: '#00FF00'
     }]);
 
-    var firRe = filterFir.response();
+    var firRe = filterFir.response(480);
 
     var firReMag = [];
     for (cnt = 0; cnt < firRe.length; cnt++) {
