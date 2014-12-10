@@ -42,6 +42,7 @@
         Fs: params.Fs,
         Fc: params.Fc * table[params.characteristic].f[params.order - 1][cnt],
         Q: table[params.characteristic].q[params.order - 1][cnt],
+        gain: params.gain || 0,
         preGain: params.preGain || false
       }));
     }
@@ -61,6 +62,15 @@
       },
       bandstop: function (params) {
         return calcCoeffs(params, 'bandstop');
+      },
+      peak: function (params) {
+        return calcCoeffs(params, 'peak');
+      },
+      lowshelf: function (params) {
+        return calcCoeffs(params, 'lowshelf');
+      },
+      highshelf: function (params) {
+        return calcCoeffs(params, 'highshelf');
       }
     };
     return self;
