@@ -56,6 +56,7 @@ var firFilterCoeffs = firCalculator.lowpass({
     order: 100, // filter order
     Fs: 1000, // sampling frequency
     Fc: 100 // cutoff frequency
+    // forbandpass and bandstop F1 and F2 must be provided instead of Fc
   });
   
 // create a filter instance from the calculated coeffs
