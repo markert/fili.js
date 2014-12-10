@@ -9,11 +9,11 @@ describe('iir.js', function () {
   });
 
   after(function () {});
-  describe('iir-bessel-notch', function () {
+  describe('iir-bessel-bandstop', function () {
 
     var filterCoeffs, filter;
     it('can calculate coeffs', function () {
-      filterCoeffs = iirCascadeCalculator.notch({
+      filterCoeffs = iirCascadeCalculator.bandstop({
         order: 3,
         characteristic: 'bessel',
         Fs: 4000,
@@ -27,21 +27,6 @@ describe('iir.js', function () {
       filterCoeffs[1].z[0].should.equal(0);
       filterCoeffs[1].k.should.equal(1);
 
-      filterCoeffs = iirCascadeCalculator.lowpass({
-        order: 3,
-        characteristic: 'bessel',
-        Fs: 4000,
-        Fc: 500,
-        preGain: true
-      });
-
-      filterCoeffs.length.should.equal(3);
-      filterCoeffs[0].should.be.an.Object;
-      filterCoeffs[1].a.length.should.equal(2);
-      filterCoeffs[1].b.length.should.equal(3);
-      filterCoeffs[1].z.length.should.equal(2);
-      filterCoeffs[1].z[0].should.equal(0);
-      filterCoeffs[1].k.should.not.equal(1);
     });
 
     it('can generate a filter', function () {
@@ -704,11 +689,11 @@ describe('iir.js', function () {
 
   });
 
-  describe('iir-butterworth-notch', function () {
+  describe('iir-butterworth-bandstop', function () {
 
     var filterCoeffs, filter;
     it('can calculate coeffs', function () {
-      filterCoeffs = iirCascadeCalculator.notch({
+      filterCoeffs = iirCascadeCalculator.bandstop({
         order: 3,
         characteristic: 'butterworth',
         Fs: 4000,
@@ -722,21 +707,6 @@ describe('iir.js', function () {
       filterCoeffs[1].z[0].should.equal(0);
       filterCoeffs[1].k.should.equal(1);
 
-      filterCoeffs = iirCascadeCalculator.lowpass({
-        order: 3,
-        characteristic: 'bessel',
-        Fs: 4000,
-        Fc: 500,
-        preGain: true
-      });
-
-      filterCoeffs.length.should.equal(3);
-      filterCoeffs[0].should.be.an.Object;
-      filterCoeffs[1].a.length.should.equal(2);
-      filterCoeffs[1].b.length.should.equal(3);
-      filterCoeffs[1].z.length.should.equal(2);
-      filterCoeffs[1].z[0].should.equal(0);
-      filterCoeffs[1].k.should.not.equal(1);
     });
 
     it('can generate a filter', function () {
