@@ -15,7 +15,7 @@ Possible filters are:
 -   lowshelf
 -   highshelf
 
-Note: for peak, lowshelf and highsheld a gain attribute must be defined
+Note: for peak, lowshelf and highshelf a gain attribute must be defined
 when generating the coefficients. Gain can be positive or negative
 and represents the dB value for the peak or dip.
 
