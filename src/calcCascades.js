@@ -49,30 +49,17 @@
     return filter;
   };
 
-  var CalcCascades = function () {
-    var self = {
-      lowpass: function (params) {
-        return calcCoeffs(params, 'lowpass');
-      },
-      highpass: function (params) {
-        return calcCoeffs(params, 'highpass');
-      },
-      bandpass: function (params) {
-        return calcCoeffs(params, 'bandpass');
-      },
-      bandstop: function (params) {
-        return calcCoeffs(params, 'bandstop');
-      },
-      peak: function (params) {
-        return calcCoeffs(params, 'peak');
-      },
-      lowshelf: function (params) {
-        return calcCoeffs(params, 'lowshelf');
-      },
-      highshelf: function (params) {
-        return calcCoeffs(params, 'highshelf');
-      }
+  var initCalcCoeffs = function (behavior) {
+    return function (params) {
+      return calcCoeffs(params, behavior);
     };
+  };
+
+  var self = {};
+  var CalcCascades = function () {
+    for (var k in getCoeffs) {
+      self[k] = initCalcCoeffs(k);
+    }
     return self;
   };
   if (typeof module === 'object' && module && typeof module.exports === 'object') {
