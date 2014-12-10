@@ -56,8 +56,11 @@
       highpass: function (params) {
         return calcCoeffs(params, 'highpass');
       },
-      notch: function (params) {
-        return calcCoeffs(params, 'notch');
+      bandpass: function (params) {
+        return calcCoeffs(params, 'bandpass');
+      },
+      bandstop: function (params) {
+        return calcCoeffs(params, 'bandstop');
       }
     };
     return self;

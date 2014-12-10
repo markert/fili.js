@@ -54,22 +54,13 @@
         coeffs.b.push(coeffs.b[0]);
         return coeffs;
       },
-      notch: function (params) {
-        var coeffs = initCoeffs();
-        preCalc(params, coeffs);
-        coeffs.k = 1;
-        coeffs.b.push(1);
-        coeffs.b.push(-2 * coeffs.b[0]);
-        coeffs.b.push(coeffs.b[0]);
-        return coeffs;
-      },
       bandpass: function (params) {
         var coeffs = initCoeffs();
         var p = preCalc(params, coeffs);
         coeffs.k = 1;
         coeffs.b.push(p.alpha * params.Q);
         coeffs.b.push(0);
-        coeffs.b.push(coeffs.b[0]);
+        coeffs.b.push(-coeffs.b[0]);
         return coeffs;
       },
       bandstop: function (params) {
