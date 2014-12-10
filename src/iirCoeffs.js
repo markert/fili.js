@@ -29,20 +29,6 @@
       pre.A = Math.pow(10, params.gain / 40);
       return pre;
     };
-    var preBilinear = function (params) {
-      var pre = {};
-      pre.g = Math.tan(Math.PI * params.Fc / params.Fs);
-      pre.d = 1 / params.Q;
-      pre.K = 1 / (1 + pre.d * pre.g + pre.g * pre.g);
-      if (typeof (params.gain) === 'number') {
-        pre.A = Math.pow(10, params.gain / 20);
-        if (pre.A < 1) {
-          pre.A = 1 / pre.A;
-          pre.K = 1 / (1 + Math.sqrt(pre.A) * pre.d * pre.g + pre.A * pre.g * pre.g);
-        }
-      }
-      return pre;
-    };
     var initCoeffs = function () {
       var coeffs = {};
       coeffs.z = [0, 0];
@@ -77,6 +63,15 @@
         }
         coeffs.b.push(-2 * coeffs.b[0]);
         coeffs.b.push(coeffs.b[0]);
+        return coeffs;
+      },
+      allpass: function (params) {
+        var coeffs = initCoeffs();
+        var p = preCalc(params, coeffs);
+        coeffs.k = 1;
+        coeffs.b.push((1 - p.alpha) / p.a0);
+        coeffs.b.push(-2 * p.cw / p.a0);
+        coeffs.b.push((1 + p.alpha) / p.a0);
         return coeffs;
       },
       bandpass: function (params) {
@@ -133,18 +128,6 @@
         coeffs.b.push((p.A * ((p.A + 1) + (p.A - 1) * p.cw + sa)) / coeffs.a0);
         coeffs.b.push((-2 * p.A * ((p.A - 1) + (p.A + 1) * p.cw)) / coeffs.a0);
         coeffs.b.push((p.A * ((p.A + 1) + (p.A - 1) * p.cw - sa)) / coeffs.a0);
-        return coeffs;
-      },
-      phaseshift: function (params) {
-        var coeffs = initCoeffs();
-        var p = preBilinear(params);
-        coeffs.k = 1;
-        coeffs.a0 = 1;
-        coeffs.b.push(p.K * (1 - p.g * p.d + p.g * p.g));
-        coeffs.b.push(2 * p.K * (p.g * p.g - 1));
-        coeffs.b.push(1);
-        coeffs.a.push(coeffs.b[1]);
-        coeffs.a.push(coeffs.b[0]);
         return coeffs;
       }
     };
