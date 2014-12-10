@@ -74,7 +74,7 @@ var response = filter.response(100);
 // get the filter impact on magnitude, phase, unwrapped phase, phase delay and group delay
 // for a defined frequency
 // returns one object
-var responsePoint = firFilter.responsePoint({
+var responsePoint = filter.responsePoint({
     Fs: 1000,  // sampling frequency
     Fr: 123 // frequency of interest
   });
