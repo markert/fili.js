@@ -28,7 +28,10 @@ var iirFilterCoeffs = iirCalculator.lowpass({
     order: 3, // cascade 3 biquad filters
     characteristic: 'butterworth', // 'bessel' also possible
     Fs: 1000, // sampling frequency
-    Fc: 100 // cutoff frequency / center frequency for bandpass, bandstop, peak
+    Fc: 100, // cutoff frequency / center frequency for bandpass, bandstop, peak
+    gain: 0, // gain for peak, lowshelf and highshelf
+    preGain: false // adds one constant multiplication for highpass and lowpass
+    // k = (1 + cos(omega)) * 0.5 / k = 1 with preGain == false
   });
   
 // create a filter instance from the calculated coeffs
