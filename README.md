@@ -6,6 +6,18 @@ A digital filter library for javascript
 Generate IIR Filters:
 
 IIR filters are composed of n Biquad filters.
+Possible filters are:
+-   lowpass
+-   highpass
+-   bandpass
+-   bandstop
+-   peak
+-   lowshelf
+-   highshelf
+
+Note: for peak, lowshelf and highshelf a gain attribute must be defined
+when generating the coefficients. Gain can be positive or negative
+and represents the dB value for the peak or dip.
 
 ```javascript
 //  Instance of a filter coefficient calculator
@@ -16,7 +28,10 @@ var iirFilterCoeffs = iirCalculator.lowpass({
     order: 3, // cascade 3 biquad filters
     characteristic: 'butterworth', // 'bessel' also possible
     Fs: 1000, // sampling frequency
-    Fc: 100 // cutoff frequency
+    Fc: 100, // cutoff frequency / center frequency for bandpass, bandstop, peak
+    gain: 0, // gain for peak, lowshelf and highshelf
+    preGain: false // adds one constant multiplication for highpass and lowpass
+    // k = (1 + cos(omega)) * 0.5 / k = 1 with preGain == false
   });
   
 // create a filter instance from the calculated coeffs
@@ -26,6 +41,11 @@ var iirFilter = new IirFilter(filterCoeffs);
 Generate FIR Filters:   
 
 FIR filter calculation is done with a windowed sinc function
+Possible filters are:
+-   lowpass
+-   highpass
+-   bandpass
+-   bandstop
 
 ```javascript
 //  Instance of a filter coefficient calculator
@@ -36,6 +56,7 @@ var firFilterCoeffs = firCalculator.lowpass({
     order: 100, // filter order
     Fs: 1000, // sampling frequency
     Fc: 100 // cutoff frequency
+    // forbandpass and bandstop F1 and F2 must be provided instead of Fc
   });
   
 // create a filter instance from the calculated coeffs
