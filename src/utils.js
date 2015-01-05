@@ -1,4 +1,4 @@
-/* exported complex, evaluatePhase, runMultiFilter */
+/* exported complex, evaluatePhase, runMultiFilter, besselFactors */
 'use strict';
 
 var evaluatePhase = function (res) {
@@ -47,6 +47,30 @@ var runMultiFilter = function (input, d, doStep, overwrite) {
     out[i] = doStep(input[i], d);
   }
   return out;
+};
+
+var factorial = function (n, a) {
+  if (!a) {
+    a = 1;
+  }
+  if (n !== Math.floor(n) || a !== Math.floor(a)) {
+    return 1;
+  }
+  if (n === 0 || n === 1) {
+    return a;
+  } else {
+    return factorial(n - 1, a * n);
+  }
+};
+
+var besselFactors = function (n) {
+  var res = [];
+  for (var k = 0; k < n + 1; k++) {
+    var p = factorial(2 * n - k);
+    var q = Math.pow(2, (n - k)) * factorial(k) * factorial(n - k);
+    res.unshift(Math.floor(p / q));
+  }
+  return res;
 };
 
 var complex = {
