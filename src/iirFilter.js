@@ -12,6 +12,7 @@
       im: 0
     };
     var cf = [];
+    var cc = [];
     for (var cnt = 0; cnt < f.length; cnt++) {
       cf[cnt] = {};
       var s = f[cnt];
@@ -39,6 +40,11 @@
         re: s.k,
         im: 0
       };
+      cc[cnt] = {};
+      cc[cnt].b1 = s.b[1] / s.b[0];
+      cc[cnt].b2 = s.b[2] / s.b[0];
+      cc[cnt].a1 = s.a[0];
+      cc[cnt].a2 = s.a[1];
     }
     var runStage = function (s, input) {
       var temp = input * s.k - s.a[0] * s.z[0] - s.a[1] * s.z[1];
@@ -145,6 +151,37 @@
       return ret;
     };
 
+    var getComplRes = function (n1, n2) {
+      var innerSqrt = Math.pow(n1 / 2, 2) - n2;
+      if (innerSqrt < 0) {
+        return [{
+          re: -n1 / 2,
+          im: Math.sqrt(Math.abs(innerSqrt))
+        }, {
+          re: -n1 / 2,
+          im: -Math.sqrt(Math.abs(innerSqrt))
+        }];
+      } else {
+        return [{
+          re: -n1 / 2 + Math.sqrt(innerSqrt),
+          im: 0
+        }, {
+          re: -n1 / 2 - Math.sqrt(innerSqrt),
+          im: 0
+        }];
+      }
+    };
+
+    var getPZ = function () {
+      var res = [];
+      for (var cnt = 0; cnt < cc.length; cnt++) {
+        res[cnt] = {};
+        res[cnt].z = getComplRes(cc[cnt].b1, cc[cnt].b2);
+        res[cnt].p = getComplRes(cc[cnt].a1, cc[cnt].a2);
+      }
+      return res;
+    };
+
     var self = {
       singleStep: function (input) {
         return doStep(input, f);
@@ -185,6 +222,9 @@
         }
         evaluatePhase(res);
         return res;
+      },
+      polesZeros: function () {
+        return getPZ();
       },
       reinit: function () {
         for (cnt = 0; cnt < f.length; cnt++) {
