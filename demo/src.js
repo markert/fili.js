@@ -58,9 +58,88 @@ $(document).ready(function () {
       Fc: fc.value
     });
 
+    var cnt = 0;
+
     filterBessel = new IirFilter(coeffsBessel);
     filterButterworth = new IirFilter(coeffsButterworth);
     filterFir = new FirFilter(coeffsFir);
+    var pzButterworth = filterButterworth.polesZeros();
+    var colors = ['#00FF00', '#FF0000', '#0000FF'];
+    var options = {
+      xaxis: {
+        min: -1,
+        max: 1
+      },
+      yaxis: {
+        min: -1,
+        max: 1
+      }
+    };
+    var xSign = function (ctx, x, y, radius) {
+      var size = radius * Math.sqrt(Math.PI) / 2;
+      ctx.moveTo(x - size, y - size);
+      ctx.lineTo(x + size, y + size);
+      ctx.moveTo(x - size, y + size);
+      ctx.lineTo(x + size, y - size);
+    };
+    var iirBuPz = [];
+    for (cnt = 0; cnt < pzButterworth.length; cnt++) {
+      iirBuPz[2 * cnt] = {
+        data: [
+          [pzButterworth[cnt].p[0].re, pzButterworth[cnt].p[0].im],
+          [pzButterworth[cnt].p[1].re, pzButterworth[cnt].p[1].im]
+        ],
+        color: colors[cnt],
+        points: {
+          radius: 3,
+          show: true,
+          symbol: xSign
+        }
+      };
+      iirBuPz[2 * cnt + 1] = {
+        data: [
+          [pzButterworth[cnt].z[0].re, pzButterworth[cnt].z[0].im],
+          [pzButterworth[cnt].z[1].re, pzButterworth[cnt].z[1].im]
+        ],
+        color: colors[cnt],
+        points: {
+          radius: 3,
+          show: true
+        }
+      };
+    }
+    $.plot($('#iirbpz'), iirBuPz,
+      options
+    );
+    var pzBessel = filterBessel.polesZeros();
+    var iirBePz = [];
+    for (cnt = 0; cnt < pzBessel.length; cnt++) {
+      iirBePz[2 * cnt] = {
+        data: [
+          [pzBessel[cnt].p[0].re, pzBessel[cnt].p[0].im],
+          [pzBessel[cnt].p[1].re, pzBessel[cnt].p[1].im]
+        ],
+        color: colors[cnt],
+        points: {
+          radius: 3,
+          show: true,
+          symbol: xSign
+        }
+      };
+      iirBePz[2 * cnt + 1] = {
+        data: [
+          [pzBessel[cnt].z[0].re, pzBessel[cnt].z[0].im],
+          [pzBessel[cnt].z[1].re, pzBessel[cnt].z[1].im]
+        ],
+        color: colors[cnt],
+        points: {
+          radius: 3,
+          show: true
+        }
+      };
+    }
+    $.plot($('#iirpz'), iirBePz,
+      options);
     var tc = iirCalculator.lowpass({
       order: io.value,
       characteristic: 'butterworth',
@@ -78,7 +157,6 @@ $(document).ready(function () {
       pp: 10,
       setup: 1000
     }));
-    var cnt = 0;
     var iirBeRe = filterBessel.response(480);
     var iirBeReMag = [];
     var fss = fs.value;
