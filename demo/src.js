@@ -9,6 +9,8 @@ $(document).ready(function () {
   var buir = document.getElementById('buir_val');
   var beir = document.getElementById('beir_val');
   var sim = document.getElementById('f_sim');
+  var iirtxt = document.getElementById('iirtxt');
+  var iirbtxt = document.getElementById('iirbtxt');
 
   var inval = document.getElementById('in_val');
   var run = document.getElementById('f_run');
@@ -59,11 +61,21 @@ $(document).ready(function () {
     });
 
     var cnt = 0;
+    var beautifyZ = function (zo) {
+      var str = '';
+      for (var k = 0; k < zo.length; k++) {
+        str += 'stage ' + (k + 1) + ': ';
+        str += 'Zeros: ' + JSON.stringify(zo[k].z) + ' ___|||||___ ';
+        str += 'Poles: ' + JSON.stringify(zo[k].p) + '<br>';
+      }
+      return str;
+    };
 
     filterBessel = new IirFilter(coeffsBessel);
     filterButterworth = new IirFilter(coeffsButterworth);
     filterFir = new FirFilter(coeffsFir);
     var pzButterworth = filterButterworth.polesZeros();
+    iirbtxt.innerHTML = beautifyZ(pzButterworth);
     var colors = ['#00FF00', '#FF0000', '#0000FF'];
     var options = {
       xaxis: {
@@ -73,6 +85,22 @@ $(document).ready(function () {
       yaxis: {
         min: -1,
         max: 1
+      },
+      grid: {
+        markings: [{
+          yaxis: {
+            from: 0,
+            to: 0
+          },
+          color: "#000"
+        }, {
+          xaxis: {
+            from: 0,
+            to: 0
+          },
+          color: "#000"
+        }],
+        markingsLineWidth: 1
       }
     };
     var xSign = function (ctx, x, y, radius) {
@@ -91,7 +119,7 @@ $(document).ready(function () {
         ],
         color: colors[cnt],
         points: {
-          radius: 3,
+          radius: 4,
           show: true,
           symbol: xSign
         }
@@ -103,7 +131,7 @@ $(document).ready(function () {
         ],
         color: colors[cnt],
         points: {
-          radius: 3,
+          radius: 4,
           show: true
         }
       };
@@ -112,6 +140,7 @@ $(document).ready(function () {
       options
     );
     var pzBessel = filterBessel.polesZeros();
+    iirtxt.innerHTML = beautifyZ(pzBessel);
     var iirBePz = [];
     for (cnt = 0; cnt < pzBessel.length; cnt++) {
       iirBePz[2 * cnt] = {
