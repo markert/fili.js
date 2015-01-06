@@ -62,6 +62,7 @@
         Fs: params.Fs,
         Fc: fd,
         Q: q,
+        BW: params.BW || 0,
         gain: params.gain || 0,
         preGain: params.preGain || false
       }));

@@ -10,7 +10,11 @@
         Fs = params.Fs;
       var pre = {};
       var w = 2 * Math.PI * Fc / Fs;
-      pre.alpha = Math.sin(w) / (2 * Q);
+      if (params.BW) {
+        pre.alpha = Math.sin(w) * Math.sinh(Math.log(2) / 2 * params.BW * w / Math.sin(w));
+      } else {
+        pre.alpha = Math.sin(w) / (2 * Q);
+      }
       pre.cw = Math.cos(w);
       pre.a0 = 1 + pre.alpha;
       coeffs.a0 = pre.a0;
@@ -39,6 +43,9 @@
     var self = {
       lowpass: function (params) {
         var coeffs = initCoeffs();
+        if (params.BW) {
+          delete params.BW;
+        }
         var p = preCalc(params, coeffs);
         if (params.preGain) {
           coeffs.k = (1 - p.cw) * 0.5;
@@ -53,6 +60,9 @@
       },
       highpass: function (params) {
         var coeffs = initCoeffs();
+        if (params.BW) {
+          delete params.BW;
+        }
         var p = preCalc(params, coeffs);
         if (params.preGain) {
           coeffs.k = (1 + p.cw) * 0.5;
@@ -67,6 +77,9 @@
       },
       allpass: function (params) {
         var coeffs = initCoeffs();
+        if (params.BW) {
+          delete params.BW;
+        }
         var p = preCalc(params, coeffs);
         coeffs.k = 1;
         coeffs.b.push((1 - p.alpha) / p.a0);
@@ -74,11 +87,20 @@
         coeffs.b.push((1 + p.alpha) / p.a0);
         return coeffs;
       },
-      bandpass: function (params) {
+      bandpassQ: function (params) {
         var coeffs = initCoeffs();
         var p = preCalc(params, coeffs);
         coeffs.k = 1;
         coeffs.b.push(p.alpha * params.Q / p.a0);
+        coeffs.b.push(0);
+        coeffs.b.push(-coeffs.b[0]);
+        return coeffs;
+      },
+      bandpass: function (params) {
+        var coeffs = initCoeffs();
+        var p = preCalc(params, coeffs);
+        coeffs.k = 1;
+        coeffs.b.push(p.alpha / p.a0);
         coeffs.b.push(0);
         coeffs.b.push(-coeffs.b[0]);
         return coeffs;
@@ -106,6 +128,9 @@
       },
       lowshelf: function (params) {
         var coeffs = initCoeffs();
+        if (params.BW) {
+          delete params.BW;
+        }
         var p = preCalcGain(params);
         coeffs.k = 1;
         var sa = 2 * Math.sqrt(p.A) * p.alpha;
@@ -119,6 +144,9 @@
       },
       highshelf: function (params) {
         var coeffs = initCoeffs();
+        if (params.BW) {
+          delete params.BW;
+        }
         var p = preCalcGain(params);
         coeffs.k = 1;
         var sa = 2 * Math.sqrt(p.A) * p.alpha;
