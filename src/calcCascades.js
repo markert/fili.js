@@ -41,32 +41,40 @@
   var calcCoeffs = function (params, behavior) {
     var filter = [];
     var cnt = 0;
-    if (params.order > 12) {
-      params.order = 12;
-    }
-    for (cnt = 0; cnt < params.order; cnt++) {
-      var q, f, fd;
-      if (params.characteristic === 'butterworth') {
-        q = 0.5 / (Math.sin((Math.PI / (params.order * 2)) * (cnt + 0.5)));
-        f = 1;
-      } else {
-        q = table[params.characteristic].q[params.order - 1][cnt];
-        f = table[params.characteristic].f[params.order - 1][cnt];
+    if (behavior !== 'fromPZ') {
+      if (params.order > 12) {
+        params.order = 12;
       }
-      if (behavior === 'highpass') {
-        fd = params.Fc / f;
-      } else {
-        fd = params.Fc * f;
+      for (cnt = 0; cnt < params.order; cnt++) {
+        var q, f, fd;
+        if (params.characteristic === 'butterworth') {
+          q = 0.5 / (Math.sin((Math.PI / (params.order * 2)) * (cnt + 0.5)));
+          f = 1;
+        } else {
+          q = table[params.characteristic].q[params.order - 1][cnt];
+          f = table[params.characteristic].f[params.order - 1][cnt];
+        }
+        if (behavior === 'highpass') {
+          fd = params.Fc / f;
+        } else {
+          fd = params.Fc * f;
+        }
+        filter.push(getCoeffs[behavior]({
+          Fs: params.Fs,
+          Fc: fd,
+          Q: q,
+          BW: params.BW || 0,
+          gain: params.gain || 0,
+          preGain: params.preGain || false
+        }));
       }
-      filter.push(getCoeffs[behavior]({
-        Fs: params.Fs,
-        Fc: fd,
-        Q: q,
-        BW: params.BW || 0,
-        gain: params.gain || 0,
-        preGain: params.preGain || false
-      }));
+    } else {
+      for (cnt = 0; cnt < params.length; cnt++) {
+        filter.push(getCoeffs[behavior](params[cnt]));
+      }
+
     }
+
     return filter;
   };
 

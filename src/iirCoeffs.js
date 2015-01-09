@@ -41,6 +41,21 @@
       return coeffs;
     };
     var self = {
+      fromPZ: function (params) {
+        var coeffs = initCoeffs();
+        coeffs.a0 = 1;
+        coeffs.b.push(1);
+        coeffs.b.push(-params.z0.re - params.z1.re);
+        coeffs.b.push(params.z0.re * params.z1.re - params.z0.im * params.z1.im);
+        coeffs.a.push(-params.p0.re - params.p1.re);
+        coeffs.a.push(params.p0.re * params.p1.re - params.p0.im * params.p1.im);
+        if (params.type = 'lowpass') {
+          coeffs.k = (1 + coeffs.a[0] + coeffs.a[1]) / (1 + coeffs.b[1] + coeffs.b[2]);
+        } else {
+          coeffs.k = (1 - coeffs.a[0] + coeffs.a[1]) / (1 - coeffs.b[1] + coeffs.b[2]);
+        }
+        return coeffs;
+      },
       // Bessel-Thomson: H(s) = 3/(s^2+3*s+3)
       lowpassBT: function (params) {
         var coeffs = initCoeffs();
