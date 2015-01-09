@@ -49,7 +49,7 @@
         coeffs.b.push(params.z0.re * params.z1.re - params.z0.im * params.z1.im);
         coeffs.a.push(-params.p0.re - params.p1.re);
         coeffs.a.push(params.p0.re * params.p1.re - params.p0.im * params.p1.im);
-        if (params.type = 'lowpass') {
+        if (params.type === 'lowpass') {
           coeffs.k = (1 + coeffs.a[0] + coeffs.a[1]) / (1 + coeffs.b[1] + coeffs.b[2]);
         } else {
           coeffs.k = (1 - coeffs.a[0] + coeffs.a[1]) / (1 - coeffs.b[1] + coeffs.b[2]);
