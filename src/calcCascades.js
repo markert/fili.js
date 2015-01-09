@@ -47,7 +47,7 @@
     for (cnt = 0; cnt < params.order; cnt++) {
       var q, f, fd;
       if (params.characteristic === 'butterworth') {
-        q = 1 / (2 * Math.sin((Math.PI / (params.order * 2)) * (cnt + 0.5)));
+        q = 0.5 / (Math.sin((Math.PI / (params.order * 2)) * (cnt + 0.5)));
         f = 1;
       } else {
         q = table[params.characteristic].q[params.order - 1][cnt];
