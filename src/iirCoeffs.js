@@ -41,6 +41,45 @@
       return coeffs;
     };
     var self = {
+      // Bessel-Thomson: H(s) = 3/(s^2+3*s+3)
+      lowpassBT: function (params) {
+        var coeffs = initCoeffs();
+        params.Q = 1;
+        coeffs.wp = Math.tan((2 * Math.PI * params.Fc) / (2 * params.Fs));
+        coeffs.wp2 = coeffs.wp * coeffs.wp;
+        if (params.BW) {
+          delete params.BW;
+        }
+        coeffs.k = 1;
+        coeffs.a0 = 3 * coeffs.wp + 3 * coeffs.wp2 + 1;
+        coeffs.b.push(3 * coeffs.wp2 * params.Q / coeffs.a0);
+        coeffs.b.push(2 * coeffs.b[0]);
+        coeffs.b.push(coeffs.b[0]);
+        coeffs.a.push((6 * coeffs.wp2 - 2) / coeffs.a0);
+        coeffs.a.push((3 * coeffs.wp2 - 3 * coeffs.wp + 1) / coeffs.a0);
+        return coeffs;
+      },
+      highpassBT: function (params) {
+        var coeffs = initCoeffs();
+        params.Q = 1;
+        coeffs.wp = Math.tan((2 * Math.PI * params.Fc) / (2 * params.Fs));
+        coeffs.wp2 = coeffs.wp * coeffs.wp;
+        if (params.BW) {
+          delete params.BW;
+        }
+        coeffs.k = 1;
+        coeffs.a0 = coeffs.wp + coeffs.wp2 + 3;
+        coeffs.b.push(3 * params.Q / coeffs.a0);
+        coeffs.b.push(2 * coeffs.b[0]);
+        coeffs.b.push(coeffs.b[0]);
+        coeffs.a.push((2 * coeffs.wp2 - 6) / coeffs.a0);
+        coeffs.a.push((coeffs.wp2 - coeffs.wp + 3) / coeffs.a0);
+        return coeffs;
+      },
+      /*
+       * Formulas from http://www.musicdsp.org/files/Audio-EQ-Cookbook.txt
+       */
+      // H(s) = 1 / (s^2 + s/Q + 1)
       lowpass: function (params) {
         var coeffs = initCoeffs();
         if (params.BW) {
@@ -58,6 +97,7 @@
         coeffs.b.push(coeffs.b[0]);
         return coeffs;
       },
+      // H(s) = s^2 / (s^2 + s/Q + 1)
       highpass: function (params) {
         var coeffs = initCoeffs();
         if (params.BW) {
@@ -75,6 +115,7 @@
         coeffs.b.push(coeffs.b[0]);
         return coeffs;
       },
+      // H(s) = (s^2 - s/Q + 1) / (s^2 + s/Q + 1
       allpass: function (params) {
         var coeffs = initCoeffs();
         if (params.BW) {
@@ -87,6 +128,7 @@
         coeffs.b.push((1 + p.alpha) / p.a0);
         return coeffs;
       },
+      // H(s) = s / (s^2 + s/Q + 1)
       bandpassQ: function (params) {
         var coeffs = initCoeffs();
         var p = preCalc(params, coeffs);
@@ -96,6 +138,7 @@
         coeffs.b.push(-coeffs.b[0]);
         return coeffs;
       },
+      // H(s) = (s/Q) / (s^2 + s/Q + 1)
       bandpass: function (params) {
         var coeffs = initCoeffs();
         var p = preCalc(params, coeffs);
@@ -105,6 +148,7 @@
         coeffs.b.push(-coeffs.b[0]);
         return coeffs;
       },
+      // H(s) = (s^2 + 1) / (s^2 + s/Q + 1)
       bandstop: function (params) {
         var coeffs = initCoeffs();
         var p = preCalc(params, coeffs);
@@ -114,6 +158,7 @@
         coeffs.b.push(coeffs.b[0]);
         return coeffs;
       },
+      // H(s) = (s^2 + s*(A/Q) + 1) / (s^2 + s/(A*Q) + 1)
       peak: function (params) {
         var coeffs = initCoeffs();
         var p = preCalcGain(params);
@@ -126,6 +171,7 @@
         coeffs.b.push((1 - p.alpha * p.A) / coeffs.a0);
         return coeffs;
       },
+      // H(s) = A * (s^2 + (sqrt(A)/Q)*s + A)/(A*s^2 + (sqrt(A)/Q)*s + 1)
       lowshelf: function (params) {
         var coeffs = initCoeffs();
         if (params.BW) {
@@ -142,6 +188,7 @@
         coeffs.b.push((p.A * ((p.A + 1) - (p.A - 1) * p.cw - sa)) / coeffs.a0);
         return coeffs;
       },
+      // H(s) = A * (A*s^2 + (sqrt(A)/Q)*s + 1)/(s^2 + (sqrt(A)/Q)*s + A)
       highshelf: function (params) {
         var coeffs = initCoeffs();
         if (params.BW) {
