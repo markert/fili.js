@@ -11,7 +11,14 @@ module.exports = function (grunt) {
         separator: ';'
       },
       dist: {
-        src: ['src/**/*.js'],
+        src: ['src/utils.js',
+          'src/iirCoeffs.js',
+          'src/firCoeffs.js',
+          'src/calcCascades.js',
+          'src/iirFilter.js',
+          'src/firFilter.js',
+          'src/testFilter.js'
+        ],
         dest: 'dist/<%= pkg.name %>.js'
       }
     },
