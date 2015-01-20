@@ -59,6 +59,15 @@ var firFilterCoeffs = firCalculator.lowpass({
     // forbandpass and bandstop F1 and F2 must be provided instead of Fc
   });
   
+// filter coefficients by Kaiser-Bessel window
+var firFilterCoeffsK = firCalculator.kbFilter({
+    order: 101, // filter order (must be odd)
+    Fs: 1000, // sampling frequency
+    Fa: 50, // rise, 0 for lowpass
+    Fb: 100, // fall, Fs/2 for highpass
+    Att: 100 // attenuation in dB
+  });
+  
 // create a filter instance from the calculated coeffs
 var firFilter = new FirFilter(filterCoeffs);
 ```
