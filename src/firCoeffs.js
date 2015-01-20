@@ -3,9 +3,64 @@
 (function (window) {
   'use strict';
 
-  // implements a windowed sinc filter
   var FirCoeffs = function () {
+
+    // Kaiser windowd filters
+    // desired attenuation can be defined
+    // better than windowd sinc filters
+    var calcKImpulseResponse = function (params) {
+      var Fs = params.Fs;
+      var Fa = params.Fa;
+      var Fb = params.Fb;
+      var o = params.order || 51;
+      var alpha = params.Att || 100;
+      var ino = function (val) {
+        var d = 0;
+        var ds = 1;
+        var s = 1;
+        while (ds > s * 1e-6) {
+          d += 2;
+          ds *= val * val / (d * d);
+          s += ds;
+        }
+        return s;
+      };
+
+      if (o / 2 - Math.floor(o / 2) === 0) {
+        o++;
+      }
+      var Np = (o - 1) / 2;
+      var A = [];
+      var beta = 0;
+      var cnt = 0;
+      var inoBeta;
+      var ret = [];
+
+      A[0] = 2 * (Fb - Fa) / Fs;
+      for (cnt = 1; cnt <= Np; cnt++) {
+        A[cnt] = (Math.sin(2 * cnt * Math.PI * Fb / Fs) - Math.sin(2 * cnt * Math.PI * Fa / Fs)) / (cnt * Math.PI);
+      }
+      // empirical coefficients
+      if (alpha < 21) {
+        beta = 0;
+      } else if (alpha > 50) {
+        beta = 0.1102 * (alpha - 8.7);
+      } else {
+        beta = 0.5842 * Math.pow((alpha - 21), 0.4) + 0.07886 * (alpha - 21);
+      }
+
+      inoBeta = ino(beta);
+      for (cnt = 0; cnt <= Np; cnt++) {
+        ret[Np + cnt] = A[cnt] * ino(beta * Math.sqrt(1 - (cnt * cnt / (Np * Np)))) / inoBeta;
+      }
+      for (cnt = 0; cnt < Np; cnt++) {
+        ret[cnt] = ret[o - 1 - cnt];
+      }
+      return ret;
+    };
+
     // note: coefficients are equal to impulse response
+    // windowd sinc filter
     var calcImpulseResponse = function (params) {
       var Fs = params.Fs,
         Fc = params.Fc,
@@ -71,6 +126,9 @@
       },
       bandpass: function (params) {
         return invert(bs(params));
+      },
+      kbFilter: function (params) {
+        return calcKImpulseResponse(params);
       }
     };
     return self;
