@@ -130,7 +130,7 @@
         coeffs.b.push(coeffs.b[0]);
         return coeffs;
       },
-      // H(s) = (s^2 - s/Q + 1) / (s^2 + s/Q + 1
+      // H(s) = (s^2 - s/Q + 1) / (s^2 + s/Q + 1)
       allpass: function (params) {
         var coeffs = initCoeffs();
         if (params.BW) {
