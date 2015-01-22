@@ -12,6 +12,7 @@ module.exports = function (grunt) {
       },
       dist: {
         src: ['src/utils.js',
+          'src/fft.js',
           'src/iirCoeffs.js',
           'src/firCoeffs.js',
           'src/calcCascades.js',
