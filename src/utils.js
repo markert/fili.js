@@ -32,6 +32,9 @@ var evaluatePhase = function (res) {
 
     res[cnt].phaseDelay = res[cnt].unwrappedPhase / (cnt / res.length);
     res[cnt].groupDelay = (res[cnt].unwrappedPhase - res[cnt - 1].unwrappedPhase) / (pi / res.length);
+    if (res[cnt].groupDelay < 0) {
+      res[cnt].groupDelay = -res[cnt].groupDelay;
+    }
   }
   if (res[0].magnitude !== 0) {
     res[0].phaseDelay = res[1].phaseDelay;
