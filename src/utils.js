@@ -33,8 +33,15 @@ var evaluatePhase = function (res) {
     res[cnt].phaseDelay = res[cnt].unwrappedPhase / (cnt / res.length);
     res[cnt].groupDelay = (res[cnt].unwrappedPhase - res[cnt - 1].unwrappedPhase) / (pi / res.length);
   }
-  res[0].phaseDelay = res[1].phaseDelay;
-  res[0].groupDelay = res[1].groupDelay;
+  if (res[0].magnitude !== 0) {
+    res[0].phaseDelay = res[1].phaseDelay;
+    res[0].groupDelay = res[1].groupDelay;
+  } else {
+    res[0].phaseDelay = res[2].phaseDelay;
+    res[0].groupDelay = res[2].groupDelay;
+    res[1].phaseDelay = res[2].phaseDelay;
+    res[1].groupDelay = res[2].groupDelay;
+  }
 };
 
 var runMultiFilter = function (input, d, doStep, overwrite) {
