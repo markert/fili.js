@@ -1,0 +1,8 @@
+
+parser: babel-eslint
+
+env:
+  node: true
+
+rules:
+  quotes: [2, "single"]
