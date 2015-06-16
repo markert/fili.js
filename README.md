@@ -143,6 +143,12 @@ var stable = filterTester.directedRandomStability({
   });
 ```
 
+## test
+
+```
+$ make test
+```
+
 ## License
 
 MIT
