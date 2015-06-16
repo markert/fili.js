@@ -1,6 +1,6 @@
 # fili
 
-A digital filter library for javascript
+A digital filter library for JavaScript
 
 ## Installation
 
@@ -143,7 +143,7 @@ var stable = filterTester.directedRandomStability({
   });
 ```
 
-## test
+## Test
 
 ```
 $ make test
