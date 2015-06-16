@@ -1,3 +1,11 @@
+'use strict';
+
+var should = require('should');
+var FirCoeffs = require('../src/firCoeffs');
+var FirFilter = require('../src/firFilter');
+
+
+
 describe('iir.js', function () {
 
   var firCalculator;

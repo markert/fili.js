@@ -3,12 +3,13 @@
   "version": "0.0.12",
   "author": "Florian Markert",
   "license": "MIT",
-  "dependencies": {
-    
-  },
+  "dependencies": {},
   "devDependencies": {
+    "babel": "^5.5.8",
     "babel-eslint": "^3.1.15",
-    "eslint": "^0.23.0"
+    "eslint": "^0.23.0",
+    "mocha": "^2.2.5",
+    "should": "^6.0.3"
   },
   "scripts": {
     "test": "make test"

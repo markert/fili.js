@@ -1,3 +1,12 @@
+'use strict';
+
+var should = require('should');
+var CalcCascades = require('../src/calcCascades');
+var IirCoeffs = require('../src/iirCoeffs');
+var IirFilter = require('../src/iirFilter');
+
+
+
 describe('iir.js', function () {
 
   var iirCascadeCalculator;
