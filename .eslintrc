@@ -3,6 +3,7 @@ parser: babel-eslint
 
 env:
   node: true
+  mocha: true
 
 rules:
   quotes: [2, "single"]

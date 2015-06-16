@@ -1,4 +1,4 @@
-# fili.js
+# fili
 
 A digital filter library for javascript
 
