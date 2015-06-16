@@ -1,7 +1,18 @@
-fili.js
-=======
+# fili.js
 
 A digital filter library for javascript
+
+## Installation
+
+```
+$ npm install fili
+```
+
+```js
+var fili = require('fili');
+```
+
+## Usage
 
 Generate IIR Filters:
 
@@ -33,12 +44,12 @@ var iirFilterCoeffs = iirCalculator.lowpass({
     preGain: false // adds one constant multiplication for highpass and lowpass
     // k = (1 + cos(omega)) * 0.5 / k = 1 with preGain == false
   });
-  
+
 // create a filter instance from the calculated coeffs
 var iirFilter = new IirFilter(filterCoeffs);
 ```
 
-Generate FIR Filters:   
+Generate FIR Filters:
 
 FIR filter calculation is done with a windowed sinc function
 Possible filters are:
@@ -58,7 +69,7 @@ var firFilterCoeffs = firCalculator.lowpass({
     Fc: 100 // cutoff frequency
     // forbandpass and bandstop F1 and F2 must be provided instead of Fc
   });
-  
+
 // filter coefficients by Kaiser-Bessel window
 var firFilterCoeffsK = firCalculator.kbFilter({
     order: 101, // filter order (must be odd)
@@ -67,7 +78,7 @@ var firFilterCoeffsK = firCalculator.kbFilter({
     Fb: 100, // fall, Fs/2 for highpass
     Att: 100 // attenuation in dB
   });
-  
+
 // create a filter instance from the calculated coeffs
 var firFilter = new FirFilter(filterCoeffs);
 ```
@@ -126,8 +137,12 @@ var stable = filterTester.directedRandomStability({
     tests: 100, // numbers of tests (random, ramp, impulses, steps)
     offset: 5, // offset of input
     pp: 10, // peak to peak of input
-    maxStable: 20, // values over this border will be considered as unstable 
+    maxStable: 20, // values over this border will be considered as unstable
     minStable: -10, // values under this border will be considered as unstable
     setup: 1000 // steps until initial setup of filter is complete
   });
 ```
+
+## License
+
+MIT
