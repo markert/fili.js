@@ -27,8 +27,8 @@ $(document).ready(function () {
   var butterworthOut = [];
   var firOut = [];
   var unfilteredOut = [];
-  var iirCalculator = new CalcCascades();
-  var firCalculator = new FirCoeffs();
+  var iirCalculator = new Fili.CalcCascades();
+  var firCalculator = new Fili.FirCoeffs();
   var filterBessel, filterButterworth, filterFir;
   var runCounter = 0;
 
@@ -71,9 +71,9 @@ $(document).ready(function () {
       return str;
     };
 
-    filterBessel = new IirFilter(coeffsBessel);
-    filterButterworth = new IirFilter(coeffsButterworth);
-    filterFir = new FirFilter(coeffsFir);
+    filterBessel = new Fili.IirFilter(coeffsBessel);
+    filterButterworth = new Fili.IirFilter(coeffsButterworth);
+    filterFir = new Fili.FirFilter(coeffsFir);
     var pzButterworth = filterButterworth.polesZeros();
     iirbtxt.innerHTML = beautifyZ(pzButterworth);
     var colors = ['#00FF00', '#FF0000', '#0000FF'];
@@ -175,8 +175,8 @@ $(document).ready(function () {
       Fs: fs.value,
       Fc: fc.value
     });
-    var tf = new IirFilter(tc);
-    var tester = new TestFilter(tf);
+    var tf = new Fili.IirFilter(tc);
+    var tester = new Fili.TestFilter(tf);
     console.log(tester.directedRandomStability({
       steps: 10000,
       tests: 100,

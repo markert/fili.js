@@ -1,6 +1,6 @@
 /**
  * @name    fili
- * @version 0.0.12 | June 16th 2015
+ * @version 0.0.12 | June 17th 2015
  * @author  Florian Markert
  * @license MIT
  */
@@ -14,11 +14,12 @@ module.exports = {
   FirCoeffs: require('./src/firCoeffs'),
   FirFilter: require('./src/firFilter'),
   IirCoeffs: require('./src/iirCoeffs'),
-  IirFilter: require('./src/iirFilter')
+  IirFilter: require('./src/iirFilter'),
+  TestFilter: require('./src/testFilter')
 
 };
 
-},{"./src/calcCascades":2,"./src/fft":3,"./src/firCoeffs":4,"./src/firFilter":5,"./src/iirCoeffs":6,"./src/iirFilter":7}],2:[function(require,module,exports){
+},{"./src/calcCascades":2,"./src/fft":3,"./src/firCoeffs":4,"./src/firFilter":5,"./src/iirCoeffs":6,"./src/iirFilter":7,"./src/testFilter":8}],2:[function(require,module,exports){
 'use strict';
 
 var IirCoeffs = require('./iirCoeffs');
@@ -623,7 +624,7 @@ var FirFilter = function FirFilter(filter) {
 
 module.exports = FirFilter;
 
-},{"./utils":8}],6:[function(require,module,exports){
+},{"./utils":9}],6:[function(require,module,exports){
 'use strict';
 
 var IirCoeffs = function IirCoeffs() {
@@ -1110,7 +1111,107 @@ var IirFilter = function IirFilter(filter) {
 
 module.exports = IirFilter;
 
-},{"./utils":8}],8:[function(require,module,exports){
+},{"./utils":9}],8:[function(require,module,exports){
+'use strict';
+
+/**
+ * Test filter
+ */
+var TestFilter = function TestFilter(filter) {
+  var f = filter;
+
+  var simData = [];
+  var cnt;
+
+  var randomValues = function randomValues(params) {
+    for (cnt = 0; cnt < params.steps; cnt++) {
+      simData.push(f.singleStep((Math.random() - 0.5) * params.pp + params.offset));
+    }
+  };
+
+  var stepValues = function stepValues(params) {
+    var max = params.offset + params.pp;
+    var min = params.offset - params.pp;
+    for (cnt = 0; cnt < params.steps; cnt++) {
+      if (cnt % 200 < 100) {
+        simData.push(f.singleStep(max));
+      } else {
+        simData.push(f.singleStep(min));
+      }
+    }
+  };
+
+  var impulseValues = function impulseValues(params) {
+    var max = params.offset + params.pp;
+    var min = params.offset - params.pp;
+    for (cnt = 0; cnt < params.steps; cnt++) {
+      if (cnt % 100 === 0) {
+        simData.push(f.singleStep(max));
+      } else {
+        simData.push(f.singleStep(min));
+      }
+    }
+  };
+
+  var rampValues = function rampValues(params) {
+    var max = params.offset + params.pp;
+    var min = params.offset - params.pp;
+    var val = min;
+    var diff = (max - min) / 100;
+    for (cnt = 0; cnt < params.steps; cnt++) {
+      if (cnt % 200 < 100) {
+        val += diff;
+      } else {
+        val -= diff;
+      }
+      simData.push(f.singleStep(val));
+    }
+  };
+
+  var self = {
+    randomStability: function randomStability(params) {
+      f.reinit();
+      simData.length = 0;
+      randomValues(params);
+      for (cnt = params.setup; cnt < simData.length; cnt++) {
+        if (simData[cnt] > params.maxStable || simData[cnt] < params.minStable) {
+          return simData[cnt];
+        }
+      }
+      return true;
+    },
+    directedRandomStability: function directedRandomStability(params) {
+      f.reinit();
+      simData.length = 0;
+      var i;
+      for (i = 0; i < params.tests; i++) {
+        var choose = Math.random();
+        if (choose < 0.25) {
+          randomValues(params);
+        } else if (choose < 0.5) {
+          stepValues(params);
+        } else if (choose < 0.75) {
+          impulseValues(params);
+        } else {
+          rampValues(params);
+        }
+      }
+      randomValues(params);
+      for (cnt = params.setup; cnt < simData.length; cnt++) {
+        if (simData[cnt] > params.maxStable || simData[cnt] < params.minStable) {
+          return simData[cnt];
+        }
+      }
+      return true;
+    },
+    evaluateBehavior: function evaluateBehavior() {}
+  };
+  return self;
+};
+
+module.exports = TestFilter;
+
+},{}],9:[function(require,module,exports){
 'use strict';
 
 /**

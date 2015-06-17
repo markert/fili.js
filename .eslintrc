@@ -4,6 +4,7 @@ parser: babel-eslint
 env:
   node: true
   mocha: true
+  browser: true
 
 rules:
   quotes: [2, "single"]
