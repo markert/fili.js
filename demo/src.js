@@ -136,9 +136,7 @@ $(document).ready(function () {
         }
       };
     }
-    $.plot($('#iirbpz'), iirBuPz,
-      options
-    );
+    $.plot($('#iirbpz'), iirBuPz, options);
     var pzBessel = filterBessel.polesZeros();
     iirtxt.innerHTML = beautifyZ(pzBessel);
     var iirBePz = [];
@@ -167,8 +165,7 @@ $(document).ready(function () {
         }
       };
     }
-    $.plot($('#iirpz'), iirBePz,
-      options);
+    $.plot($('#iirpz'), iirBePz, options);
     var tc = iirCalculator.lowpass({
       order: io.value,
       characteristic: 'butterworth',
@@ -192,6 +189,110 @@ $(document).ready(function () {
     for (cnt = 0; cnt < iirBeRe.length; cnt++) {
       iirBeReMag.push([fss / 2 * cnt / iirBeRe.length, iirBeRe[cnt].magnitude]);
     }
+
+
+
+    var margin = {
+      top: 20,
+      right: 20,
+      bottom: 30,
+      left: 50
+    };
+    var width = 800 - margin.left - margin.right;
+    var height = 500 - margin.top - margin.bottom;
+
+    var xMin = d3.min(iirBeReMag, function(d) {
+      return d[0];
+    });
+
+    var xMax = d3.max(iirBeReMag, function(d) {
+      return d[0];
+    });
+
+    var yMin = d3.min(iirBeReMag, function(d) {
+      return d[1];
+    });
+
+    var yMax = d3.max(iirBeReMag, function(d) {
+      return d[1];
+    });
+
+
+    var x = d3.scale.linear()
+      .range([0, width])
+      .domain([xMin, xMax]);
+
+    var y = d3.scale.linear()
+      .range([height, 0])
+      .domain([yMin, yMax * 1.1]);
+
+    var xAxis = d3.svg.axis()
+      .scale(x)
+      .orient('bottom');
+
+    var yAxis = d3.svg.axis()
+      .scale(y)
+      .ticks(10)
+      .orient('left');
+
+    var line = d3.svg.line()
+      .x(function(d) {
+        return x(d[0]);
+      })
+      .y(function(d) {
+        return y(d[1]);
+      });
+
+    var svg = d3.select('#iirmag_d3')
+      .append('svg')
+      .attr('width', width + margin.left + margin.right)
+      .attr('height', height + margin.top + margin.bottom)
+      .append('g')
+      .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+    // horizontal grid
+    svg.append('g')
+      .selectAll('line.grid')
+      .data(y.ticks(10))
+      .enter()
+      .append('line')
+      .attr('class', 'grid')
+      .attr('x1', 0)
+      .attr('y1', function(d){ return y(d); })
+      .attr('x2', width)
+      .attr('y2', function(d){ return y(d); });
+
+    // vertical grid
+    svg.append('g')
+      .selectAll('line.grid')
+      .data(x.ticks(10))
+      .enter()
+      .append('line')
+      .attr('class', 'grid')
+      .attr('x1', function(d){ return x(d); })
+      .attr('y1', 0)
+      .attr('x2', function(d){ return x(d); })
+      .attr('y2', height);
+
+    // x axis
+    svg.append('g')
+     .attr('class', 'x axis')
+     .attr('transform', 'translate(0,' + height + ')')
+     .call(xAxis);
+
+    // y axis
+    svg.append('g')
+      .attr('class', 'y axis')
+      .call(yAxis);
+
+    // line
+    svg.append('path')
+      .datum(iirBeReMag)
+      .attr('class', 'line')
+      .attr('d', line);
+
+
+
     $.plot($('#iirmag'), [{
       data: iirBeReMag,
       color: '#FF0000'

@@ -1,0 +1,20 @@
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.line {
+  fill: none;
+  stroke: steelblue;
+  stroke-width: 1.5px;
+}
+
+.grid {
+  fill: none;
+  shape-rendering: crispEdges;
+  stroke: lightgrey;
+  stroke-width: 1px;
+}
