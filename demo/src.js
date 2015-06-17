@@ -195,8 +195,8 @@ $(document).ready(function () {
     var margin = {
       top: 20,
       right: 20,
-      bottom: 30,
-      left: 50
+      bottom: 50,
+      left: 90
     };
     var width = 800 - margin.left - margin.right;
     var height = 500 - margin.top - margin.bottom;
@@ -290,6 +290,18 @@ $(document).ready(function () {
       .datum(iirBeReMag)
       .attr('class', 'line')
       .attr('d', line);
+
+    // x axis label
+    svg.append('text')
+      .attr('text-anchor', 'middle')
+      .attr('transform', 'translate(' + (width / 2) + ',' + (height + margin.bottom) + ')')
+      .text('x axis description');
+
+    // y axis label
+    svg.append('text')
+      .attr('text-anchor', 'middle')
+      .attr('transform', 'translate(' + (-margin.left / 1.5) + ',' + (height / 2) + ') rotate(-90)')
+      .text('y axis description');
 
 
 

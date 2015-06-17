@@ -1,4 +1,12 @@
 
+html {
+  box-sizing: border-box;
+}
+
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
 .axis path,
 .axis line {
   fill: none;
