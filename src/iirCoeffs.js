@@ -1,10 +1,6 @@
 'use strict';
 
-
-
 var IirCoeffs = function () {
-
-
 
   var preCalc = function (params, coeffs) {
     var Q = params.Q,
@@ -25,8 +21,6 @@ var IirCoeffs = function () {
     return pre;
   };
 
-
-
   var preCalcGain = function (params) {
     var Q = params.Q,
       Fc = params.Fc,
@@ -39,8 +33,6 @@ var IirCoeffs = function () {
     return pre;
   };
 
-
-
   var initCoeffs = function () {
     var coeffs = {};
     coeffs.z = [0, 0];
@@ -48,8 +40,6 @@ var IirCoeffs = function () {
     coeffs.b = [];
     return coeffs;
   };
-
-
 
   var self = {
 
@@ -247,7 +237,5 @@ var IirCoeffs = function () {
 
   return self;
 };
-
-
 
 module.exports = IirCoeffs;

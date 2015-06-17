@@ -2,8 +2,6 @@
 
 var IirCoeffs = require('./iirCoeffs');
 
-
-
 var getCoeffs = new IirCoeffs();
 
 var table = {
@@ -54,8 +52,6 @@ var table = {
   }
 };
 
-
-
 var calcCoeffs = function (params, behavior) {
   var filter = [];
   var cnt = 0;
@@ -100,15 +96,11 @@ var calcCoeffs = function (params, behavior) {
   return filter;
 };
 
-
-
 var initCalcCoeffs = function (behavior) {
   return function (params) {
     return calcCoeffs(params, behavior);
   };
 };
-
-
 
 var self = {};
 var CalcCascades = function () {
@@ -117,7 +109,5 @@ var CalcCascades = function () {
   }
   return self;
 };
-
-
 
 module.exports = CalcCascades;

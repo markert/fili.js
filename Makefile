@@ -4,6 +4,7 @@ ESLINT = $(BIN)/eslint
 BROWSERIFY = $(BIN)/browserify
 MOCHA = $(BIN)/mocha
 UGLIFY = $(BIN)/uglifyjs
+BEAUTIFY = $(BIN)/js-beautify
 
 build:
 	$(BROWSERIFY) ./index.js \
@@ -20,4 +21,7 @@ eslint: src/*.js
 test:
 	$(MOCHA) --compilers js:babel/register
 
-.PHONY: eslint test build
+beautify: index.js ./src/*.js
+	$(BEAUTIFY) $^ --replace
+
+.PHONY: eslint test build beautify

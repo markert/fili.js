@@ -1,6 +1,5 @@
 'use strict';
 
-
 /**
  * Evaluate phase
  */
@@ -50,8 +49,6 @@ exports.evaluatePhase = function (res) {
   }
 };
 
-
-
 /**
  * Run multi filter
  */
@@ -81,8 +78,6 @@ var factorial = function (n, a) {
   }
 };
 
-
-
 /**
  * Bessel factors
  */
@@ -95,8 +90,6 @@ exports.besselFactors = function (n) {
   }
   return res;
 };
-
-
 
 /**
  * Complex

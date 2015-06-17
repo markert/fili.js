@@ -1,7 +1,5 @@
 'use strict';
 
-
-
 var Fft = function (radix) {
   var isPowerOfTwo = function (value) {
     if (!(value & value - 1)) {
@@ -275,7 +273,5 @@ var Fft = function (radix) {
   };
   return self;
 };
-
-
 
 module.exports = Fft;

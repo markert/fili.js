@@ -1,7 +1,5 @@
 'use strict';
 
-
-
 /**
  * Test filter
  */
@@ -98,7 +96,5 @@ var TestFilter = function (filter) {
   };
   return self;
 };
-
-
 
 module.exports = TestFilter;

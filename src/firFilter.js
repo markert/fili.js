@@ -1,8 +1,8 @@
 'use strict';
 
-var {runMultiFilter, complex, evaluatePhase} = require('./utils');
-
-
+var {
+  runMultiFilter, complex, evaluatePhase
+} = require('./utils');
 
 /**
  * Fir filter
@@ -19,8 +19,6 @@ var FirFilter = function (filter) {
     };
   }
 
-
-
   var initZero = function (cnt) {
     var r = [];
     var i;
@@ -33,11 +31,7 @@ var FirFilter = function (filter) {
     };
   };
 
-
-
   var z = initZero(f.length - 1);
-
-
 
   var doStep = function (input, d) {
     d.buf[d.pointer] = input;
@@ -49,14 +43,10 @@ var FirFilter = function (filter) {
     return out;
   };
 
-
-
   var calcInputResponse = function (input) {
     var tempF = initZero(f.length - 1);
     return runMultiFilter(input, tempF, doStep);
   };
-
-
 
   var calcResponse = function (params) {
     var Fs = params.Fs,
@@ -84,8 +74,6 @@ var FirFilter = function (filter) {
     return res;
   };
 
-
-  
   var self = {
     responsePoint: function (params) {
       return calcResponse(params);
@@ -119,7 +107,5 @@ var FirFilter = function (filter) {
   };
   return self;
 };
-
-
 
 module.exports = FirFilter;

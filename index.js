@@ -1,7 +1,5 @@
 'use strict';
 
-
-
 module.exports = {
 
   CalcCascades: require('./src/calcCascades'),

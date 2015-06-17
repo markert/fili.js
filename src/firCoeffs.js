@@ -1,7 +1,5 @@
 'use strict';
 
-
-
 var FirCoeffs = function () {
 
   // Kaiser windowd filters
@@ -93,7 +91,7 @@ var FirCoeffs = function () {
     for (cnt = 0; cnt < h.length; cnt++) {
       h[cnt] = -h[cnt];
     }
-    h[(h.length - 1) / 2] ++;
+    h[(h.length - 1) / 2]++;
     return h;
   };
   var bs = function (params) {
@@ -132,7 +130,5 @@ var FirCoeffs = function () {
   };
   return self;
 };
-
-
 
 module.exports = FirCoeffs;

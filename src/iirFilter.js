@@ -1,8 +1,8 @@
 'use strict';
 
-var {complex, runMultiFilter, evaluatePhase} = require('./utils');
-
-
+var {
+  complex, runMultiFilter, evaluatePhase
+} = require('./utils');
 
 // params: array of biquad coefficient objects and z registers
 // stage structure e.g. {k:1, a:[1.1, -1.2], b:[0.3, -1.2, -0.4], z:[0, 0]}
@@ -48,8 +48,6 @@ var IirFilter = function (filter) {
     cc[cnt].a2 = s.a[1];
   }
 
-
-
   var runStage = function (s, input) {
     var temp = input * s.k - s.a[0] * s.z[0] - s.a[1] * s.z[1];
     var out = s.b[0] * temp + s.b[1] * s.z[0] + s.b[2] * s.z[1];
@@ -57,8 +55,6 @@ var IirFilter = function (filter) {
     s.z[0] = temp;
     return out;
   };
-
-
 
   var doStep = function (input, coeffs) {
     var out = input;
@@ -68,8 +64,6 @@ var IirFilter = function (filter) {
     }
     return out;
   };
-
-
 
   var biquadResponse = function (params, s) {
     var Fs = params.Fs,
@@ -93,8 +87,6 @@ var IirFilter = function (filter) {
     return res;
   };
 
-
-
   var calcResponse = function (params) {
     var cnt = 0;
     var res = {
@@ -113,8 +105,6 @@ var IirFilter = function (filter) {
     return res;
   };
 
-
-
   var reinit = function () {
     var tempF = [];
     for (var cnt = 0; cnt < f.length; cnt++) {
@@ -128,14 +118,10 @@ var IirFilter = function (filter) {
     return tempF;
   };
 
-
-
   var calcInputResponse = function (input) {
     var tempF = reinit();
     return runMultiFilter(input, tempF, doStep);
   };
-
-
 
   var predefinedResponse = function (def, length) {
     var ret = {};
@@ -167,8 +153,6 @@ var IirFilter = function (filter) {
     return ret;
   };
 
-
-
   var getComplRes = function (n1, n2) {
     var innerSqrt = Math.pow(n1 / 2, 2) - n2;
     if (innerSqrt < 0) {
@@ -190,8 +174,6 @@ var IirFilter = function (filter) {
     }
   };
 
-
-
   var getPZ = function () {
     var res = [];
     for (var cnt = 0; cnt < cc.length; cnt++) {
@@ -201,8 +183,6 @@ var IirFilter = function (filter) {
     }
     return res;
   };
-
-
 
   var self = {
     singleStep: function (input) {
@@ -256,7 +236,5 @@ var IirFilter = function (filter) {
   };
   return self;
 };
-
-
 
 module.exports = IirFilter;

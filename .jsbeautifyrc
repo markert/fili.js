@@ -14,5 +14,6 @@
   "eval_code": false,
   "unescape_strings": false,
   "wrap_line_length": 0,
-  "jslint_happy": true
+  "jslint_happy": true,
+  "end_with_newline": true
 }
