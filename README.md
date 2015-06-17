@@ -9,7 +9,7 @@ $ npm install fili
 ```
 
 ```js
-var fili = require('fili');
+var Fili = require('fili');
 ```
 
 ## Usage
@@ -32,7 +32,7 @@ and represents the dB value for the peak or dip.
 
 ```javascript
 //  Instance of a filter coefficient calculator
-var iirCalculator = new CalcCascades();
+var iirCalculator = new Fili.CalcCascades();
 
 // calculate filter coefficients
 var iirFilterCoeffs = iirCalculator.lowpass({
@@ -46,7 +46,7 @@ var iirFilterCoeffs = iirCalculator.lowpass({
   });
 
 // create a filter instance from the calculated coeffs
-var iirFilter = new IirFilter(filterCoeffs);
+var iirFilter = new Fili.IirFilter(filterCoeffs);
 ```
 
 Generate FIR Filters:
@@ -60,7 +60,7 @@ Possible filters are:
 
 ```javascript
 //  Instance of a filter coefficient calculator
-var firCalculator = new firCoeffs();
+var firCalculator = new Fili.firCoeffs();
 
 // calculate filter coefficients
 var firFilterCoeffs = firCalculator.lowpass({
@@ -80,7 +80,7 @@ var firFilterCoeffsK = firCalculator.kbFilter({
   });
 
 // create a filter instance from the calculated coeffs
-var firFilter = new FirFilter(filterCoeffs);
+var firFilter = new Fili.FirFilter(filterCoeffs);
 ```
 
 Run Filter
@@ -128,7 +128,7 @@ Evaluate stability:
 // initialize filter for testing
 // note: changes internal state of filter -> create a new filter from
 // the calculated coefficients for evaluation
-var filterTester = new FilterTester(testFilter);
+var filterTester = new Fili.FilterTester(testFilter);
 
 // check if filter is stable for the specified input range
 // returns true for stable filter
