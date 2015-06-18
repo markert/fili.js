@@ -342,41 +342,50 @@ $(document).ready(function () {
       .attr('cy', 0)
       .attr('r', 4);
 
+    function over() {
+      circle
+        .style('opacity', 1);
+      hover
+        .style('opacity', 1);
+    }
+
+    function move() {
+      var mouseX = d3.mouse(this)[0];
+      var x0 = x.invert(mouseX);
+      var i = bisect(iirBeReMag, x0);
+      var y0 = iirBeReMag[i][1];
+
+      // update hover line position
+      hover
+        .attr('x1', mouseX)
+        .attr('x2', mouseX);
+
+      // update circle position
+      circle
+        .attr('cx', mouseX)
+        .attr('cy', y(y0));
+
+      // update current value
+      value.text('Frequency ' + x0.toFixed(2) + ' Hz, Attenuation ' + (y0 * 100).toFixed(2) + ' %');
+    }
+
+    function out() {
+      circle
+        .style('opacity', 0);
+      hover
+        .style('opacity', 0);
+    }
+
     svg.append('rect')
       .attr('width', width)
       .attr('height', height)
       .attr('class', 'overlay')
-      .on('mouseover', function() {
-        circle
-          .style('opacity', 1);
-        hover
-          .style('opacity', 1);
-      })
-      .on('mousemove', function() {
-        var mouseX = d3.mouse(this)[0];
-        var x0 = x.invert(mouseX);
-        var i = bisect(iirBeReMag, x0);
-        var y0 = iirBeReMag[i][1];
-
-        // update hover line position
-        hover
-          .attr('x1', mouseX)
-          .attr('x2', mouseX);
-
-        // update circle position
-        circle
-          .attr('cx', mouseX)
-          .attr('cy', y(y0));
-
-        // update current value
-        value.text('Frequency ' + x0.toFixed(2) + ' Hz, Attenuation ' + (y0 * 100).toFixed(2) + ' %');
-      })
-      .on('mouseout', function() {
-        circle
-          .style('opacity', 0);
-        hover
-          .style('opacity', 0);
-      });
+      .on('mouseover', over)
+      .on('touchstart', over)
+      .on('mousemove', move)
+      .on('touchmove', move)
+      .on('mouseout', out)
+      .on('touchend', out);
 
 
 
