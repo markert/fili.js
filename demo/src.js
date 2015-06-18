@@ -193,7 +193,7 @@ $(document).ready(function () {
 
 
     var margin = {
-      top: 20,
+      top: 50,
       right: 20,
       bottom: 50,
       left: 90
@@ -244,11 +244,12 @@ $(document).ready(function () {
         return y(d[1]);
       });
 
-    var svg = d3.select('#iirmag_d3')
+    var parent = d3.select('#iirmag_d3')
       .append('svg')
       .attr('width', width + margin.left + margin.right)
-      .attr('height', height + margin.top + margin.bottom)
-      .append('g')
+      .attr('height', height + margin.top + margin.bottom);
+
+    var svg = parent.append('g')
       .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
     // horizontal grid
@@ -295,14 +296,20 @@ $(document).ready(function () {
     // x axis label
     svg.append('text')
       .attr('text-anchor', 'middle')
-      .attr('transform', 'translate(' + (width / 2) + ',' + (height + margin.bottom - 10) + ')')
+      .attr('transform', 'translate(' + (width / 2) + ',' + (height + margin.bottom - 5) + ')')
       .text('Frequency [Hz]');
 
     // y axis label
     svg.append('text')
       .attr('text-anchor', 'middle')
       .attr('transform', 'translate(' + (-margin.left / 1.5) + ',' + (height / 2) + ') rotate(-90)')
-      .text('Dämpfung in %');
+      .text('Dämpfung [%]');
+
+    // add label for current value when hovering
+    var value = parent.append('text')
+      .attr('text-anchor', 'end')
+      .attr('transform', 'translate(' + (width + margin.left) + ',' + (20) + ')')
+      .text('');
 
     // area below line
     var area = d3.svg.area()
@@ -357,6 +364,9 @@ $(document).ready(function () {
         circle
           .attr('cx', mouseX)
           .attr('cy', y(y0));
+
+        // update current value
+        value.text(x0.toFixed(2) + ' Hz, y: ' + (y0 * 100).toFixed(2) + ' %');
       })
       .on('mouseout', function() {
         console.log('got mouse out');
