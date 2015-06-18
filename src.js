@@ -193,7 +193,7 @@ $(document).ready(function () {
 
 
     var margin = {
-      top: 20,
+      top: 35,
       right: 20,
       bottom: 50,
       left: 90
@@ -244,11 +244,12 @@ $(document).ready(function () {
         return y(d[1]);
       });
 
-    var svg = d3.select('#iirmag_d3')
+    var parent = d3.select('#iirmag_d3')
       .append('svg')
       .attr('width', width + margin.left + margin.right)
-      .attr('height', height + margin.top + margin.bottom)
-      .append('g')
+      .attr('height', height + margin.top + margin.bottom);
+
+    var svg = parent.append('g')
       .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
     // horizontal grid
@@ -295,14 +296,20 @@ $(document).ready(function () {
     // x axis label
     svg.append('text')
       .attr('text-anchor', 'middle')
-      .attr('transform', 'translate(' + (width / 2) + ',' + (height + margin.bottom - 10) + ')')
+      .attr('transform', 'translate(' + (width / 2) + ',' + (height + margin.bottom - 5) + ')')
       .text('Frequency [Hz]');
 
     // y axis label
     svg.append('text')
       .attr('text-anchor', 'middle')
       .attr('transform', 'translate(' + (-margin.left / 1.5) + ',' + (height / 2) + ') rotate(-90)')
-      .text('Dämpfung in %');
+      .text('Dämpfung [%]');
+
+    // add label for current value when hovering
+    var value = parent.append('text')
+      .attr('text-anchor', 'end')
+      .attr('transform', 'translate(' + (width + margin.left) + ',' + (20) + ')')
+      .text('');
 
     // area below line
     var area = d3.svg.area()
@@ -323,16 +330,16 @@ $(document).ready(function () {
     // add vertical line
     var hover = svg.append('line')
       .attr('class', 'hover')
-      .attr('x1', 10)
+      .attr('x1', 0)
       .attr('y1', 0)
-      .attr('x2', 10)
+      .attr('x2', 0)
       .attr('y2', height);
 
     // add circle
     var circle = svg.append('circle')
       .attr('class', 'circle')
-      .attr('cx', 50)
-      .attr('cy', 50)
+      .attr('cx', 0)
+      .attr('cy', 0)
       .attr('r', 4);
 
     svg.append('rect')
@@ -340,7 +347,10 @@ $(document).ready(function () {
       .attr('height', height)
       .attr('class', 'overlay')
       .on('mouseover', function() {
-        console.log('got mouse over');
+        circle
+          .style('opacity', 1);
+        hover
+          .style('opacity', 1);
       })
       .on('mousemove', function() {
         var mouseX = d3.mouse(this)[0];
@@ -357,9 +367,15 @@ $(document).ready(function () {
         circle
           .attr('cx', mouseX)
           .attr('cy', y(y0));
+
+        // update current value
+        value.text('Frequency ' + x0.toFixed(2) + ' Hz, Attenuation ' + (y0 * 100).toFixed(2) + ' %');
       })
       .on('mouseout', function() {
-        console.log('got mouse out');
+        circle
+          .style('opacity', 0);
+        hover
+          .style('opacity', 0);
       });
 
 
