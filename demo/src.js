@@ -315,6 +315,62 @@ $(document).ready(function () {
       .attr('class', 'area')
       .attr('d', area);
 
+    // add mouse interaction - we need to have a transparent overlay to catch mouse events
+    var bisect = d3.bisector(function(d) {
+      return d[0];
+    }).left;
+
+    // add vertical line
+    var hover = svg.append('line')
+      .attr('class', 'hover')
+      .attr('x1', 10)
+      .attr('y1', 0)
+      .attr('x2', 10)
+      .attr('y2', height);
+
+    // add circle
+    var circle = svg.append('circle')
+      .attr('class', 'circle')
+      .attr('cx', 50)
+      .attr('cy', 50)
+      .attr('r', 4);
+
+    svg.append('rect')
+      .attr('width', width)
+      .attr('height', height)
+      .attr('class', 'overlay')
+      .on('mouseover', function() {
+        console.log('got mouse over');
+      })
+      .on('mousemove', function() {
+        var mouseX = d3.mouse(this)[0];
+        var x0 = x.invert(mouseX);
+        var i = bisect(iirBeReMag, x0);
+        var y0 = iirBeReMag[i][1];
+
+        // update hover line position
+        hover
+          .attr('x1', mouseX)
+          .attr('x2', mouseX);
+
+        // update circle position
+        circle
+          .attr('cx', mouseX)
+          .attr('cy', y(y0));
+      })
+      .on('mouseout', function() {
+        console.log('got mouse out');
+      });
+
+    // svg.append("rect")
+    //     .attr("width", width)
+    //     .attr("height", height)
+    //     .style("fill", "none")
+    //     .style("pointer-events", "all")
+    //     .on("mouseover", function() { focus.style("display", null); })
+    //     .on("mouseout", function() { focus.style("display", "none"); })
+    //     .on("mousemove", mousemove);
+
 
 
     $.plot($('#iirmag'), [{

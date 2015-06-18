@@ -25,7 +25,7 @@ body {
 .line {
   fill: none;
   stroke: steelblue;
-  stroke-width: 1.5px;
+  stroke-width: 1px;
 }
 
 .grid {
@@ -38,4 +38,20 @@ body {
 .area {
   fill: steelblue;
   opacity: 0.25;
+}
+
+.overlay {
+  fill: none;
+  pointer-events: all;
+}
+
+.hover {
+  shape-rendering: crispEdges;
+  fill: none;
+  stroke: lightgrey;
+  stroke-width: 1px;
+}
+
+.circle {
+  fill: steelblue;
 }
