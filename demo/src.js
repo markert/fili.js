@@ -92,13 +92,13 @@ $(document).ready(function () {
             from: 0,
             to: 0
           },
-          color: "#000"
+          color: '#000'
         }, {
           xaxis: {
             from: 0,
             to: 0
           },
-          color: "#000"
+          color: '#000'
         }],
         markingsLineWidth: 1
       }
@@ -136,6 +136,144 @@ $(document).ready(function () {
         }
       };
     }
+
+    console.log(iirBuPz);
+
+    (function polar() {
+
+      var margin = {
+        top: 50,
+        right: 50,
+        bottom: 50,
+        left: 50
+      };
+
+      var width = 500 - margin.left - margin.right;
+      var height = 500 - margin.top - margin.bottom;
+
+      var x = d3.scale.linear()
+        .domain([-1, 1])
+        .range([0, width]);
+
+      var y = d3.scale.linear()
+        .domain([-1, 1])
+        .range([height, 0]);
+
+      var svg = d3.select('#iirbpz_d3')
+        .append('svg')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)
+        .append('g')
+        .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+      var xAxis = d3.svg.axis()
+        .scale(x)
+        // .tickFormat(function(d) {
+        //   if (d === 0) {return ''; }
+        //   return x.tickFormat()(d);
+        // })
+        .orient('bottom');
+
+      var yAxis = d3.svg.axis()
+        .scale(y)
+        .orient('left');
+
+      // x axis
+      svg.append('g')
+        .attr('transform', 'translate(' + 0 + ',' + (height / 2) + ')')
+        .attr('class', 'x axis')
+        .call(xAxis);
+
+      // y axis
+      svg.append('g')
+        .attr('class', 'y axis')
+        .attr('transform', 'translate(' + (width / 2) + ',' + 0 + ')')
+        .call(yAxis);
+
+      // var gr = svg.append('g')
+      //   .attr('class', 'r axis')
+      //   .selectAll('g')
+      //   // .data(r.ticks(5).slice(1))
+      //   .data([-1, -0.8, -0.6, -0.4, -0.2, 0, 0.2, 0.4, 0.6, 0.8, 1])
+      //   .enter()
+      //   .append('g');
+
+      // gr.append('circle')
+      //   .attr('r', r);
+
+      // gr.append('text')
+      //   .attr('y', function(d) {
+      //     console.log(d);
+      //     return -r(d) - 4;
+      //   })
+      //   // .attr('transform', 'rotate(15)')
+      //   .style('text-anchor', 'middle')
+      //   .text(function(d) { return d; });
+
+      // var ga = svg.append('g')
+      //   .attr('class', 'a axis')
+      //   .selectAll('g')
+      //   // .data(d3.range(0, 360, 30))
+      //   .data(d3.range(0, 360, 90))
+      //   .enter().append('g')
+      //   .attr('transform', function(d) { return 'rotate(' + -d + ')'; });
+      //
+      // ga.append('line')
+      //   .attr('x2', radius);
+
+      svg.append('g')
+        .selectAll('circle.circle')
+        .data(iirBuPz)
+        .enter()
+        .append('circle')
+        .attr('class', 'circle')
+        .attr('cx', function(d) {
+          return x(d.data[0][0]);
+        })
+        .attr('cy', function(d) {
+          return x(d.data[0][1]);
+        })
+        .attr('r', 4);
+
+      svg.append('g')
+        .selectAll('circle.circle')
+        .data(iirBuPz)
+        .enter()
+        .append('circle')
+        .attr('class', 'circle')
+        .attr('cx', function(d) {
+          return x(d.data[1][0]);
+        })
+        .attr('cy', function(d) {
+          return x(d.data[1][1]);
+        })
+        .attr('r', 4);
+
+
+
+        // svg.append('g')
+        //   .selectAll('line.grid')
+        //   .data(y.ticks(10))
+        //   .enter()
+        //   .append('line')
+        //   .attr('class', 'grid')
+        //   .attr('x1', 0)
+        //   .attr('y1', function(d){ return y(d); })
+        //   .attr('x2', width)
+        //   .attr('y2', function(d){ return y(d); });
+
+
+
+
+      // ga.append('text')
+      //   .attr('x', radius + 6)
+      //   .attr('dy', '.35em')
+      //   .style('text-anchor', function(d) { return d < 270 && d > 90 ? 'end' : null; })
+      //   .attr('transform', function(d) { return d < 270 && d > 90 ? 'rotate(180 ' + (radius + 6) + ',0)' : null; })
+      //   .text(function(d) { return d + '°'; });
+
+    })();
+
     $.plot($('#iirbpz'), iirBuPz, options);
     var pzBessel = filterBessel.polesZeros();
     iirtxt.innerHTML = beautifyZ(pzBessel);
@@ -191,201 +329,202 @@ $(document).ready(function () {
     }
 
 
+    (function draw() {
+      var margin = {
+        top: 35,
+        right: 20,
+        bottom: 50,
+        left: 90
+      };
 
-    var margin = {
-      top: 35,
-      right: 20,
-      bottom: 50,
-      left: 90
-    };
+      var width = 700 - margin.left - margin.right;
+      var height = 500 - margin.top - margin.bottom;
 
-    var width = 700 - margin.left - margin.right;
-    var height = 500 - margin.top - margin.bottom;
-
-    var xMin = d3.min(iirBeReMag, function(d) {
-      return d[0];
-    });
-
-    var xMax = d3.max(iirBeReMag, function(d) {
-      return d[0];
-    });
-
-    var yMin = d3.min(iirBeReMag, function(d) {
-      return d[1];
-    });
-
-    var yMax = d3.max(iirBeReMag, function(d) {
-      return d[1];
-    });
-
-
-    var x = d3.scale.linear()
-      .range([0, width])
-      .domain([xMin, xMax]);
-
-    var y = d3.scale.linear()
-      .range([height, 0])
-      .domain([yMin, yMax * 1.1]);
-
-    var xAxis = d3.svg.axis()
-      .scale(x)
-      .orient('bottom');
-
-    var yAxis = d3.svg.axis()
-      .scale(y)
-      .ticks(10)
-      .orient('left');
-
-    var line = d3.svg.line()
-      .x(function(d) {
-        return x(d[0]);
-      })
-      .y(function(d) {
-        return y(d[1]);
+      var xMin = d3.min(iirBeReMag, function(d) {
+        return d[0];
       });
 
-    var parent = d3.select('#iirmag_d3')
-      .append('svg')
-      .attr('width', width + margin.left + margin.right)
-      .attr('height', height + margin.top + margin.bottom);
+      var xMax = d3.max(iirBeReMag, function(d) {
+        return d[0];
+      });
 
-    var svg = parent.append('g')
-      .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+      var yMin = d3.min(iirBeReMag, function(d) {
+        return d[1];
+      });
 
-    // horizontal grid
-    svg.append('g')
-      .selectAll('line.grid')
-      .data(y.ticks(10))
-      .enter()
-      .append('line')
-      .attr('class', 'grid')
-      .attr('x1', 0)
-      .attr('y1', function(d){ return y(d); })
-      .attr('x2', width)
-      .attr('y2', function(d){ return y(d); });
+      var yMax = d3.max(iirBeReMag, function(d) {
+        return d[1];
+      });
 
-    // vertical grid
-    svg.append('g')
-      .selectAll('line.grid')
-      .data(x.ticks(10))
-      .enter()
-      .append('line')
-      .attr('class', 'grid')
-      .attr('x1', function(d){ return x(d); })
-      .attr('y1', 0)
-      .attr('x2', function(d){ return x(d); })
-      .attr('y2', height);
 
-    // x axis
-    svg.append('g')
-     .attr('class', 'x axis')
-     .attr('transform', 'translate(0,' + height + ')')
-     .call(xAxis);
+      var x = d3.scale.linear()
+        .range([0, width])
+        .domain([xMin, xMax]);
 
-    // y axis
-    svg.append('g')
-      .attr('class', 'y axis')
-      .call(yAxis);
+      var y = d3.scale.linear()
+        .range([height, 0])
+        .domain([yMin, yMax * 1.1]);
 
-    // line
-    svg.append('path')
-      .datum(iirBeReMag)
-      .attr('class', 'line')
-      .attr('d', line);
+      var xAxis = d3.svg.axis()
+        .scale(x)
+        .orient('bottom');
 
-    // x axis label
-    svg.append('text')
-      .attr('text-anchor', 'middle')
-      .attr('transform', 'translate(' + (width / 2) + ',' + (height + margin.bottom - 5) + ')')
-      .text('Frequency [Hz]');
+      var yAxis = d3.svg.axis()
+        .scale(y)
+        .ticks(10)
+        .orient('left');
 
-    // y axis label
-    svg.append('text')
-      .attr('text-anchor', 'middle')
-      .attr('transform', 'translate(' + (-margin.left / 1.5) + ',' + (height / 2) + ') rotate(-90)')
-      .text('Dämpfung [%]');
+      var line = d3.svg.line()
+        .x(function(d) {
+          return x(d[0]);
+        })
+        .y(function(d) {
+          return y(d[1]);
+        });
 
-    // add label for current value when hovering
-    var value = parent.append('text')
-      .attr('text-anchor', 'end')
-      .attr('transform', 'translate(' + (width + margin.left) + ',' + (20) + ')')
-      .text('');
+      var parent = d3.select('#iirmag_d3')
+        .append('svg')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom);
 
-    // area below line
-    var area = d3.svg.area()
-      .x(function(d) { return x(d[0]); })
-      .y0(height)
-      .y1(function(d) { return y(d[1]); });
+      var svg = parent.append('g')
+        .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
-    svg.append('path')
-      .datum(iirBeReMag)
-      .attr('class', 'area')
-      .attr('d', area);
+      // horizontal grid
+      svg.append('g')
+        .selectAll('line.grid')
+        .data(y.ticks(10))
+        .enter()
+        .append('line')
+        .attr('class', 'grid')
+        .attr('x1', 0)
+        .attr('y1', function(d){ return y(d); })
+        .attr('x2', width)
+        .attr('y2', function(d){ return y(d); });
 
-    // add mouse interaction - we need to have a transparent overlay to catch mouse events
-    var bisect = d3.bisector(function(d) {
-      return d[0];
-    }).left;
+      // vertical grid
+      svg.append('g')
+        .selectAll('line.grid')
+        .data(x.ticks(10))
+        .enter()
+        .append('line')
+        .attr('class', 'grid')
+        .attr('x1', function(d){ return x(d); })
+        .attr('y1', 0)
+        .attr('x2', function(d){ return x(d); })
+        .attr('y2', height);
 
-    // add vertical line
-    var hover = svg.append('line')
-      .attr('class', 'hover')
-      .attr('x1', 0)
-      .attr('y1', 0)
-      .attr('x2', 0)
-      .attr('y2', height);
+      // x axis
+      svg.append('g')
+       .attr('class', 'x axis')
+       .attr('transform', 'translate(0,' + height + ')')
+       .call(xAxis);
 
-    // add circle
-    var circle = svg.append('circle')
-      .attr('class', 'circle')
-      .attr('cx', 0)
-      .attr('cy', 0)
-      .attr('r', 4);
+      // y axis
+      svg.append('g')
+        .attr('class', 'y axis')
+        .call(yAxis);
 
-    function over() {
-      circle
-        .style('opacity', 1);
-      hover
-        .style('opacity', 1);
-    }
+      // line
+      svg.append('path')
+        .datum(iirBeReMag)
+        .attr('class', 'line')
+        .attr('d', line);
 
-    function move() {
-      var mouseX = d3.mouse(this)[0];
-      var x0 = x.invert(mouseX);
-      var i = bisect(iirBeReMag, x0);
-      var y0 = iirBeReMag[i][1];
+      // x axis label
+      svg.append('text')
+        .attr('text-anchor', 'middle')
+        .attr('transform', 'translate(' + (width / 2) + ',' + (height + margin.bottom - 5) + ')')
+        .text('Frequency [Hz]');
 
-      // update hover line position
-      hover
-        .attr('x1', mouseX)
-        .attr('x2', mouseX);
+      // y axis label
+      svg.append('text')
+        .attr('text-anchor', 'middle')
+        .attr('transform', 'translate(' + (-margin.left / 1.5) + ',' + (height / 2) + ') rotate(-90)')
+        .text('Dämpfung [%]');
 
-      // update circle position
-      circle
-        .attr('cx', mouseX)
-        .attr('cy', y(y0));
+      // add label for current value when hovering
+      var value = parent.append('text')
+        .attr('text-anchor', 'end')
+        .attr('transform', 'translate(' + (width + margin.left) + ',' + (20) + ')')
+        .text('');
 
-      // update current value
-      value.text('Frequency ' + x0.toFixed(2) + ' Hz, Attenuation ' + (y0 * 100).toFixed(2) + ' %');
-    }
+      // area below line
+      var area = d3.svg.area()
+        .x(function(d) { return x(d[0]); })
+        .y0(height)
+        .y1(function(d) { return y(d[1]); });
 
-    function out() {
-      circle
-        .style('opacity', 0);
-      hover
-        .style('opacity', 0);
-    }
+      svg.append('path')
+        .datum(iirBeReMag)
+        .attr('class', 'area')
+        .attr('d', area);
 
-    svg.append('rect')
-      .attr('width', width)
-      .attr('height', height)
-      .attr('class', 'overlay')
-      .on('mouseover', over)
-      .on('touchstart', over)
-      .on('mousemove', move)
-      .on('touchmove', move)
-      .on('mouseout', out)
-      .on('touchend', out);
+      // add mouse interaction - we need to have a transparent overlay to catch mouse events
+      var bisect = d3.bisector(function(d) {
+        return d[0];
+      }).left;
+
+      // add vertical line
+      var hover = svg.append('line')
+        .attr('class', 'hover')
+        .attr('x1', 0)
+        .attr('y1', 0)
+        .attr('x2', 0)
+        .attr('y2', height);
+
+      // add circle
+      var circle = svg.append('circle')
+        .attr('class', 'circle')
+        .attr('cx', 0)
+        .attr('cy', 0)
+        .attr('r', 4);
+
+      function over() {
+        circle
+          .style('opacity', 1);
+        hover
+          .style('opacity', 1);
+      }
+
+      function move() {
+        var mouseX = d3.mouse(this)[0];
+        var x0 = x.invert(mouseX);
+        var i = bisect(iirBeReMag, x0);
+        var y0 = iirBeReMag[i][1];
+
+        // update hover line position
+        hover
+          .attr('x1', mouseX)
+          .attr('x2', mouseX);
+
+        // update circle position
+        circle
+          .attr('cx', mouseX)
+          .attr('cy', y(y0));
+
+        // update current value
+        value.text('Frequency ' + x0.toFixed(2) + ' Hz, Attenuation ' + (y0 * 100).toFixed(2) + ' %');
+      }
+
+      function out() {
+        circle
+          .style('opacity', 0);
+        hover
+          .style('opacity', 0);
+      }
+
+      svg.append('rect')
+        .attr('width', width)
+        .attr('height', height)
+        .attr('class', 'overlay')
+        .on('mouseover', over)
+        .on('touchstart', over)
+        .on('mousemove', move)
+        .on('touchmove', move)
+        .on('mouseout', out)
+        .on('touchend', out);
+    })();
 
 
 

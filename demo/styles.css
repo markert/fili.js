@@ -58,5 +58,31 @@ body {
 .circle {
   fill: steelblue;
   transition: opacity 0.2s;
+  /*opacity: 0;*/
+}
+
+
+
+
+
+
+
+.axis text {
+  font: 10px sans-serif;
+}
+
+.axis line,
+.axis circle {
+  fill: none;
+  stroke: #777;
+  stroke-dasharray: 1,4;
+}
+
+.axis :last-of-type circle {
+  stroke: #333;
+  stroke-dasharray: none;
+}
+
+.tick:nth-child(6) {
   opacity: 0;
 }
