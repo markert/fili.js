@@ -50,8 +50,12 @@ body {
   fill: none;
   stroke: lightgrey;
   stroke-width: 1px;
+  opacity: 0;
+  transition: opacity 0.2s;
 }
 
 .circle {
   fill: steelblue;
+  transition: opacity 0.2s;
+  opacity: 0;
 }

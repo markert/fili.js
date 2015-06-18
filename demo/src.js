@@ -330,16 +330,16 @@ $(document).ready(function () {
     // add vertical line
     var hover = svg.append('line')
       .attr('class', 'hover')
-      .attr('x1', 10)
+      .attr('x1', 0)
       .attr('y1', 0)
-      .attr('x2', 10)
+      .attr('x2', 0)
       .attr('y2', height);
 
     // add circle
     var circle = svg.append('circle')
       .attr('class', 'circle')
-      .attr('cx', 50)
-      .attr('cy', 50)
+      .attr('cx', 0)
+      .attr('cy', 0)
       .attr('r', 4);
 
     svg.append('rect')
@@ -347,7 +347,10 @@ $(document).ready(function () {
       .attr('height', height)
       .attr('class', 'overlay')
       .on('mouseover', function() {
-        console.log('got mouse over');
+        circle
+          .style('opacity', 1);
+        hover
+          .style('opacity', 1);
       })
       .on('mousemove', function() {
         var mouseX = d3.mouse(this)[0];
@@ -369,7 +372,10 @@ $(document).ready(function () {
         value.text('Frequency ' + x0.toFixed(2) + ' Hz, Attenuation ' + (y0 * 100).toFixed(2) + ' %');
       })
       .on('mouseout', function() {
-        console.log('got mouse out');
+        circle
+          .style('opacity', 0);
+        hover
+          .style('opacity', 0);
       });
 
 
