@@ -31,7 +31,7 @@ body {
 .grid {
   fill: none;
   shape-rendering: crispEdges;
-  stroke: lightgrey;
+  stroke: #eee;
   stroke-width: 1px;
 }
 
