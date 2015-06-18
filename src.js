@@ -136,9 +136,7 @@ $(document).ready(function () {
         }
       };
     }
-    $.plot($('#iirbpz'), iirBuPz,
-      options
-    );
+    $.plot($('#iirbpz'), iirBuPz, options);
     var pzBessel = filterBessel.polesZeros();
     iirtxt.innerHTML = beautifyZ(pzBessel);
     var iirBePz = [];
@@ -167,8 +165,7 @@ $(document).ready(function () {
         }
       };
     }
-    $.plot($('#iirpz'), iirBePz,
-      options);
+    $.plot($('#iirpz'), iirBePz, options);
     var tc = iirCalculator.lowpass({
       order: io.value,
       characteristic: 'butterworth',
@@ -192,6 +189,181 @@ $(document).ready(function () {
     for (cnt = 0; cnt < iirBeRe.length; cnt++) {
       iirBeReMag.push([fss / 2 * cnt / iirBeRe.length, iirBeRe[cnt].magnitude]);
     }
+
+
+
+    var margin = {
+      top: 20,
+      right: 20,
+      bottom: 50,
+      left: 90
+    };
+
+    var width = 800 - margin.left - margin.right;
+    var height = 500 - margin.top - margin.bottom;
+
+    var xMin = d3.min(iirBeReMag, function(d) {
+      return d[0];
+    });
+
+    var xMax = d3.max(iirBeReMag, function(d) {
+      return d[0];
+    });
+
+    var yMin = d3.min(iirBeReMag, function(d) {
+      return d[1];
+    });
+
+    var yMax = d3.max(iirBeReMag, function(d) {
+      return d[1];
+    });
+
+
+    var x = d3.scale.linear()
+      .range([0, width])
+      .domain([xMin, xMax]);
+
+    var y = d3.scale.linear()
+      .range([height, 0])
+      .domain([yMin, yMax * 1.1]);
+
+    var xAxis = d3.svg.axis()
+      .scale(x)
+      .orient('bottom');
+
+    var yAxis = d3.svg.axis()
+      .scale(y)
+      .ticks(10)
+      .orient('left');
+
+    var line = d3.svg.line()
+      .x(function(d) {
+        return x(d[0]);
+      })
+      .y(function(d) {
+        return y(d[1]);
+      });
+
+    var svg = d3.select('#iirmag_d3')
+      .append('svg')
+      .attr('width', width + margin.left + margin.right)
+      .attr('height', height + margin.top + margin.bottom)
+      .append('g')
+      .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+    // horizontal grid
+    svg.append('g')
+      .selectAll('line.grid')
+      .data(y.ticks(10))
+      .enter()
+      .append('line')
+      .attr('class', 'grid')
+      .attr('x1', 0)
+      .attr('y1', function(d){ return y(d); })
+      .attr('x2', width)
+      .attr('y2', function(d){ return y(d); });
+
+    // vertical grid
+    svg.append('g')
+      .selectAll('line.grid')
+      .data(x.ticks(10))
+      .enter()
+      .append('line')
+      .attr('class', 'grid')
+      .attr('x1', function(d){ return x(d); })
+      .attr('y1', 0)
+      .attr('x2', function(d){ return x(d); })
+      .attr('y2', height);
+
+    // x axis
+    svg.append('g')
+     .attr('class', 'x axis')
+     .attr('transform', 'translate(0,' + height + ')')
+     .call(xAxis);
+
+    // y axis
+    svg.append('g')
+      .attr('class', 'y axis')
+      .call(yAxis);
+
+    // line
+    svg.append('path')
+      .datum(iirBeReMag)
+      .attr('class', 'line')
+      .attr('d', line);
+
+    // x axis label
+    svg.append('text')
+      .attr('text-anchor', 'middle')
+      .attr('transform', 'translate(' + (width / 2) + ',' + (height + margin.bottom - 10) + ')')
+      .text('Frequency [Hz]');
+
+    // y axis label
+    svg.append('text')
+      .attr('text-anchor', 'middle')
+      .attr('transform', 'translate(' + (-margin.left / 1.5) + ',' + (height / 2) + ') rotate(-90)')
+      .text('Dämpfung in %');
+
+    // area below line
+    var area = d3.svg.area()
+      .x(function(d) { return x(d[0]); })
+      .y0(height)
+      .y1(function(d) { return y(d[1]); });
+
+    svg.append('path')
+      .datum(iirBeReMag)
+      .attr('class', 'area')
+      .attr('d', area);
+
+    // add mouse interaction - we need to have a transparent overlay to catch mouse events
+    var bisect = d3.bisector(function(d) {
+      return d[0];
+    }).left;
+
+    // add vertical line
+    var hover = svg.append('line')
+      .attr('class', 'hover')
+      .attr('x1', 10)
+      .attr('y1', 0)
+      .attr('x2', 10)
+      .attr('y2', height);
+
+    // add circle
+    var circle = svg.append('circle')
+      .attr('class', 'circle')
+      .attr('cx', 50)
+      .attr('cy', 50)
+      .attr('r', 4);
+
+    svg.append('rect')
+      .attr('width', width)
+      .attr('height', height)
+      .attr('class', 'overlay')
+      .on('mouseover', function() {
+        console.log('got mouse over');
+      })
+      .on('mousemove', function() {
+        var mouseX = d3.mouse(this)[0];
+        var x0 = x.invert(mouseX);
+        var i = bisect(iirBeReMag, x0);
+        var y0 = iirBeReMag[i][1];
+
+        // update hover line position
+        hover
+          .attr('x1', mouseX)
+          .attr('x2', mouseX);
+
+        // update circle position
+        circle
+          .attr('cx', mouseX)
+          .attr('cy', y(y0));
+      })
+      .on('mouseout', function() {
+        console.log('got mouse out');
+      });
+
+
+
     $.plot($('#iirmag'), [{
       data: iirBeReMag,
       color: '#FF0000'

@@ -1,0 +1,57 @@
+
+
+
+html {
+  box-sizing: border-box;
+}
+
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
+body {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 12px;
+  color: #333;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.line {
+  fill: none;
+  stroke: steelblue;
+  stroke-width: 1px;
+}
+
+.grid {
+  fill: none;
+  shape-rendering: crispEdges;
+  stroke: lightgrey;
+  stroke-width: 1px;
+}
+
+.area {
+  fill: steelblue;
+  opacity: 0.25;
+}
+
+.overlay {
+  fill: none;
+  pointer-events: all;
+}
+
+.hover {
+  shape-rendering: crispEdges;
+  fill: none;
+  stroke: lightgrey;
+  stroke-width: 1px;
+}
+
+.circle {
+  fill: steelblue;
+}
