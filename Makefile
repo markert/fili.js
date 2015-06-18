@@ -24,4 +24,15 @@ test:
 beautify: index.js ./src/*.js
 	$(BEAUTIFY) $^ --replace
 
-.PHONY: eslint test build beautify
+ghpages:
+	git checkout gh-pages
+	git checkout master demo/
+	cp demo/src src.js
+	cp demo/styles.css styles.css
+	rm -rf demo/
+	git add . --all
+	git commit -m "update gh-pages"
+	git push
+	git checkout master
+
+.PHONY: eslint test build beautify ghpages
