@@ -27,7 +27,7 @@ beautify: index.js ./src/*.js
 ghpages:
 	git checkout gh-pages
 	git checkout master demo/
-	cp demo/src src.js
+	cp demo/src.js src.js
 	cp demo/styles.css styles.css
 	rm -rf demo/
 	git add . --all
