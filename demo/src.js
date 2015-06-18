@@ -362,15 +362,6 @@ $(document).ready(function () {
         console.log('got mouse out');
       });
 
-    // svg.append("rect")
-    //     .attr("width", width)
-    //     .attr("height", height)
-    //     .style("fill", "none")
-    //     .style("pointer-events", "all")
-    //     .on("mouseover", function() { focus.style("display", null); })
-    //     .on("mouseout", function() { focus.style("display", "none"); })
-    //     .on("mousemove", mousemove);
-
 
 
     $.plot($('#iirmag'), [{
