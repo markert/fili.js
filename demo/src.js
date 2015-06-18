@@ -193,7 +193,7 @@ $(document).ready(function () {
 
 
     var margin = {
-      top: 50,
+      top: 35,
       right: 20,
       bottom: 50,
       left: 90
@@ -366,7 +366,7 @@ $(document).ready(function () {
           .attr('cy', y(y0));
 
         // update current value
-        value.text(x0.toFixed(2) + ' Hz, y: ' + (y0 * 100).toFixed(2) + ' %');
+        value.text('Frequency ' + x0.toFixed(2) + ' Hz, Attenuation ' + (y0 * 100).toFixed(2) + ' %');
       })
       .on('mouseout', function() {
         console.log('got mouse out');
