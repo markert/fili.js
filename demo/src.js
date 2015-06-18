@@ -198,6 +198,7 @@ $(document).ready(function () {
       bottom: 50,
       left: 90
     };
+
     var width = 800 - margin.left - margin.right;
     var height = 500 - margin.top - margin.bottom;
 
@@ -294,14 +295,25 @@ $(document).ready(function () {
     // x axis label
     svg.append('text')
       .attr('text-anchor', 'middle')
-      .attr('transform', 'translate(' + (width / 2) + ',' + (height + margin.bottom) + ')')
-      .text('x axis description');
+      .attr('transform', 'translate(' + (width / 2) + ',' + (height + margin.bottom - 10) + ')')
+      .text('Frequency [Hz]');
 
     // y axis label
     svg.append('text')
       .attr('text-anchor', 'middle')
       .attr('transform', 'translate(' + (-margin.left / 1.5) + ',' + (height / 2) + ') rotate(-90)')
-      .text('y axis description');
+      .text('Dämpfung in %');
+
+    // area below line
+    var area = d3.svg.area()
+      .x(function(d) { return x(d[0]); })
+      .y0(height)
+      .y1(function(d) { return y(d[1]); });
+
+    svg.append('path')
+      .datum(iirBeReMag)
+      .attr('class', 'area')
+      .attr('d', area);
 
 
 
