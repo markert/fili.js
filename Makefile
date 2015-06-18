@@ -24,6 +24,9 @@ test:
 beautify: index.js ./src/*.js
 	$(BEAUTIFY) $^ --replace
 
+server:
+	python -m SimpleHTTPServer 8080
+
 ghpages:
 	git checkout gh-pages
 	git checkout master demo/

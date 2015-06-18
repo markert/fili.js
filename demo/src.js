@@ -199,7 +199,7 @@ $(document).ready(function () {
       left: 90
     };
 
-    var width = 800 - margin.left - margin.right;
+    var width = 700 - margin.left - margin.right;
     var height = 500 - margin.top - margin.bottom;
 
     var xMin = d3.min(iirBeReMag, function(d) {
