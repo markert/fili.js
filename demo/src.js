@@ -536,13 +536,14 @@ $(document).ready(function () {
         .selectAll('line.cross')
         .data(poles)
         .enter()
+        .append('g')
+        .attr('transform', function(d) {
+          return 'translate(' + r(d.data[1][0]) + ',' + y(d.data[1][1]) + ')';
+        })
         .append('path')
         .attr('class', 'cross')
         .style('stroke', function(d) {
           return d.color;
-        })
-        .attr('transform', function(d) {
-          return 'translate(' + r(d.data[1][0]) + ',' + y(d.data[1][1]) + ')';
         })
         .attr('d', function() {
           // draw cross, i.e. x
@@ -552,6 +553,20 @@ $(document).ready(function () {
             'M' + (-size) + ',' + (size) +
             'L' + (size) + ',' + (-size)
           );
+        })
+        .on('mouseover', function(d) {
+          // update current value
+          var x = d.data[1][0];
+          var y = d.data[1][1];
+          var angle = radiansToDegrees(Math.atan2(y, x));
+          var length = Math.sqrt(x * x + y * y);
+          value.text('real ' + x.toFixed(2) + ', imaginary ' + y.toFixed(2) + ', angle ' + angle.toFixed(2) + '°, length ' + length.toFixed(2));
+          d3.select(this).style('stroke', 'steelblue');
+          d3.select(this).style('transform', 'scale(1.5)');
+        })
+        .on('mouseout', function(d) {
+          d3.select(this).style('stroke', d.color);
+          d3.select(this).style('transform', 'scale(1)');
         });
 
       svg.append('g')
@@ -589,7 +604,12 @@ $(document).ready(function () {
         .attr('cx', 0)
         .attr('cy', 0)
         .attr('r', 4)
-        .on('mouseover', function() {
+        .on('mouseover', function(d) {
+          var x = d.data[0][0];
+          var y = d.data[0][1];
+          var angle = radiansToDegrees(Math.atan2(y, x));
+          var length = Math.sqrt(x * x + y * y);
+          value.text('real ' + x.toFixed(2) + ', imaginary ' + y.toFixed(2) + ', angle ' + angle.toFixed(2) + '°, length ' + length.toFixed(2));
           d3.select(this).style('stroke', 'steelblue');
           d3.select(this).style('transform', 'scale(1.5)');
         })
