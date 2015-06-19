@@ -137,8 +137,6 @@ $(document).ready(function () {
       };
     }
 
-    console.log(iirBuPz);
-
     (function polar() {
 
       var margin = {
@@ -168,15 +166,43 @@ $(document).ready(function () {
 
       var xAxis = d3.svg.axis()
         .scale(x)
-        // .tickFormat(function(d) {
-        //   if (d === 0) {return ''; }
-        //   return x.tickFormat()(d);
-        // })
+        .tickFormat(function(d) {
+          if (d === 0) {return ''; }
+          return d3.format()(d);
+        })
         .orient('bottom');
 
       var yAxis = d3.svg.axis()
         .scale(y)
+        .tickFormat(function(d) {
+          if (d === 0) {return ''; }
+          return d3.format()(d);
+        })
         .orient('left');
+
+      // horizontal grid
+      svg.append('g')
+        .selectAll('line.grid')
+        .data(y.ticks(10))
+        .enter()
+        .append('line')
+        .attr('class', 'grid')
+        .attr('x1', 0)
+        .attr('y1', function(d){ return y(d); })
+        .attr('x2', width)
+        .attr('y2', function(d){ return y(d); });
+
+      // vertical grid
+      svg.append('g')
+        .selectAll('line.grid')
+        .data(x.ticks(10))
+        .enter()
+        .append('line')
+        .attr('class', 'grid')
+        .attr('x1', function(d){ return x(d); })
+        .attr('y1', 0)
+        .attr('x2', function(d){ return x(d); })
+        .attr('y2', height);
 
       // x axis
       svg.append('g')
@@ -190,57 +216,54 @@ $(document).ready(function () {
         .attr('transform', 'translate(' + (width / 2) + ',' + 0 + ')')
         .call(yAxis);
 
-      // var gr = svg.append('g')
-      //   .attr('class', 'r axis')
-      //   .selectAll('g')
-      //   // .data(r.ticks(5).slice(1))
-      //   .data([-1, -0.8, -0.6, -0.4, -0.2, 0, 0.2, 0.4, 0.6, 0.8, 1])
-      //   .enter()
-      //   .append('g');
+      var zeroes = iirBuPz.filter(function(data, index) {
+        if (index % 2 !== 0) {
+          return data;
+        }
+      });
 
-      // gr.append('circle')
-      //   .attr('r', r);
-
-      // gr.append('text')
-      //   .attr('y', function(d) {
-      //     console.log(d);
-      //     return -r(d) - 4;
-      //   })
-      //   // .attr('transform', 'rotate(15)')
-      //   .style('text-anchor', 'middle')
-      //   .text(function(d) { return d; });
-
-      // var ga = svg.append('g')
-      //   .attr('class', 'a axis')
-      //   .selectAll('g')
-      //   // .data(d3.range(0, 360, 30))
-      //   .data(d3.range(0, 360, 90))
-      //   .enter().append('g')
-      //   .attr('transform', function(d) { return 'rotate(' + -d + ')'; });
-      //
-      // ga.append('line')
-      //   .attr('x2', radius);
+      var poles = iirBuPz.filter(function(data, index) {
+        if (index % 2 === 0) {
+          return data;
+        }
+      });
 
       svg.append('g')
-        .selectAll('circle.circle')
-        .data(iirBuPz)
+        .selectAll('circle.zero')
+        .data(zeroes)
         .enter()
+        .append('g')
+        .attr('transform', function(d) {
+          // use group around circle for setting position via transform
+          // so we can use path's transform for scaling on mouse interactions
+          return 'translate(' + x(d.data[0][0]) + ',' + y(d.data[0][1]) + ')';
+        })
         .append('circle')
-        .attr('class', 'circle')
-        .attr('cx', function(d) {
-          return x(d.data[0][0]);
+        .attr('class', 'zero')
+        .style('stroke', function(d) {
+          return d.color;
         })
-        .attr('cy', function(d) {
-          return x(d.data[0][1]);
+        .attr('cx', 0)
+        .attr('cy', 0)
+        .attr('r', 4)
+        .on('mouseover', function() {
+          d3.select(this).style('stroke', 'steelblue');
+          d3.select(this).style('transform', 'scale(1.5)');
         })
-        .attr('r', 4);
+        .on('mouseout', function(d) {
+          d3.select(this).style('stroke', d.color);
+          d3.select(this).style('transform', 'scale(1)');
+        });
 
       svg.append('g')
-        .selectAll('circle.circle')
-        .data(iirBuPz)
+        .selectAll('circle.zero')
+        .data(zeroes)
         .enter()
         .append('circle')
-        .attr('class', 'circle')
+        .attr('class', 'zero')
+        .style('stroke', function(d) {
+          return d.color;
+        })
         .attr('cx', function(d) {
           return x(d.data[1][0]);
         })
@@ -249,28 +272,64 @@ $(document).ready(function () {
         })
         .attr('r', 4);
 
+      // draw cross for imaginary numbers
+      var size = 4 * Math.sqrt(Math.PI) / 2;
+
+      svg.append('g')
+        .selectAll('line.cross')
+        .data(poles)
+        .enter()
+        .append('g')
+        .attr('transform', function(d) {
+          // use group around circle for setting position via transform
+          // so we can use path's transform for scaling on mouse interactions
+          return 'translate(' + x(d.data[0][0]) + ',' + y(d.data[0][1]) + ')';
+        })
+        .append('path')
+        .attr('class', 'cross')
+        .style('stroke', function(d) {
+          return d.color;
+        })
+        .attr('d', function() {
+          // draw cross, i.e. x
+          return (
+            'M' + (-size) + ',' + (-size) +
+            'L' + (size) + ',' + (size) +
+            'M' + (-size) + ',' + (size) +
+            'L' + (size) + ',' + (-size)
+          );
+        })
+        .on('mouseover', function() {
+          d3.select(this).style('stroke', 'steelblue');
+          d3.select(this).style('transform', 'scale(1.5)');
+        })
+        .on('mouseout', function(d) {
+          d3.select(this).style('stroke', d.color);
+          d3.select(this).style('transform', 'scale(1)');
+        });
 
 
-        // svg.append('g')
-        //   .selectAll('line.grid')
-        //   .data(y.ticks(10))
-        //   .enter()
-        //   .append('line')
-        //   .attr('class', 'grid')
-        //   .attr('x1', 0)
-        //   .attr('y1', function(d){ return y(d); })
-        //   .attr('x2', width)
-        //   .attr('y2', function(d){ return y(d); });
-
-
-
-
-      // ga.append('text')
-      //   .attr('x', radius + 6)
-      //   .attr('dy', '.35em')
-      //   .style('text-anchor', function(d) { return d < 270 && d > 90 ? 'end' : null; })
-      //   .attr('transform', function(d) { return d < 270 && d > 90 ? 'rotate(180 ' + (radius + 6) + ',0)' : null; })
-      //   .text(function(d) { return d + '°'; });
+      svg.append('g')
+        .selectAll('line.cross')
+        .data(poles)
+        .enter()
+        .append('path')
+        .attr('class', 'cross')
+        .style('stroke', function(d) {
+          return d.color;
+        })
+        .attr('transform', function(d) {
+          return 'translate(' + x(d.data[1][0]) + ',' + y(d.data[1][1]) + ')';
+        })
+        .attr('d', function() {
+          // draw cross, i.e. x
+          return (
+            'M' + (-size) + ',' + (-size) +
+            'L' + (size) + ',' + (size) +
+            'M' + (-size) + ',' + (size) +
+            'L' + (size) + ',' + (-size)
+          );
+        });
 
     })();
 
