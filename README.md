@@ -23,7 +23,7 @@ var iirCalculator = new Fili.CalcCascades();
 
 ##### Browser
 
-1. Copy ./dist/fili.min.js into your working directory
+1. Copy `./dist/fili.min.js` into your working directory
 
 2. Load script in your index.html
 
