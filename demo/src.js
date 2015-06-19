@@ -137,202 +137,6 @@ $(document).ready(function () {
       };
     }
 
-    (function polar() {
-
-      var margin = {
-        top: 50,
-        right: 50,
-        bottom: 50,
-        left: 50
-      };
-
-      var width = 500 - margin.left - margin.right;
-      var height = 500 - margin.top - margin.bottom;
-
-      var x = d3.scale.linear()
-        .domain([-1, 1])
-        .range([0, width]);
-
-      var y = d3.scale.linear()
-        .domain([-1, 1])
-        .range([height, 0]);
-
-      var svg = d3.select('#iirbpz_d3')
-        .append('svg')
-        .attr('width', width + margin.left + margin.right)
-        .attr('height', height + margin.top + margin.bottom)
-        .append('g')
-        .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
-
-      var xAxis = d3.svg.axis()
-        .scale(x)
-        .tickFormat(function(d) {
-          if (d === 0) {return ''; }
-          return d3.format()(d);
-        })
-        .orient('bottom');
-
-      var yAxis = d3.svg.axis()
-        .scale(y)
-        .tickFormat(function(d) {
-          if (d === 0) {return ''; }
-          return d3.format()(d);
-        })
-        .orient('left');
-
-      // horizontal grid
-      svg.append('g')
-        .selectAll('line.grid')
-        .data(y.ticks(10))
-        .enter()
-        .append('line')
-        .attr('class', 'grid')
-        .attr('x1', 0)
-        .attr('y1', function(d){ return y(d); })
-        .attr('x2', width)
-        .attr('y2', function(d){ return y(d); });
-
-      // vertical grid
-      svg.append('g')
-        .selectAll('line.grid')
-        .data(x.ticks(10))
-        .enter()
-        .append('line')
-        .attr('class', 'grid')
-        .attr('x1', function(d){ return x(d); })
-        .attr('y1', 0)
-        .attr('x2', function(d){ return x(d); })
-        .attr('y2', height);
-
-      // x axis
-      svg.append('g')
-        .attr('transform', 'translate(' + 0 + ',' + (height / 2) + ')')
-        .attr('class', 'x axis')
-        .call(xAxis);
-
-      // y axis
-      svg.append('g')
-        .attr('class', 'y axis')
-        .attr('transform', 'translate(' + (width / 2) + ',' + 0 + ')')
-        .call(yAxis);
-
-      var zeroes = iirBuPz.filter(function(data, index) {
-        if (index % 2 !== 0) {
-          return data;
-        }
-      });
-
-      var poles = iirBuPz.filter(function(data, index) {
-        if (index % 2 === 0) {
-          return data;
-        }
-      });
-
-      svg.append('g')
-        .selectAll('circle.zero')
-        .data(zeroes)
-        .enter()
-        .append('g')
-        .attr('transform', function(d) {
-          // use group around circle for setting position via transform
-          // so we can use path's transform for scaling on mouse interactions
-          return 'translate(' + x(d.data[0][0]) + ',' + y(d.data[0][1]) + ')';
-        })
-        .append('circle')
-        .attr('class', 'zero')
-        .style('stroke', function(d) {
-          return d.color;
-        })
-        .attr('cx', 0)
-        .attr('cy', 0)
-        .attr('r', 4)
-        .on('mouseover', function() {
-          d3.select(this).style('stroke', 'steelblue');
-          d3.select(this).style('transform', 'scale(1.5)');
-        })
-        .on('mouseout', function(d) {
-          d3.select(this).style('stroke', d.color);
-          d3.select(this).style('transform', 'scale(1)');
-        });
-
-      svg.append('g')
-        .selectAll('circle.zero')
-        .data(zeroes)
-        .enter()
-        .append('circle')
-        .attr('class', 'zero')
-        .style('stroke', function(d) {
-          return d.color;
-        })
-        .attr('cx', function(d) {
-          return x(d.data[1][0]);
-        })
-        .attr('cy', function(d) {
-          return x(d.data[1][1]);
-        })
-        .attr('r', 4);
-
-      // draw cross for imaginary numbers
-      var size = 4 * Math.sqrt(Math.PI) / 2;
-
-      svg.append('g')
-        .selectAll('line.cross')
-        .data(poles)
-        .enter()
-        .append('g')
-        .attr('transform', function(d) {
-          // use group around circle for setting position via transform
-          // so we can use path's transform for scaling on mouse interactions
-          return 'translate(' + x(d.data[0][0]) + ',' + y(d.data[0][1]) + ')';
-        })
-        .append('path')
-        .attr('class', 'cross')
-        .style('stroke', function(d) {
-          return d.color;
-        })
-        .attr('d', function() {
-          // draw cross, i.e. x
-          return (
-            'M' + (-size) + ',' + (-size) +
-            'L' + (size) + ',' + (size) +
-            'M' + (-size) + ',' + (size) +
-            'L' + (size) + ',' + (-size)
-          );
-        })
-        .on('mouseover', function() {
-          d3.select(this).style('stroke', 'steelblue');
-          d3.select(this).style('transform', 'scale(1.5)');
-        })
-        .on('mouseout', function(d) {
-          d3.select(this).style('stroke', d.color);
-          d3.select(this).style('transform', 'scale(1)');
-        });
-
-
-      svg.append('g')
-        .selectAll('line.cross')
-        .data(poles)
-        .enter()
-        .append('path')
-        .attr('class', 'cross')
-        .style('stroke', function(d) {
-          return d.color;
-        })
-        .attr('transform', function(d) {
-          return 'translate(' + x(d.data[1][0]) + ',' + y(d.data[1][1]) + ')';
-        })
-        .attr('d', function() {
-          // draw cross, i.e. x
-          return (
-            'M' + (-size) + ',' + (-size) +
-            'L' + (size) + ',' + (size) +
-            'M' + (-size) + ',' + (size) +
-            'L' + (size) + ',' + (-size)
-          );
-        });
-
-    })();
-
     $.plot($('#iirbpz'), iirBuPz, options);
     var pzBessel = filterBessel.polesZeros();
     iirtxt.innerHTML = beautifyZ(pzBessel);
@@ -431,6 +235,9 @@ $(document).ready(function () {
       var yAxis = d3.svg.axis()
         .scale(y)
         .ticks(10)
+        .tickFormat(function(d) {
+          return d3.format('%')(d);
+        })
         .orient('left');
 
       var line = d3.svg.line()
@@ -500,7 +307,7 @@ $(document).ready(function () {
       svg.append('text')
         .attr('text-anchor', 'middle')
         .attr('transform', 'translate(' + (-margin.left / 1.5) + ',' + (height / 2) + ') rotate(-90)')
-        .text('Dämpfung [%]');
+        .text('Attenuation [%]');
 
       // add label for current value when hovering
       var value = parent.append('text')
@@ -583,6 +390,214 @@ $(document).ready(function () {
         .on('touchmove', move)
         .on('mouseout', out)
         .on('touchend', out);
+    })();
+
+
+
+    (function circle() {
+
+      var margin = {
+        top: 40,
+        right: 40,
+        bottom: 40,
+        left: 40
+      };
+
+      var width = 500 - margin.left - margin.right;
+      var height = 500 - margin.top - margin.bottom;
+
+      var r = d3.scale.linear()
+        .domain([-1, 1])
+        .range([0, width]);
+
+      var test = d3.scale.linear()
+        .domain([0, 1])
+        .range([0, width / 2]);
+
+      var y = d3.scale.linear()
+        .domain([-1, 1])
+        .range([height, 0]);
+
+      var parent = d3.select('#iirbpz_d3_polar').append('svg')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)
+
+      var svg = parent.append('g')
+        .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+      var gr = svg.append('g')
+        .attr('class', 'r axis')
+        .attr('transform', 'translate(' + width / 2 + ',' + height / 2 + ')')
+        .selectAll('g')
+        .data(test.ticks(5).slice(1))
+        .enter().append('g');
+
+      gr.append('circle')
+        .attr('r', test);
+
+      var xAxis = d3.svg.axis()
+        .scale(r)
+        .tickFormat(function(d) {
+          if (d === 0) {return ''; }
+          return d3.format()(d);
+        })
+        .orient('bottom');
+
+      // x axis
+      svg.append('g')
+       .attr('class', 'x axis')
+       .attr('transform', 'translate(0,' + height / 2 + ')')
+       .call(xAxis);
+
+      var yAxis = d3.svg.axis()
+        .scale(y)
+        .tickFormat(function(d) {
+          if (d === 0) {return ''; }
+          return d3.format()(d);
+        })
+        .orient('left');
+
+      // x axis
+      svg.append('g')
+        .attr('class', 'y axis')
+        .attr('transform', 'translate(' + width / 2 + ',' + 0 + ')')
+        .call(yAxis);
+
+      // label for current value
+      var value = parent.append('text')
+        .attr('text-anchor', 'end')
+        .attr('transform', 'translate(' + (width + margin.left) + ',' + (20) + ')')
+        .text('awesome');
+
+      var zeroes = iirBuPz.filter(function(data, index) {
+        if (index % 2 !== 0) {
+          return data;
+        }
+      });
+
+      var poles = iirBuPz.filter(function(data, index) {
+        if (index % 2 === 0) {
+          return data;
+        }
+      });
+
+      // draw cross for imaginary numbers
+      var size = 4 * Math.sqrt(Math.PI) / 2;
+
+
+      function radiansToDegrees(rad) {
+        return rad * (180 / Math.PI);
+      }
+
+      function degreesToRadians(deg) {
+        return deg * (Math.PI / 180);
+      }
+
+      svg.append('g')
+        .selectAll('line.cross')
+        .data(poles)
+        .enter()
+        .append('g')
+        .attr('transform', function(d) {
+          // use group around circle for setting position via transform
+          // so we can use path's transform for scaling on mouse interactions
+          return 'translate(' + r(d.data[0][0]) + ',' + y(d.data[0][1]) + ')';
+        })
+        .append('path')
+        .attr('class', 'cross')
+        .style('stroke', function(d) {
+          return d.color;
+        })
+        .attr('d', function() {
+          // draw cross, i.e. x
+          return (
+            'M' + (-size) + ',' + (-size) +
+            'L' + (size) + ',' + (size) +
+            'M' + (-size) + ',' + (size) +
+            'L' + (size) + ',' + (-size)
+          );
+        })
+        .on('mouseover', function(d) {
+          // update current value
+          var x = d.data[0][0];
+          var y = d.data[0][1];
+          var angle = radiansToDegrees(Math.atan2(y, x));
+          var length = Math.sqrt(x * x + y * y);
+          value.text('real ' + x.toFixed(2) + ', imaginary ' + y.toFixed(2) + ', angle ' + angle.toFixed(2) + '°, length ' + length.toFixed(2));
+          d3.select(this).style('stroke', 'steelblue');
+          d3.select(this).style('transform', 'scale(1.5)');
+        })
+        .on('mouseout', function(d) {
+          d3.select(this).style('stroke', d.color);
+          d3.select(this).style('transform', 'scale(1)');
+        });
+
+      svg.append('g')
+        .selectAll('line.cross')
+        .data(poles)
+        .enter()
+        .append('path')
+        .attr('class', 'cross')
+        .style('stroke', function(d) {
+          return d.color;
+        })
+        .attr('transform', function(d) {
+          return 'translate(' + r(d.data[1][0]) + ',' + y(d.data[1][1]) + ')';
+        })
+        .attr('d', function() {
+          // draw cross, i.e. x
+          return (
+            'M' + (-size) + ',' + (-size) +
+            'L' + (size) + ',' + (size) +
+            'M' + (-size) + ',' + (size) +
+            'L' + (size) + ',' + (-size)
+          );
+        });
+
+      svg.append('g')
+        .selectAll('circle.zero')
+        .data(zeroes)
+        .enter()
+        .append('circle')
+        .attr('class', 'zero')
+        .style('stroke', function(d) {
+          return d.color;
+        })
+        .attr('cx', function(d) {
+          return r(d.data[1][0]);
+        })
+        .attr('cy', function(d) {
+          return r(d.data[1][1]);
+        })
+        .attr('r', 4);
+
+      svg.append('g')
+        .selectAll('circle.zero')
+        .data(zeroes)
+        .enter()
+        .append('g')
+        .attr('transform', function(d) {
+          // use group around circle for setting position via transform
+          // so we can use path's transform for scaling on mouse interactions
+          return 'translate(' + r(d.data[0][0]) + ',' + y(d.data[0][1]) + ')';
+        })
+        .append('circle')
+        .attr('class', 'zero')
+        .style('stroke', function(d) {
+          return d.color;
+        })
+        .attr('cx', 0)
+        .attr('cy', 0)
+        .attr('r', 4)
+        .on('mouseover', function() {
+          d3.select(this).style('stroke', 'steelblue');
+          d3.select(this).style('transform', 'scale(1.5)');
+        })
+        .on('mouseout', function(d) {
+          d3.select(this).style('stroke', d.color);
+          d3.select(this).style('transform', 'scale(1)');
+        });
+
     })();
 
 

@@ -28,7 +28,7 @@ var iirCalculator = new Fili.CalcCascades();
 2. Load script in your index.html
 
   ```html
-  <script src="js/plotter.min.js"></script>
+  <script src="js/fili.min.js"></script>
   ```
 
 3. Use `Fili` in your application
