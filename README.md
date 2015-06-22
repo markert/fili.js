@@ -1,6 +1,9 @@
 # fili
 
-A digital filter library for JavaScript
+[![npm version](https://badge.fury.io/js/fili.svg)](http://badge.fury.io/js/fili)
+[![Build Status](https://travis-ci.org/markert/fili.svg?branch=master)](https://travis-ci.org/markert/fili)
+
+A digital filter library for JavaScript.
 
 ## Installation
 
@@ -8,11 +11,34 @@ A digital filter library for JavaScript
 $ npm install fili
 ```
 
+## Usage
+
+##### Node
+
 ```js
 var Fili = require('fili');
+
+var iirCalculator = new Fili.CalcCascades();
 ```
 
-## Usage
+##### Browser
+
+1. Copy `./dist/fili.min.js` into your working directory
+
+2. Load script in your index.html
+
+  ```html
+  <script src="js/fili.min.js"></script>
+  ```
+
+3. Use `Fili` in your application
+
+  ```js
+  var iirCalculator = new Fili.CalcCascades();
+  // ...
+  ```
+
+## API
 
 Generate IIR Filters:
 

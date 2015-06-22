@@ -19,5 +19,15 @@
   },
   "scripts": {
     "test": "make test"
+  },
+  "browserify": {
+    "transform": [
+      [
+        "babelify",
+        {
+          "stage": 0
+        }
+      ]
+    ]
   }
 }
