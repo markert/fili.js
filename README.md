@@ -40,7 +40,7 @@ var iirCalculator = new Fili.CalcCascades();
 
 ## API
 
-Generate IIR Filters:
+### Generate IIR Filters
 
 IIR filters are composed of n Biquad filters.
 Possible filters are:
@@ -75,7 +75,7 @@ var iirFilterCoeffs = iirCalculator.lowpass({
 var iirFilter = new Fili.IirFilter(filterCoeffs);
 ```
 
-Generate FIR Filters:
+### Generate FIR Filters
 
 FIR filter calculation is done with a windowed sinc function
 Possible filters are:
@@ -109,7 +109,7 @@ var firFilterCoeffsK = firCalculator.kbFilter({
 var firFilter = new Fili.FirFilter(filterCoeffs);
 ```
 
-Run Filter
+### Run Filter
 
 ```javascript
 // run the filter with 10 samples from a ramp
@@ -128,7 +128,7 @@ console.log(filter.multiStep([1,10,-5,3,1.112,17]));
 console.log(filter.simulate([-3,-2,-1,5,6,33]));
 ```
 
-Evaluate Filter:
+### Evaluate Filter
 
 ```javascript
 // get the filter impact on magnitude, phase, unwrapped phase, phase delay and group delay
@@ -147,7 +147,7 @@ var responsePoint = filter.responsePoint({
   });
 ```
 
-Evaluate stability:
+### Evaluate stability
 
 ```javascript
 
@@ -168,6 +168,62 @@ var stable = filterTester.directedRandomStability({
     setup: 1000 // steps until initial setup of filter is complete
   });
 ```
+
+### Calculate FFT
+
+An FFT is always useful to evaluate filter responses.
+The algorithm uses precalculated twiddle factors and a
+lookup table for sine and cosine values.
+It also reuses all calculation buffers and precalculated window functions.
+This minimizes garbage collection and improves calculation speed.
+
+Generate a new FFT calculator:
+
+```javascript
+// Fft radix must be 2^n
+var fft = new Fili.Fft(8192);
+```
+
+Time->Frequency Domain:
+
+```javascript
+var buffer = [];
+for (var cnt = 0; cnt < 8192; cnt++) {
+  buffer.push(cnt);
+}
+
+// Supported window functions are
+// none, hanning, hamming, rectangular
+// tukery, cosine, lanczos,
+// triangular, bartlett, gaussian,
+// bartlettHanning, blackman
+
+// buffer.length must be greater or equal fft radix
+fft.forward(buffer, 'hanning');
+```
+
+Frequency<--->Time Domain:
+
+```javascript
+var buffer = [];
+for (var cnt = 0; cnt < 8192; cnt++) {
+  buffer.push(cnt);
+}
+
+// Supported window functions are
+// none, hanning, hamming, rectangular
+// tukery, cosine, lanczos,
+// triangular, bartlett, gaussian,
+// bartlettHanning, blackman
+
+// buffer.length must be greater or equal fft radix
+var fftResult = fft.forward(buffer, 'hanning');
+
+// fftResult = {re: [], im: []}. The array length equals the FFT radix
+
+var originalBuffer = fft.inverse(fftResult.re, fftResult.im);
+```
+
 
 ## Test
 
