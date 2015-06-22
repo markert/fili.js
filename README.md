@@ -184,24 +184,6 @@ Generate a new FFT calculator:
 var fft = new Fili.Fft(8192);
 ```
 
-Time->Frequency Domain:
-
-```javascript
-var buffer = [];
-for (var cnt = 0; cnt < 8192; cnt++) {
-  buffer.push(cnt);
-}
-
-// Supported window functions are
-// none, hanning, hamming, rectangular
-// tukery, cosine, lanczos,
-// triangular, bartlett, gaussian,
-// bartlettHanning, blackman
-
-// buffer.length must be greater or equal fft radix
-fft.forward(buffer, 'hanning');
-```
-
 Frequency<--->Time Domain:
 
 ```javascript
