@@ -17,6 +17,7 @@ var IirCoeffs = function () {
     pre.a0 = 1 + pre.alpha;
     coeffs.a0 = pre.a0;
     coeffs.a.push((-2 * pre.cw) / pre.a0);
+    coeffs.k = 1;
     coeffs.a.push((1 - pre.alpha) / pre.a0);
     return pre;
   };
@@ -56,6 +57,24 @@ var IirCoeffs = function () {
       } else {
         coeffs.k = (1 - coeffs.a[0] + coeffs.a[1]) / (1 - coeffs.b[1] + coeffs.b[2]);
       }
+      return coeffs;
+    },
+
+    // lowpass matched-z transform: H(s) = 1/(1+a's/w_c+b's^2/w_c)
+    lowpassMZ: function (params) {
+      var coeffs = initCoeffs();
+      coeffs.k = 1;
+      coeffs.a0 = 1;
+      var as = params.as;
+      var bs = params.bs;
+      var w = 2 * Math.PI * params.Fc / params.Fs;
+      var s = -(as / (2 * bs));
+      coeffs.a.push(-Math.pow(Math.E, s * w) * 2 * Math.cos(-w * Math.sqrt(Math.abs(Math.pow(as, 2) / (4 * Math.pow(bs, 2)) - 1 / bs))));
+      coeffs.a.push(Math.pow(Math.E, 2 * s * w));
+      // correct gain (b[0] = 1 and k = (coeffs.a0 + coeffs.a[0] + coeffs.a[1]) also possible)
+      coeffs.b.push(coeffs.a0 + coeffs.a[0] + coeffs.a[1]);
+      coeffs.b.push(0);
+      coeffs.b.push(0);
       return coeffs;
     },
 
