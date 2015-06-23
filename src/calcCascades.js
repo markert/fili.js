@@ -181,6 +181,7 @@ var calcCoeffs = function (params, behavior) {
         filter.push(getCoeffs['lowpassMZ']({
           Fs: params.Fs,
           Fc: params.Fc,
+          preGain: params.preGain,
           as: tiTable[params.characteristic].as[params.order - 1][cnt],
           bs: tiTable[params.characteristic].bs[params.order - 1][cnt]
         }));
