@@ -40,17 +40,32 @@ var iirCalculator = new Fili.CalcCascades();
 
 ## API
 
-### Generate IIR Filters
+### Generate IIR Filters with bilinear transform
 
 IIR filters are composed of n Biquad filters.
+The Biquad filters need a and b coefficients to work.
+So, they have a backward and a forward path.
 Possible filters are:
+
 -   lowpass
+
 -   highpass
+
 -   bandpass
+
 -   bandstop
+
 -   peak
+
 -   lowshelf
+
 -   highshelf
+
+Possible characteristics are:
+
+-   bessel
+
+-   butterworth
 
 Note: for peak, lowshelf and highshelf a gain attribute must be defined
 when generating the coefficients. Gain can be positive or negative
@@ -62,8 +77,8 @@ var iirCalculator = new Fili.CalcCascades();
 
 // calculate filter coefficients
 var iirFilterCoeffs = iirCalculator.lowpass({
-    order: 3, // cascade 3 biquad filters
-    characteristic: 'butterworth', // 'bessel' also possible
+    order: 3, // cascade 3 biquad filters (max: 12)
+    characteristic: 'butterworth',
     Fs: 1000, // sampling frequency
     Fc: 100, // cutoff frequency / center frequency for bandpass, bandstop, peak
     gain: 0, // gain for peak, lowshelf and highshelf
@@ -73,6 +88,45 @@ var iirFilterCoeffs = iirCalculator.lowpass({
 
 // create a filter instance from the calculated coeffs
 var iirFilter = new Fili.IirFilter(filterCoeffs);
+```
+
+### Generate IIR Filters with matched-z transform
+
+IIR filters are composed of n Biquad filters.
+The Biquad filters need only a coefficients to work.
+So, they have a backward but no forward path.
+Possible filters are:
+
+-   lowpass
+
+Possible characteristics are:
+
+-   bessel
+
+-   butterworth
+
+-   allpass
+
+-   tschebyscheff05
+
+-   tschebyscheff1
+
+-   tschebyscheff2
+
+-   tschebyscheff3
+
+Note: The number behind tschebyscheff defines the passband ripple.
+
+```javascript
+// calculate filter coefficients
+var iirFilterCoeffs = iirCalculator.lowpass({
+    order: 3, // cascade 3 biquad filters (max: 5)
+    characteristic: 'tschebyscheff3',
+    transform: 'matchedZ',
+    Fs: 1000, // sampling frequency
+    Fc: 100, // cutoff frequency / center frequency for bandpass, bandstop, peak
+    preGain: false // uses k when true for gain correction b[0] otherwise
+  });
 ```
 
 ### Generate FIR Filters
