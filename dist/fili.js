@@ -1,6 +1,6 @@
 /**
  * @name    fili
- * @version 0.0.12 | June 17th 2015
+ * @version 1.1.0 | June 23rd 2015
  * @author  Florian Markert
  * @license MIT
  */
@@ -35,6 +35,38 @@ var table = {
   }
 };
 
+// from Texas Instruments "Op Amps for Everyone" Chapter 16 "Active Filter Design Techniques"
+var tiTable = {
+  bessel: {
+    as: [[1.3617], [1.3397, 0.7743], [1.2217, 0.9686, 0.5131], [1.1112, 0.9754, 0.7202, 0.3728], [1.0215, 0.9393, 0.7815, 0.5604, 0.2883]],
+    bs: [[0.618], [0.4889, 0.389], [0.3887, 0.3505, 0.2756], [0.3162, 0.2979, 0.2621, 0.2087], [0.265, 0.2549, 0.2351, 0.2059, 0.1665]]
+  },
+  butterworth: {
+    as: [[1.4142], [1.8478, 0.7654], [1.9319, 1.4142, 0.5176], [1.9616, 1.6629, 1.1111, 0.3902], [1.9754, 1.782, 1.4142, 0.908, 0.3129]],
+    bs: [[1], [1, 1], [1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1, 1]]
+  },
+  tschebyscheff05: {
+    as: [[1.3614], [2.6282, 0.3648], [3.8645, 0.7528, 0.1589], [5.1117, 1.0639, 0.3439, 0.0885], [6.3648, 1.3582, 0.4822, 0.1994, 0.0563]],
+    bs: [[1.3827], [3.4341, 1.1509], [6.9797, 1.8573, 1.0711], [11.9607, 2.9365, 1.4206, 1.0407], [18.3695, 4.3453, 1.944, 1.252, 1.0263]]
+  },
+  tschebyscheff1: {
+    as: [[1.3022], [2.5904, 0.3039], [3.8437, 0.6292, 0.1296], [5.1019, 0.8916, 0.2806, 0.0717], [6.3634, 1.1399, 0.3939, 0.1616, 0.0455]],
+    bs: [[1.5515], [4.1301, 1.1697], [8.5529, 1.9124, 1.0766], [14.7608, 3.0426, 1.4334, 1.0432], [22.7468, 4.5167, 1.9665, 1.2569, 1.0277]]
+  },
+  tschebyscheff2: {
+    as: [[1.1813], [2.4025, 0.2374], [3.588, 0.4925, 0.0995], [4.7743, 0.6991, 0.2153, 0.0547], [5.9618, 0.8947, 0.3023, 0.1233, 0.0347]],
+    bs: [[1.7775], [4.9862, 1.1896], [10.4648, 1.9622, 1.0826], [18.151, 3.1353, 1.4449, 1.0461], [28.0376, 4.6644, 1.9858, 1.2614, 1.0294]]
+  },
+  tschebyscheff3: {
+    as: [[1.065], [2.1853, 0.1964], [3.2721, 0.4077, 0.0815], [4.3583, 0.5791, 0.1765, 0.0448], [5.4449, 0.7414, 0.2479, 0.1008, 0.0283]],
+    bs: [[1.9305], [5.5339, 1.2009], [11.6773, 1.9873, 1.0861], [20.2948, 3.1808, 1.4507, 1.0478], [31.3788, 4.7363, 1.9952, 1.2638, 1.0304]]
+  },
+  allpass: {
+    as: [[1.6278], [2.337, 1.3506], [2.6117, 2.0706, 1.0967], [2.7541, 2.4174, 1.785, 0.9239], [2.8406, 2.612, 2.1733, 1.5583, 0.8018]],
+    bs: [[0.8832], [1.4878, 1.1837], [1.7763, 1.6015, 1.2596], [1.942, 1.83, 1.6101, 1.2822], [2.049, 1.9714, 1.8184, 1.5923, 1.2877]]
+  }
+};
+
 var calcCoeffs = function calcCoeffs(params, behavior) {
   var filter = [];
   var cnt = 0;
@@ -44,30 +76,40 @@ var calcCoeffs = function calcCoeffs(params, behavior) {
     }
     for (cnt = 0; cnt < params.order; cnt++) {
       var q, f, fd;
-      if (params.characteristic === 'butterworth') {
-        q = 0.5 / Math.sin(Math.PI / (params.order * 2) * (cnt + 0.5));
-        f = 1;
+      if (params.transform === 'matchedZ') {
+        filter.push(getCoeffs['lowpassMZ']({
+          Fs: params.Fs,
+          Fc: params.Fc,
+          as: tiTable[params.characteristic].as[params.order - 1][cnt],
+          bs: tiTable[params.characteristic].bs[params.order - 1][cnt]
+        }));
       } else {
-        q = table[params.characteristic].q[params.order - 1][cnt];
-        if (params.oneDb) {
-          f = table[params.characteristic].f1dB[params.order - 1][cnt];
+        if (params.characteristic === 'butterworth') {
+          q = 0.5 / Math.sin(Math.PI / (params.order * 2) * (cnt + 0.5));
+          f = 1;
         } else {
-          f = table[params.characteristic].f3dB[params.order - 1][cnt];
+          q = table[params.characteristic].q[params.order - 1][cnt];
+          if (params.oneDb) {
+            f = table[params.characteristic].f1dB[params.order - 1][cnt];
+          } else {
+            f = table[params.characteristic].f3dB[params.order - 1][cnt];
+          }
         }
+
+        if (behavior === 'highpass') {
+          fd = params.Fc / f;
+        } else {
+          fd = params.Fc * f;
+        }
+        filter.push(getCoeffs[behavior]({
+          Fs: params.Fs,
+          Fc: fd,
+          Q: q,
+          BW: params.BW || 0,
+          gain: params.gain || 0,
+          preGain: params.preGain || false
+        }));
       }
-      if (behavior === 'highpass') {
-        fd = params.Fc / f;
-      } else {
-        fd = params.Fc * f;
-      }
-      filter.push(getCoeffs[behavior]({
-        Fs: params.Fs,
-        Fc: fd,
-        Q: q,
-        BW: params.BW || 0,
-        gain: params.gain || 0,
-        preGain: params.preGain || false
-      }));
     }
   } else {
     for (cnt = 0; cnt < params.length; cnt++) {
@@ -644,6 +686,7 @@ var IirCoeffs = function IirCoeffs() {
     pre.a0 = 1 + pre.alpha;
     coeffs.a0 = pre.a0;
     coeffs.a.push(-2 * pre.cw / pre.a0);
+    coeffs.k = 1;
     coeffs.a.push((1 - pre.alpha) / pre.a0);
     return pre;
   };
@@ -683,6 +726,24 @@ var IirCoeffs = function IirCoeffs() {
       } else {
         coeffs.k = (1 - coeffs.a[0] + coeffs.a[1]) / (1 - coeffs.b[1] + coeffs.b[2]);
       }
+      return coeffs;
+    },
+
+    // lowpass matched-z transform: H(s) = 1/(1+a's/w_c+b's^2/w_c)
+    lowpassMZ: function lowpassMZ(params) {
+      var coeffs = initCoeffs();
+      coeffs.k = 1;
+      coeffs.a0 = 1;
+      var as = params.as;
+      var bs = params.bs;
+      var w = 2 * Math.PI * params.Fc / params.Fs;
+      var s = -(as / (2 * bs));
+      coeffs.a.push(-Math.pow(Math.E, s * w) * 2 * Math.cos(-w * Math.sqrt(Math.abs(Math.pow(as, 2) / (4 * Math.pow(bs, 2)) - 1 / bs))));
+      coeffs.a.push(Math.pow(Math.E, 2 * s * w));
+      // correct gain (b[0] = 1 and k = (coeffs.a0 + coeffs.a[0] + coeffs.a[1]) also possible)
+      coeffs.b.push(coeffs.a0 + coeffs.a[0] + coeffs.a[1]);
+      coeffs.b.push(0);
+      coeffs.b.push(0);
       return coeffs;
     },
 
