@@ -1,6 +1,6 @@
 /**
  * @name    fili
- * @version 1.1.0 | June 23rd 2015
+ * @version 1.2.0 | June 23rd 2015
  * @author  Florian Markert
  * @license MIT
  */
@@ -80,6 +80,7 @@ var calcCoeffs = function calcCoeffs(params, behavior) {
         filter.push(getCoeffs['lowpassMZ']({
           Fs: params.Fs,
           Fc: params.Fc,
+          preGain: params.preGain,
           as: tiTable[params.characteristic].as[params.order - 1][cnt],
           bs: tiTable[params.characteristic].bs[params.order - 1][cnt]
         }));
@@ -732,7 +733,6 @@ var IirCoeffs = function IirCoeffs() {
     // lowpass matched-z transform: H(s) = 1/(1+a's/w_c+b's^2/w_c)
     lowpassMZ: function lowpassMZ(params) {
       var coeffs = initCoeffs();
-      coeffs.k = 1;
       coeffs.a0 = 1;
       var as = params.as;
       var bs = params.bs;
@@ -740,8 +740,14 @@ var IirCoeffs = function IirCoeffs() {
       var s = -(as / (2 * bs));
       coeffs.a.push(-Math.pow(Math.E, s * w) * 2 * Math.cos(-w * Math.sqrt(Math.abs(Math.pow(as, 2) / (4 * Math.pow(bs, 2)) - 1 / bs))));
       coeffs.a.push(Math.pow(Math.E, 2 * s * w));
-      // correct gain (b[0] = 1 and k = (coeffs.a0 + coeffs.a[0] + coeffs.a[1]) also possible)
-      coeffs.b.push(coeffs.a0 + coeffs.a[0] + coeffs.a[1]);
+      // correct gain
+      if (!params.preGain) {
+        coeffs.b.push(coeffs.a0 + coeffs.a[0] + coeffs.a[1]);
+        coeffs.k = 1;
+      } else {
+        coeffs.b.push(1);
+        coeffs.k = coeffs.a0 + coeffs.a[0] + coeffs.a[1];
+      }
       coeffs.b.push(0);
       coeffs.b.push(0);
       return coeffs;
