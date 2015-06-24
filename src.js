@@ -4,313 +4,335 @@ $(document).ready(function () {
 
   var fs = document.getElementById('fs_val');
   var fc = document.getElementById('fc_val');
+  var fc2 = document.getElementById('fc2_val');
   var io = document.getElementById('iir_val');
   var fo = document.getElementById('fir_val');
   var buir = document.getElementById('buir_val');
-  var beir = document.getElementById('beir_val');
   var sim = document.getElementById('f_sim');
   var iirtxt = document.getElementById('iirtxt');
   var iirbtxt = document.getElementById('iirbtxt');
+  var coefftxt = document.getElementById('coefftxt');
+  var pregain = document.getElementById('pregain');
+  var gain = document.getElementById('gain');
+
+  var seltrans = document.getElementById('seltrans');
+  var seltype = document.getElementById('seltype');
+  var bilinearchar = document.getElementById('bilinearchar');
+  var bilineartype = document.getElementById('bilineartype');
+  var matchedzchar = document.getElementById('matchedzchar');
+  var firtype = document.getElementById('firtype');
+  var firatt = document.getElementById('firatt');
 
   var inval = document.getElementById('in_val');
   var run = document.getElementById('f_run');
+
+  var toggleFir = function (p) {
+    firtype.disabled = p;
+    firatt.disabled = p;
+    fo.disabled = p;
+    fc2.disabled = p;
+  };
+
+  var toggleIir = function (p) {
+    io.disabled = p;
+    bilinearchar.disabled = p;
+    bilineartype.disabled = p;
+    matchedzchar.disabled = p;
+    buir.disabled = p;
+    seltrans.disabled = p;
+    gain.disabled = p;
+    pregain.disabled = p;
+  };
+
+  var toggleBilinear = function (p) {
+    bilinearchar.disabled = !p;
+    bilineartype.disabled = !p;
+    matchedzchar.disabled = p;
+    gain.disabled = !p;
+  };
+
+  seltype.onchange = function () {
+    var sel = seltype.options[seltype.selectedIndex].value;
+    if (sel === 'iir') {
+      toggleFir(true);
+      toggleIir(false);
+    } else {
+      toggleFir(false);
+      toggleIir(true);
+    }
+  };
+
+  seltrans.onchange = function () {
+    var sel = seltrans.options[seltrans.selectedIndex].value;
+    if (sel === 'bilinear') {
+      toggleBilinear(true);
+    } else {
+      toggleBilinear(false);
+    }
+  };
+
+  toggleFir(true);
+  toggleIir(false);
+  toggleBilinear(true);
+
+
 
   fs.value = 1000;
   fc.value = 100;
   io.value = 3;
   fo.value = 100;
-  beir.value = 20;
   buir.value = 40;
   inval.value = 1;
 
-  var besselOut = [];
-  var butterworthOut = [];
-  var firOut = [];
   var unfilteredOut = [];
   var iirCalculator = new Fili.CalcCascades();
   var firCalculator = new Fili.FirCoeffs();
-  var filterBessel, filterButterworth, filterFir;
   var runCounter = 0;
 
-  sim.onclick = function () {
+  var filter = {};
 
-    besselOut.length = 0;
-    butterworthOut.length = 0;
-    firOut.length = 0;
-    unfilteredOut.length = 0;
-    runCounter = 0;
-
-    var coeffsBessel = iirCalculator.lowpass({
-      order: io.value,
-      characteristic: 'bessel',
-      Fs: fs.value,
-      Fc: fc.value
-    });
-
-    var coeffsButterworth = iirCalculator.lowpass({
-      order: io.value,
-      characteristic: 'butterworth',
-      Fs: fs.value,
-      Fc: fc.value
-    });
-
-    var coeffsFir = firCalculator.lowpass({
-      order: fo.value,
-      Fs: fs.value,
-      Fc: fc.value
-    });
-
-    var cnt = 0;
-    var beautifyZ = function (zo) {
-      var str = '';
-      for (var k = 0; k < zo.length; k++) {
-        str += 'stage ' + (k + 1) + ': ';
-        str += 'Zeros: ' + JSON.stringify(zo[k].z) + ' ___|||||___ ';
-        str += 'Poles: ' + JSON.stringify(zo[k].p) + '<br>';
-      }
-      return str;
-    };
-
-    filterBessel = new Fili.IirFilter(coeffsBessel);
-    filterButterworth = new Fili.IirFilter(coeffsButterworth);
-    filterFir = new Fili.FirFilter(coeffsFir);
-    var pzButterworth = filterButterworth.polesZeros();
-    iirbtxt.innerHTML = beautifyZ(pzButterworth);
-    var colors = ['#00FF00', '#FF0000', '#0000FF'];
-    var options = {
-      xaxis: {
-        min: -1,
-        max: 1
-      },
-      yaxis: {
-        min: -1,
-        max: 1
-      },
-      grid: {
-        markings: [{
-          yaxis: {
-            from: 0,
-            to: 0
-          },
-          color: "#000"
-        }, {
-          xaxis: {
-            from: 0,
-            to: 0
-          },
-          color: "#000"
-        }],
-        markingsLineWidth: 1
-      }
-    };
-    var xSign = function (ctx, x, y, radius) {
-      var size = radius * Math.sqrt(Math.PI) / 2;
-      ctx.moveTo(x - size, y - size);
-      ctx.lineTo(x + size, y + size);
-      ctx.moveTo(x - size, y + size);
-      ctx.lineTo(x + size, y - size);
-    };
-    var iirBuPz = [];
-    for (cnt = 0; cnt < pzButterworth.length; cnt++) {
-      iirBuPz[2 * cnt] = {
-        data: [
-          [pzButterworth[cnt].p[0].re, pzButterworth[cnt].p[0].im],
-          [pzButterworth[cnt].p[1].re, pzButterworth[cnt].p[1].im]
-        ],
-        color: colors[cnt],
-        points: {
-          radius: 4,
-          show: true,
-          symbol: xSign
-        }
-      };
-      iirBuPz[2 * cnt + 1] = {
-        data: [
-          [pzButterworth[cnt].z[0].re, pzButterworth[cnt].z[0].im],
-          [pzButterworth[cnt].z[1].re, pzButterworth[cnt].z[1].im]
-        ],
-        color: colors[cnt],
-        points: {
-          radius: 4,
-          show: true
-        }
-      };
+  var cnt = 0;
+  var colors = ['#00FF00', '#FF0000', '#0000FF'];
+  var options = {
+    xaxis: {
+      min: -1,
+      max: 1
+    },
+    yaxis: {
+      min: -1,
+      max: 1
+    },
+    grid: {
+      markings: [{
+        yaxis: {
+          from: 0,
+          to: 0
+        },
+        color: "#000"
+      }, {
+        xaxis: {
+          from: 0,
+          to: 0
+        },
+        color: "#000"
+      }],
+      markingsLineWidth: 1
     }
-    $.plot($('#iirbpz'), iirBuPz,
-      options
-    );
-    var pzBessel = filterBessel.polesZeros();
-    iirtxt.innerHTML = beautifyZ(pzBessel);
-    var iirBePz = [];
-    for (cnt = 0; cnt < pzBessel.length; cnt++) {
-      iirBePz[2 * cnt] = {
-        data: [
-          [pzBessel[cnt].p[0].re, pzBessel[cnt].p[0].im],
-          [pzBessel[cnt].p[1].re, pzBessel[cnt].p[1].im]
-        ],
-        color: colors[cnt],
-        points: {
-          radius: 3,
-          show: true,
-          symbol: xSign
-        }
-      };
-      iirBePz[2 * cnt + 1] = {
-        data: [
-          [pzBessel[cnt].z[0].re, pzBessel[cnt].z[0].im],
-          [pzBessel[cnt].z[1].re, pzBessel[cnt].z[1].im]
-        ],
-        color: colors[cnt],
-        points: {
-          radius: 3,
-          show: true
-        }
-      };
-    }
-    $.plot($('#iirpz'), iirBePz,
-      options);
-    var tc = iirCalculator.lowpass({
-      order: io.value,
-      characteristic: 'butterworth',
-      Fs: fs.value,
-      Fc: fc.value
-    });
-    var tf = new Fili.IirFilter(tc);
-    var tester = new Fili.TestFilter(tf);
-    console.log(tester.directedRandomStability({
-      steps: 10000,
-      tests: 100,
-      offset: 5,
-      maxStable: 20,
-      minStable: -7,
-      pp: 10,
-      setup: 1000
-    }));
-    var iirBeRe = filterBessel.response(480);
-    var iirBeReMag = [];
-    var fss = fs.value;
-    for (cnt = 0; cnt < iirBeRe.length; cnt++) {
-      iirBeReMag.push([fss / 2 * cnt / iirBeRe.length, iirBeRe[cnt].magnitude]);
-    }
-    $.plot($('#iirmag'), [{
-      data: iirBeReMag,
-      color: '#FF0000'
-    }]);
-    var iirBeReGrp = [];
-    for (cnt = 0; cnt < iirBeRe.length; cnt++) {
-      iirBeReGrp.push([fss / 2 * cnt / iirBeRe.length, iirBeRe[cnt].groupDelay]);
-    }
-    $.plot($('#iirgroup'), [{
-      data: iirBeReGrp,
-      color: '#FF0000'
-    }]);
-    var iirBeReSr = filterBessel.impulseResponse(beir.value);
-    var iirBeReImp = [];
-    for (cnt = 0; cnt < iirBeReSr.out.length; cnt++) {
-      iirBeReImp.push([cnt, iirBeReSr.out[cnt]]);
-    }
-    $.plot($('#iirimp'), [{
-      data: iirBeReImp,
-      color: '#FF0000'
-    }]);
-
-    var iirBuRe = filterButterworth.response(480);
-    var iirBuReMag = [];
-    for (cnt = 0; cnt < iirBuRe.length; cnt++) {
-      iirBuReMag.push([fss / 2 * cnt / iirBuRe.length, iirBuRe[cnt].magnitude]);
-    }
-    $.plot($('#iirbmag'), [{
-      data: iirBuReMag,
-      color: '#00FF00'
-    }]);
-    var iirBuReGrp = [];
-    for (cnt = 0; cnt < iirBuRe.length; cnt++) {
-      iirBuReGrp.push([fss / 2 * cnt / iirBuRe.length, iirBuRe[cnt].groupDelay]);
-    }
-    $.plot($('#iirbgroup'), [{
-      data: iirBuReGrp,
-      color: '#00FF00'
-    }]);
-    var iirBuReSr = filterButterworth.impulseResponse(buir.value);
-    var iirBuReImp = [];
-    for (cnt = 0; cnt < iirBuReSr.out.length; cnt++) {
-      iirBuReImp.push([cnt, iirBuReSr.out[cnt]]);
-    }
-    $.plot($('#iirbimp'), [{
-      data: iirBuReImp,
-      color: '#00FF00'
-    }]);
-
-    var firRe = filterFir.response(480);
-
-    var firReMag = [];
-    for (cnt = 0; cnt < firRe.length; cnt++) {
-      firReMag.push([fss / 2 * cnt / firRe.length, firRe[cnt].dBmagnitude]);
-    }
-    $.plot($('#firmag'), [{
-      data: firReMag,
-      color: '#0000FF'
-    }]);
-    var firReGrp = [];
-    for (cnt = 0; cnt < firRe.length; cnt++) {
-      firReGrp.push([fss / 2 * cnt / firRe.length, firRe[cnt].groupDelay]);
-    }
-    $.plot($('#firgroup'), [{
-      data: firReGrp,
-      color: '#0000FF'
-    }]);
-
-    var firReImp = [];
-    for (cnt = 0; cnt < coeffsFir.length; cnt++) {
-      firReImp.push([cnt, coeffsFir[cnt]]);
-    }
-    $.plot($('#firimp'), [{
-      data: firReImp,
-      color: '#0000FF'
-    }]);
   };
 
-  run.onclick = function () {
-    besselOut.push([runCounter, filterBessel.singleStep(parseFloat(inval.value))]);
-    butterworthOut.push([runCounter, filterButterworth.singleStep(parseFloat(inval.value))]);
-    firOut.push([runCounter, filterFir.singleStep(parseFloat(inval.value))]);
-    unfilteredOut.push([runCounter, parseFloat(inval.value)]);
-    runCounter++;
+  var beautifyZ = function (zo) {
+    var str = '';
+    for (var k = 0; k < zo.length; k++) {
+      str += 'stage ' + (k + 1) + ':<br>';
+      str += 'Zeros: ' + JSON.stringify(zo[k].z) + '<br>';
+      str += 'Poles: ' + JSON.stringify(zo[k].p) + '<br>';
+    }
+    return str;
+  };
+
+  var beautifyCoeffs = function (c) {
+    var str = '';
+    for (var k = 0; k < c.length; k++) {
+      str += 'stage ' + (k + 1) + ':<br>';
+      str += 'k: ' + c[k].k + '<br>';
+      str += 'a1: ' + c[k].a[0] + ' | a2: ' + c[k].a[1] + '<br>';
+      str += 'b0: ' + c[k].b[0] + ' | b1: ' + c[k].b[1] + ' | b2: ' + c[k].b[2] + '<br>';
+    }
+    return str;
+  };
+
+  var beautifyFirCoeffs = function (c) {
+    var str = '';
+    for (var k = 0; k < c.length; k++) {
+      str += 'stage ' + (k + 1) + ': ' + c[k] + '<br>';
+    }
+    return str;
+  };
+
+  var xSign = function (ctx, x, y, radius) {
+    var size = radius * Math.sqrt(Math.PI) / 2;
+    ctx.moveTo(x - size, y - size);
+    ctx.lineTo(x + size, y + size);
+    ctx.moveTo(x - size, y + size);
+    ctx.lineTo(x + size, y - size);
+  };
+
+  sim.onclick = function () {
+    runCounter = 0;
+    unfilteredOut = [];
+    filter.out = [];
+    filter.type = seltype.options[seltype.selectedIndex].value;
+    filter.sampling = fs.value;
+    filter.cutoffLow = fc.value;
+    filter.cutoffHigh = fc2.value;
+    filter.gain = gain.value;
+    filter.preGain = pregain.checked;
+
+    if (filter.type === 'iir') {
+      filter.calculation = seltrans.options[seltrans.selectedIndex].value;
+      filter.order = io.value;
+      if (filter.calculation === 'bilinear') {
+        filter.behavior = bilineartype.options[bilineartype.selectedIndex].value;
+        filter.characteristic = bilinearchar.options[bilinearchar.selectedIndex].value;
+
+        filter.coeffs = iirCalculator[filter.behavior]({
+          order: filter.order,
+          characteristic: filter.characteristic,
+          Fs: filter.sampling,
+          Fc: filter.cutoffLow,
+          gain: filter.gain,
+          preGain: filter.preGain
+        });
+
+
+      } else {
+        filter.behavior = 'lowpass';
+        filter.characteristic = matchedzchar.options[matchedzchar.selectedIndex].value;
+        filter.coeffs = iirCalculator.lowpass({
+          order: filter.order,
+          characteristic: filter.characteristic,
+          Fs: filter.sampling,
+          Fc: filter.cutoffLow,
+          transform: 'matchedZ',
+          preGain: filter.preGain
+        });
+
+      }
+      filter.instance = new Fili.IirFilter(filter.coeffs);
+
+      filter.pz = filter.instance.polesZeros();
+      filter.impulseResponse = filter.instance.impulseResponse(buir.value);
+      filter.resp = [];
+      for (cnt = 0; cnt < filter.impulseResponse.out.length; cnt++) {
+        filter.resp.push([cnt, filter.impulseResponse.out[cnt]]);
+      }
+
+      iirtxt.innerHTML = beautifyZ(filter.pz);
+      filter.pza = [];
+      for (cnt = 0; cnt < filter.pz.length; cnt++) {
+        filter.pza[2 * cnt] = {
+          data: [
+            [filter.pz[cnt].p[0].re, filter.pz[cnt].p[0].im],
+            [filter.pz[cnt].p[1].re, filter.pz[cnt].p[1].im]
+          ],
+          color: colors[cnt],
+          points: {
+            radius: 3,
+            show: true,
+            symbol: xSign
+          }
+        };
+        filter.pza[2 * cnt + 1] = {
+          data: [
+            [filter.pz[cnt].z[0].re, filter.pz[cnt].z[0].im],
+            [filter.pz[cnt].z[1].re, filter.pz[cnt].z[1].im]
+          ],
+          color: colors[cnt],
+          points: {
+            radius: 3,
+            show: true
+          }
+        };
+      }
+      $.plot($('#iirpz'), filter.pza,
+        options);
+
+      coefftxt.innerHTML = beautifyCoeffs(filter.coeffs);
+
+    } else {
+      filter.calculation = firtype.options[firtype.selectedIndex].value;
+      filter.order = fo.value;
+      if (filter.calculation !== 'kb') {
+        var c = 'lowpass';
+        if (filter.calculation === 'sinc_hp') {
+          c = 'highpass';
+        } else if (filter.calculation === 'sinc_bp') {
+          c = 'bandpass';
+        } else if (filter.calculation === 'sinc_bs') {
+          c = 'bandstop';
+        }
+        filter.coeffs = firCalculator[c]({
+          order: filter.order,
+          Fs: filter.sampling,
+          Fc: filter.cutoffLow,
+          F1: filter.cutoffLow,
+          F1: filter.cutoffHigh
+        });
+      } else {
+        filter.attenuation = firatt.value;
+        filter.coeffs = firCalculator.kbFilter({
+          order: filter.order,
+          Fs: filter.sampling,
+          Fa: filter.cutoffLow,
+          Fb: filter.cutoffHigh,
+          Att: filter.attenuation
+        });
+      }
+
+        filter.instance = new Fili.FirFilter(filter.coeffs);
+
+        filter.resp = [];
+        for (cnt = 0; cnt < filter.coeffs.length; cnt++) {
+          filter.resp.push([cnt, filter.coeffs[cnt]]);
+        }
+        coefftxt.innerHTML = beautifyFirCoeffs(filter.coeffs);
+    }
+
+    filter.response = filter.instance.response(480);
+    filter.magnitude = [];
+    filter.magnitudedB = [];
+    filter.groupDelay = [];
+
+    $.plot($('#iirimp'), [{
+      data: filter.resp,
+      color: '#FF0000'
+    }]);
+
+    for (cnt = 0; cnt < filter.response.length; cnt++) {
+      filter.magnitude.push([filter.sampling / 2 * cnt / filter.response.length, filter.response[cnt].magnitude]);
+      filter.magnitudedB.push([filter.sampling / 2 * cnt / filter.response.length, filter.response[cnt].dBmagnitude]);
+      filter.groupDelay.push([filter.sampling / 2 * cnt / filter.response.length, filter.response[cnt].groupDelay]);
+    }
+    $.plot($('#iirmag'), [{
+      data: filter.magnitude,
+      color: '#FF0000'
+    }]);
+    $.plot($('#iirbmag'), [{
+      data: filter.magnitudedB,
+      color: '#FF0000'
+    }]);
+    $.plot($('#iirgroup'), [{
+      data: filter.groupDelay,
+      color: '#FF0000'
+    }]);
+
     $.plot($('#unrun'), [{
       data: unfilteredOut,
       color: '#FFFF00',
       label: 'Original'
     }, {
-      data: besselOut,
+      data: filter.out,
       color: '#FF0000',
-      label: 'Bessel'
-    }, {
-      data: butterworthOut,
-      color: '#00FF00',
-      label: 'Butterworth'
-    }, {
-      data: firOut,
-      color: '#0000FF',
-      label: 'FIR'
-    }]);
+      label: 'Filtered'
+    }
+    ]);
   };
-  $.plot($('#unrun'), [{
-    data: unfilteredOut,
-    color: '#FFFF00',
-    label: 'original'
-  }, {
-    data: besselOut,
-    color: '#FF0000',
-    label: 'bessel'
-  }, {
-    data: butterworthOut,
-    color: '#00FF00',
-    label: 'butterworth'
-  }, {
-    data: firOut,
-    color: '#0000FF',
-    label: 'FIR'
-  }]);
+
+  run.onclick = function () {
+    filter.out.push([runCounter, filter.instance.singleStep(parseFloat(inval.value))]);
+    unfilteredOut.push([runCounter, parseFloat(inval.value)]);
+    runCounter++;
+    $.plot($('#unrun'), [{
+      data: unfilteredOut,
+      color: '#0000FF',
+      label: 'Original'
+    }, {
+      data: filter.out,
+      color: '#FF0000',
+      label: 'Filtered'
+    }
+    ]);
+  };
 
   sim.click();
 
