@@ -92,33 +92,6 @@ $(document).ready(function () {
   var filter = {};
 
   var cnt = 0;
-  var colors = ['#00FF00', '#FF0000', '#0000FF'];
-  var options = {
-    xaxis: {
-      min: -1,
-      max: 1
-    },
-    yaxis: {
-      min: -1,
-      max: 1
-    },
-    grid: {
-      markings: [{
-        yaxis: {
-          from: 0,
-          to: 0
-        },
-        color: "#000"
-      }, {
-        xaxis: {
-          from: 0,
-          to: 0
-        },
-        color: "#000"
-      }],
-      markingsLineWidth: 1
-    }
-  };
 
   var beautifyZ = function (zo) {
     var str = '';
@@ -208,34 +181,13 @@ $(document).ready(function () {
       }
 
       iirtxt.innerHTML = beautifyZ(filter.pz);
-      filter.pza = [];
-      for (cnt = 0; cnt < filter.pz.length; cnt++) {
-        filter.pza[2 * cnt] = {
-          data: [
-            [filter.pz[cnt].p[0].re, filter.pz[cnt].p[0].im],
-            [filter.pz[cnt].p[1].re, filter.pz[cnt].p[1].im]
-          ],
-          color: colors[cnt],
-          points: {
-            radius: 3,
-            show: true,
-            symbol: xSign
-          }
-        };
-        filter.pza[2 * cnt + 1] = {
-          data: [
-            [filter.pz[cnt].z[0].re, filter.pz[cnt].z[0].im],
-            [filter.pz[cnt].z[1].re, filter.pz[cnt].z[1].im]
-          ],
-          color: colors[cnt],
-          points: {
-            radius: 3,
-            show: true
-          }
-        };
-      }
-      $.plot($('#iirpz'), filter.pza,
-        options);
+
+      d3draw.polar({
+        values:filter.pz,
+        element: '#iirpz3d',
+        width: 350,
+        height:350
+      });
 
       coefftxt.innerHTML = beautifyCoeffs(filter.coeffs);
 
@@ -275,6 +227,13 @@ $(document).ready(function () {
         for (cnt = 0; cnt < filter.coeffs.length; cnt++) {
           filter.resp.push([cnt, filter.coeffs[cnt]]);
         }
+        d3draw.polar({
+          values:[],
+          element: '#iirpz3d',
+          width: 350,
+          height:350
+        });
+        iirtxt.innerHTML = 'No poles/zeroes for FIR filters';
         coefftxt.innerHTML = beautifyFirCoeffs(filter.coeffs);
     }
 
@@ -282,56 +241,114 @@ $(document).ready(function () {
     filter.magnitude = [];
     filter.magnitudedB = [];
     filter.groupDelay = [];
-
+/*
     $.plot($('#iirimp'), [{
       data: filter.resp,
       color: '#FF0000'
     }]);
+*/
+    d3draw.linestrip({
+      values:filter.resp,
+      element: '#iirimp3d',
+      width: 600,
+      height:350,
+      xLabel: 'Time [samples]',
+      yLabel: 'Input Value',
+      xFormatter: function (v) {
+        return v.toFixed(2) + ' s';
+      },
+      yFormatter: function (v) {
+        return (v).toFixed(2) + '';
+      }
+    });
 
     for (cnt = 0; cnt < filter.response.length; cnt++) {
       filter.magnitude.push([filter.sampling / 2 * cnt / filter.response.length, filter.response[cnt].magnitude]);
       filter.magnitudedB.push([filter.sampling / 2 * cnt / filter.response.length, filter.response[cnt].dBmagnitude]);
       filter.groupDelay.push([filter.sampling / 2 * cnt / filter.response.length, filter.response[cnt].groupDelay]);
     }
-    $.plot($('#iirmag'), [{
-      data: filter.magnitude,
-      color: '#FF0000'
-    }]);
-    $.plot($('#iirbmag'), [{
-      data: filter.magnitudedB,
-      color: '#FF0000'
-    }]);
-    $.plot($('#iirgroup'), [{
-      data: filter.groupDelay,
-      color: '#FF0000'
-    }]);
 
-    $.plot($('#unrun'), [{
-      data: unfilteredOut,
-      color: '#FFFF00',
-      label: 'Original'
-    }, {
-      data: filter.out,
-      color: '#FF0000',
-      label: 'Filtered'
-    }
-    ]);
+    d3draw.linestrip({
+      values:filter.magnitude,
+      element: '#iirmag3d',
+      width: 600,
+      height:350,
+      xLabel: 'Frequency [Hz]',
+      yLabel: 'Attenuation [%]',
+      xFormatter: function (v) {
+        return v.toFixed(2) + ' Hz';
+      },
+      yFormatter: function (v) {
+        return (100 * v).toFixed(2) + ' %';
+      }
+    });
+
+    d3draw.linestrip({
+      values:filter.magnitudedB,
+      element: '#iirbmag3d',
+      width: 600,
+      height:350,
+      xLabel: 'Frequency [Hz]',
+      yLabel: 'Attenuation [dB]',
+      xFormatter: function (v) {
+        return v.toFixed(2) + ' Hz';
+      },
+      yFormatter: function (v) {
+        return v.toFixed(2) + ' dB';
+      }
+    });
+
+    d3draw.linestrip({
+      values:filter.groupDelay,
+      element: '#iirgroup3d',
+      width: 600,
+      height:350,
+      xLabel: 'Frequency [Hz]',
+      yLabel: 'Group Delay [samples]',
+      xFormatter: function (v) {
+        return v.toFixed(2) + ' Hz';
+      },
+      yFormatter: function (v) {
+        return v.toFixed(2) + '';
+      }
+    });
+
+    d3draw.linestrip({
+      values1: unfilteredOut,
+      values: filter.out,
+      element: '#unrun3d',
+      width: 600,
+      height:350,
+      xLabel: 'Time [samples]',
+      yLabel: 'Input Value',
+      xFormatter: function (v) {
+        return v.toFixed(2) + ' s';
+      },
+      yFormatter: function (v) {
+        return (v).toFixed(2) + '';
+      }
+    });
   };
 
   run.onclick = function () {
     filter.out.push([runCounter, filter.instance.singleStep(parseFloat(inval.value))]);
     unfilteredOut.push([runCounter, parseFloat(inval.value)]);
     runCounter++;
-    $.plot($('#unrun'), [{
-      data: unfilteredOut,
-      color: '#0000FF',
-      label: 'Original'
-    }, {
-      data: filter.out,
-      color: '#FF0000',
-      label: 'Filtered'
-    }
-    ]);
+    d3draw.linestrip({
+      values1: unfilteredOut,
+      values: filter.out,
+      element: '#unrun3d',
+      width: 600,
+      height:350,
+      xLabel: 'Time [samples]',
+      yLabel: 'Input Value',
+      xFormatter: function (v) {
+        return v.toFixed(2) + ' s';
+      },
+      yFormatter: function (v) {
+        return (v).toFixed(2) + '';
+      }
+    });
   };
 
   sim.click();
