@@ -147,6 +147,13 @@ $(document).ready(function () {
       if (filter.calculation === 'bilinear') {
         filter.behavior = bilineartype.options[bilineartype.selectedIndex].value;
         filter.characteristic = bilinearchar.options[bilinearchar.selectedIndex].value;
+        filter.oneDb = false;
+        if (filter.characteristic === 'bessel1dB') {
+          filter.characteristic = 'bessel';
+          filter.oneDb = true;
+        } else if (filter.characteristic === 'bessel3dB') {
+          filter.characteristic = 'bessel';
+        }
 
         filter.coeffs = iirCalculator[filter.behavior]({
           order: filter.order,
@@ -154,10 +161,9 @@ $(document).ready(function () {
           Fs: filter.sampling,
           Fc: filter.cutoffLow,
           gain: filter.gain,
+          oneDb: filter.oneDb,
           preGain: filter.preGain
         });
-
-
       } else {
         filter.behavior = 'lowpass';
         filter.characteristic = matchedzchar.options[matchedzchar.selectedIndex].value;
