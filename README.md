@@ -257,6 +257,14 @@ var fftResult = fft.forward(buffer, 'hanning');
 
 // fftResult = {re: [], im: []}. The array length equals the FFT radix
 
+var magnitude = fft.magnitude(fftResult); // magnitude
+var dB = fft.magToDb(magnitude); // magnitude in dB
+var phase = fft.phase(fftResult); // phase
+
+// Note: magnitude, dB and phase are arrays.
+// The length equals the FFT radix.
+// For exact phase evaluation, the phase must be unwrapped.
+
 var originalBuffer = fft.inverse(fftResult.re, fftResult.im);
 ```
 
