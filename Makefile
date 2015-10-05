@@ -19,7 +19,7 @@ eslint: src/*.js
 	$(ESLINT) $^
 
 test:
-	$(MOCHA) --compilers js:babel/register
+	npm test
 
 beautify: index.js ./src/*.js
 	$(BEAUTIFY) $^ --replace
