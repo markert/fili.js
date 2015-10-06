@@ -12,13 +12,14 @@
     "browserify": "^10.2.4",
     "envify": "^3.4.0",
     "eslint": "^0.23.0",
+    "istanbul": "^0.3.21",
     "js-beautify": "^1.5.6",
     "mocha": "^2.2.5",
     "should": "^6.0.3",
     "uglify-js": "^2.4.23"
   },
   "scripts": {
-    "test": "make test"
+    "test": "istanbul cover _mocha -- --compilers js:babel/register --recursive test"
   },
   "browserify": {
     "transform": [
