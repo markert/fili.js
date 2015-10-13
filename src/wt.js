@@ -11,7 +11,7 @@ var Wt = function (params) {
 
   var waveData = {
     lowpassData: new Float64Array(bufferSize),
-    pointer: 0
+    lowpassPointer: 0
   }
 
   // Orthogonal Daubechies coefficients
@@ -59,12 +59,12 @@ var Wt = function (params) {
 
   var calculateCWT = function () {
     for (var cnt = 0; cnt < waveletDepth; cnt++) {
-      var steps = Math.floor(Math.pow(2, cnt - 1 + waveletCoeffs.lp.length / 2));
       var buffer = waveletBuffer[cnt];
       var data = waveData;
       if (cnt > 0) {
         data = waveletBuffer[cnt - 1];
       }
+      var steps = Math.floor(data.lowpassPointer - Math.pow(2, cnt - 1 + waveletCoeffs.lp.length / 2));      
       for (var dcnt = 0; dcnt < steps; dcnt++) {
         buffer.lowpassData[dcnt + buffer.lowpassPointer] = 0;
         buffer.highpassData[dcnt + buffer.highpassPointer] = 0;
@@ -73,32 +73,41 @@ var Wt = function (params) {
           buffer.highpassData[dcnt + buffer.highpassPointer] += waveletCoeffs.hp[rcnt] / 2 + data.lowpassData[dcnt + rcnt * Math.pow(2, cnt)];
         }
       }
+      console.log(steps, buffer.lowpassPointer, buffer.highpassPointer, data.lowpassPointer);
       buffer.lowpassPointer += steps;
       buffer.highpassPointer += steps;
-      buffer.lowpassData.set(buffer.lowpassData.subarray(steps, buffer.lowpassPointer));
-      buffer.lowpassPointer -= steps;
+      if (cnt === 0) {
+		  data.lowpassPointer += steps;
+	  }
+      data.lowpassData.set(data.lowpassData.subarray(steps, buffer.lowpassPointer));
+      data.lowpassPointer -= steps;      
     }
   }
 
   var calculateDWT = function () {
-    var steps = Math.floor((waveletCoeffs.lp.length - 2) / 2);
-    var buffer = waveletBuffer[cnt];
-    var data = waveData;
-    if (cnt > 0) {
-      data = waveletBuffer[cnt - 1];
-    }
-    for (var dcnt = 0; dcnt < steps; dcnt++) {
-      nextBuffer.lowpassData[dcnt + nextBuffer.lowpassPointer] = 0;
-      buffer.highpassData[dcnt + buffer.highpassPointer] = 0;
-      for (var rcnt = 0; rcnt < waveletCoeffs.lp.length; rcnt++) {
-        buffer.lowpassData[dcnt + nextBuffer.lowpassPointer] += waveletCoeffs.lp[rcnt] + data.lowpassData[2 * dcnt + rcnt];
-        buffer.highpassData[dcnt + buffer.highpassPointer] += waveletCoeffs.hp[rcnt] + data.lowpassData[2 * dcnt + rcnt];
+    for (var cnt = 0; cnt < waveletDepth; cnt++) {
+      var buffer = waveletBuffer[cnt];
+      var data = waveData;
+      if (cnt > 0) {
+        data = waveletBuffer[cnt - 1];
       }
+      var steps = Math.floor(data.lowpassPointer - (waveletCoeffs.lp.length - 2) / 2);
+      for (var dcnt = 0; dcnt < steps; dcnt++) {
+        buffer.lowpassData[dcnt + buffer.lowpassPointer] = 0;
+        buffer.highpassData[dcnt + buffer.highpassPointer] = 0;
+        for (var rcnt = 0; rcnt < waveletCoeffs.lp.length; rcnt++) {
+          buffer.lowpassData[dcnt + buffer.lowpassPointer] += waveletCoeffs.lp[rcnt] + data.lowpassData[2 * dcnt + rcnt];
+          buffer.highpassData[dcnt + buffer.highpassPointer] += waveletCoeffs.hp[rcnt] + data.lowpassData[2 * dcnt + rcnt];
+        }
+      }
+      buffer.lowpassPointer += steps;
+      buffer.highpassPointer += steps;
+      if (cnt === 0) {
+		  data.lowpassPointer += steps;
+	  }
+      //buffer.lowpassData.set(buffer.lowpassData.subarray(2 * steps, buffer.lowpassPointer));
+      //buffer.lowpassPointer -= 2 * steps;
     }
-    buffer.lowpassPointer += steps;
-    buffer.highpassPointer += steps;
-    buffer.lowpassData.set(buffer.lowpassData.subarray(2 * steps, buffer.lowpassPointer));
-    buffer.lowpassPointer -= 2 * steps;
   }
 
   var setDepth = function (depth) {
@@ -135,11 +144,17 @@ var Wt = function (params) {
       resetBuffer();
     },
     pushData: function (b) {
-      waveData.lowpassData.set(b, waveData.pointer);
-      waveData.pointer += b.length;
+      waveData.lowpassData.set(b, waveData.lowpassPointer);
+      waveData.lowpassPointer += b.length;
     },
     bufferLength: function () {
-      return waveData.pointer;
+      return waveData.lowpassPointer;
+    },
+    sampleBuffer: function () {
+      return waveData.lowpassData;
+    },
+    waveletBuffer: function () {
+      return waveletBuffer;
     },
     calculate: function () {
       if (transformAlgorithm === 'CWT') {
@@ -147,6 +162,7 @@ var Wt = function (params) {
       } else {
         calculateDWT();
       }
+      return waveletBuffer;
     }
   }
   return self;
