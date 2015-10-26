@@ -46,7 +46,6 @@ var Wt = function (params) {
         coeffs.hp[cnt] = dcoeffs[dcoeffs.length - cnt - 1];
       }
     }
-    console.log(coeffs);
     return coeffs;
   }
 
@@ -65,13 +64,14 @@ var Wt = function (params) {
       if (cnt > 0) {
         data = waveletBuffer[cnt - 1];
       }
-      var steps = Math.floor(data.lowpassPointer - Math.pow(2, cnt + waveletCoeffs.lp.length / 2));
+
+      var steps = Math.floor(data.lowpassPointer - Math.pow(2, cnt - 1 + waveletDepth / 2));
       for (var dcnt = 0; dcnt < steps; dcnt++) {
         buffer.lowpassData[dcnt + buffer.lowpassPointer] = 0;
         buffer.highpassData[dcnt + buffer.highpassPointer] = 0;
-        for (var rcnt = 0; rcnt < waveletCoeffs.lp.length; rcnt++) {
-          buffer.lowpassData[dcnt + buffer.lowpassPointer] += waveletCoeffs.lp[rcnt] / 2 + data.lowpassData[dcnt + rcnt * Math.pow(2, cnt)];
-          buffer.highpassData[dcnt + buffer.highpassPointer] += waveletCoeffs.hp[rcnt] / 2 + data.lowpassData[dcnt + rcnt * Math.pow(2, cnt)];
+        for (var rcnt = 0; rcnt < waveletDepth; rcnt++) {
+          buffer.lowpassData[dcnt + buffer.lowpassPointer] += waveletCoeffs.lp[rcnt] / 2 * data.lowpassData[dcnt + rcnt * Math.pow(2, cnt)];
+          buffer.highpassData[dcnt + buffer.highpassPointer] += waveletCoeffs.hp[rcnt] / 2 * data.lowpassData[dcnt + rcnt * Math.pow(2, cnt)];
         }
       }
       buffer.lowpassPointer += steps;
@@ -91,13 +91,15 @@ var Wt = function (params) {
       if (cnt > 0) {
         data = waveletBuffer[cnt - 1];
       }
-      var steps = Math.floor(data.lowpassPointer - (waveletCoeffs.lp.length - 2) / 2);
+      var steps = Math.ceil(data.lowpassPointer / 2);
       for (var dcnt = 0; dcnt < steps; dcnt++) {
-        buffer.lowpassData[dcnt + buffer.lowpassPointer] = 0;
-        buffer.highpassData[dcnt + buffer.highpassPointer] = 0;
-        for (var rcnt = 0; rcnt < waveletCoeffs.lp.length; rcnt++) {
-          buffer.lowpassData[dcnt + buffer.lowpassPointer] += waveletCoeffs.lp[rcnt] + data.lowpassData[2 * dcnt + rcnt];
-          buffer.highpassData[dcnt + buffer.highpassPointer] += waveletCoeffs.hp[rcnt] + data.lowpassData[2 * dcnt + rcnt];
+        var bufferPos = dcnt + buffer.lowpassPointer;
+        buffer.lowpassData[bufferPos] = 0;
+        buffer.highpassData[bufferPos] = 0;
+        for (var rcnt = 0; rcnt < waveletDepth; rcnt++) {
+          console.log(dcnt, rcnt, data.lowpassData[2 * dcnt + rcnt])
+          buffer.lowpassData[bufferPos] += waveletCoeffs.lp[rcnt] * data.lowpassData[2 * dcnt + rcnt];
+          buffer.highpassData[bufferPos] += waveletCoeffs.hp[rcnt] * data.lowpassData[2 * dcnt + rcnt];
         }
       }
       buffer.lowpassPointer += steps;
@@ -105,8 +107,6 @@ var Wt = function (params) {
       if (cnt === 0) {
         data.lowpassPointer += steps;
       }
-      //buffer.lowpassData.set(buffer.lowpassData.subarray(2 * steps, buffer.lowpassPointer));
-      //buffer.lowpassPointer -= 2 * steps;
     }
   }
 
@@ -129,6 +129,15 @@ var Wt = function (params) {
     }
     resetBuffer();
     return true;
+  };
+
+  var calculateNecessarySamples = function () {
+    var necessarySamples = 0;
+    for (var d = waveletDepth; d; d--) {
+      necessarySamples += Math.pow(2, d - 1);
+    }
+    necessarySamples *= waveletCoeffs.lp.length;
+    return necessarySamples;
   };
 
   setDepth(waveletDepth);
@@ -155,6 +164,9 @@ var Wt = function (params) {
     },
     waveletBuffer: function () {
       return waveletBuffer;
+    },
+    necessarySamples: function () {
+      return calculateNecessarySamples();
     },
     calculate: function () {
       if (transformAlgorithm === 'CWT') {
