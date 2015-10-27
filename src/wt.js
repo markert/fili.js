@@ -126,17 +126,17 @@ var Wt = function (params) {
     } else if (depth <= waveletBuffer.length) {
       waveletBuffer.length = depth;
     }
+    waveletDepth = depth;
     resetBuffer();
     return true;
   };
 
   var calculateNecessarySamples = function () {
-    var necessarySamples = 0;
-    for (var d = waveletDepth; d; d--) {
-      necessarySamples += Math.pow(2, d - 1);
+    if (transformAlgorithm === 'DWT') {
+      return Math.pow(waveletDepth, 2);
+    } else {
+      return 512; // TODO
     }
-    necessarySamples *= waveletCoeffs.lp.length;
-    return necessarySamples;
   };
 
   setDepth(waveletDepth);
