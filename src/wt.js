@@ -97,7 +97,6 @@ var Wt = function (params) {
         buffer.lowpassData[bufferPos] = 0;
         buffer.highpassData[bufferPos] = 0;
         for (var rcnt = 0; rcnt < waveletDepth; rcnt++) {
-          console.log(dcnt, rcnt, data.lowpassData[2 * dcnt + rcnt])
           buffer.lowpassData[bufferPos] += waveletCoeffs.lp[rcnt] * data.lowpassData[2 * dcnt + rcnt];
           buffer.highpassData[bufferPos] += waveletCoeffs.hp[rcnt] * data.lowpassData[2 * dcnt + rcnt];
         }
