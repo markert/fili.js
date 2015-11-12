@@ -51,10 +51,9 @@ var Wt = function (params) {
 
   var resetBuffer = function () {
     for (var cnt = 0; cnt < waveletBuffer.length; cnt++) {
-      waveletBuffer[cnt].highpassPointer = 0;
       waveletBuffer[cnt].lowpassPointer = 0;
     }
-    waveData.pointer = 0;
+    waveData.lowpassPointer = 0;
   }
 
   var calculateCWT = function () {
@@ -68,14 +67,13 @@ var Wt = function (params) {
       var steps = Math.floor(data.lowpassPointer - Math.pow(2, cnt - 1 + waveletDepth / 2));
       for (var dcnt = 0; dcnt < steps; dcnt++) {
         buffer.lowpassData[dcnt + buffer.lowpassPointer] = 0;
-        buffer.highpassData[dcnt + buffer.highpassPointer] = 0;
+        buffer.highpassData[dcnt + buffer.lowpassPointer] = 0;
         for (var rcnt = 0; rcnt < waveletDepth; rcnt++) {
           buffer.lowpassData[dcnt + buffer.lowpassPointer] += waveletCoeffs.lp[rcnt] / 2 * data.lowpassData[dcnt + rcnt * Math.pow(2, cnt)];
-          buffer.highpassData[dcnt + buffer.highpassPointer] += waveletCoeffs.hp[rcnt] / 2 * data.lowpassData[dcnt + rcnt * Math.pow(2, cnt)];
+          buffer.highpassData[dcnt + buffer.lowpassPointer] += waveletCoeffs.hp[rcnt] / 2 * data.lowpassData[dcnt + rcnt * Math.pow(2, cnt)];
         }
       }
       buffer.lowpassPointer += steps;
-      buffer.highpassPointer += steps;
       if (cnt === 0) {
         data.lowpassPointer += steps;
       }
@@ -91,7 +89,7 @@ var Wt = function (params) {
       if (cnt > 0) {
         data = waveletBuffer[cnt - 1];
       }
-      var steps = Math.ceil(data.lowpassPointer / 2);
+      var steps = Math.floor(waveData.lowpassPointer / Math.pow(2, cnt + 1));
       for (var dcnt = 0; dcnt < steps; dcnt++) {
         var bufferPos = dcnt + buffer.lowpassPointer;
         buffer.lowpassData[bufferPos] = 0;
@@ -102,10 +100,9 @@ var Wt = function (params) {
         }
       }
       buffer.lowpassPointer += steps;
-      buffer.highpassPointer += steps;
-      if (cnt === 0) {
-        data.lowpassPointer += steps;
-      }
+      //  if (cnt === 0) {
+      //    data.lowpassPointer += steps;
+      //  }
     }
   }
 
@@ -119,7 +116,6 @@ var Wt = function (params) {
         waveletBuffer.push({
           highpassData: new Float64Array(bufferSize),
           lowpassData: new Float64Array(bufferSize),
-          highpassPointer: 0,
           lowpassPointer: 0
         });
       }
@@ -150,6 +146,10 @@ var Wt = function (params) {
     },
     resetBuffer: function () {
       resetBuffer();
+    },
+    clearSamples: function (num) {
+      waveData.lowpassData.set(waveData.lowpassData.subarray(num, waveData.lowpassPointer), 0);
+      waveData.lowpassPointer -= num;
     },
     pushData: function (b) {
       waveData.lowpassData.set(b, waveData.lowpassPointer);
