@@ -275,6 +275,13 @@ var originalBuffer = fft.inverse(fftResult.re, fftResult.im);
 $ make test
 ```
 
+## TODO
+- add travis
+- add waveket transform
+- add Parks-McClellan FIR algorithm
+- add iir filters other than biquad
+- add stability evaluation for fix-point arithmetic
+
 ## License
 
 MIT
