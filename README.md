@@ -277,7 +277,7 @@ $ make test
 
 ## TODO
 - add travis
-- add waveket transform
+- add wavelet transform
 - add Parks-McClellan FIR algorithm
 - add iir filters other than biquad
 - add stability evaluation for fix-point arithmetic
