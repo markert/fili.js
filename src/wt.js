@@ -150,6 +150,13 @@ var Wt = function (params) {
     clearSamples: function (num) {
       waveData.lowpassData.set(waveData.lowpassData.subarray(num, waveData.lowpassPointer), 0);
       waveData.lowpassPointer -= num;
+      for (var cnt = 0; cnt < waveletDepth; cnt++) {
+        var buffer = waveletBuffer[cnt];
+        var removeSamples = num / Math.pow(2, cnt);
+        buffer.lowpassData.set(buffer.lowpassData.subarray(removeSamples, buffer.lowpassPointer), 0);
+        buffer.highpassData.set(buffer.highpassData.subarray(removeSamples, buffer.lowpassPointer), 0);
+        buffer.lowpassPointer -= removeSamples;
+      }
     },
     pushData: function (b) {
       waveData.lowpassData.set(b, waveData.lowpassPointer);
