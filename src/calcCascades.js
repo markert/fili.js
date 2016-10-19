@@ -203,6 +203,11 @@ var calcCoeffs = function (params, behavior) {
         } else {
           fd = params.Fc * f;
         }
+        if (behavior === 'bandpass' || behavior === 'bandstop') {
+          if (params.characteristic === 'bessel') {
+            fd = Math.sqrt(params.order) * fd / params.order;
+          }
+        }
         filter.push(getCoeffs[behavior]({
           Fs: params.Fs,
           Fc: fd,
