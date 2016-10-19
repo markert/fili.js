@@ -1,6 +1,6 @@
 /**
  * @name    fili
- * @version 1.2.1 | November 26th 2015
+ * @version 1.3.0 | October 19th 2016
  * @author  Florian Markert
  * @license MIT
  */
@@ -101,6 +101,11 @@ var calcCoeffs = function calcCoeffs(params, behavior) {
           fd = params.Fc / f;
         } else {
           fd = params.Fc * f;
+        }
+        if (behavior === 'bandpass' || behavior === 'bandstop') {
+          if (params.characteristic === 'bessel') {
+            fd = Math.sqrt(params.order) * fd / params.order;
+          }
         }
         filter.push(getCoeffs[behavior]({
           Fs: params.Fs,
