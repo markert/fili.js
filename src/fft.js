@@ -483,7 +483,7 @@
        for (var k in windowCalculation) {
          winFuncs.push(k);
        }
-       return k;
+       return winFuncs;
      }
    };
    return self;
