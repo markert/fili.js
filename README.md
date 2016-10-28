@@ -61,6 +61,8 @@ Possible filters are:
 
 -   highshelf
 
+-   aweighting
+
 Possible characteristics are:
 
 -   bessel
@@ -251,7 +253,12 @@ for (var cnt = 0; cnt < 8192; cnt++) {
 // none, hanning, hamming, rectangular
 // tukery, cosine, lanczos,
 // triangular, bartlett, gaussian,
-// bartlettHanning, blackman
+// bartlettHanning, blackman, blackmanHarris,
+// nuttall3, nuttall3a, nuttall3b,
+// nuttall4, nuttall4a, nuttall4b, nuttall4c
+// sft3f, sft4f, sft5f, sft3m, sft4m, sft5m
+// nift, hpft, srft, hft70, hft95, hft90d
+// hft116d, hft144d, hft196d, hft223d, hft248d
 
 // buffer.length must be greater or equal fft radix
 var fftResult = fft.forward(buffer, 'hanning');
