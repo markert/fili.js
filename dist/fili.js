@@ -1,6 +1,6 @@
 /**
  * @name    fili
- * @version 1.5.1 | October 28th 2016
+ * @version 1.6.0 | October 28th 2016
  * @author  Florian Markert
  * @license MIT
  */
@@ -134,9 +134,14 @@ var initCalcCoeffs = function initCalcCoeffs(behavior) {
 
 var self = {};
 var CalcCascades = function CalcCascades() {
+  var available = [];
   for (var k in getCoeffs) {
     self[k] = initCalcCoeffs(k);
+    available.push(k);
   }
+  self.available = function () {
+    return available;
+  };
   return self;
 };
 
@@ -571,6 +576,7 @@ var Fft = function Fft(radix) {
     },
     inverse: function inverse(re, im) {
       var i, j, n, k, k2, h, d, c, s, ik, dx, dy;
+      n = re.length;
       for (i = n; i--;) {
         j = fft.twiddle[i];
         fft.reI[i] = re[j];
@@ -765,6 +771,9 @@ var FirCoeffs = function FirCoeffs() {
     },
     kbFilter: function kbFilter(params) {
       return calcKImpulseResponse(params);
+    },
+    available: function available() {
+      return ['lowpass', 'highpass', 'bandstop', 'bandpass', 'kbFilter'];
     }
   };
   return self;
