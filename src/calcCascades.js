@@ -236,8 +236,13 @@ var initCalcCoeffs = function (behavior) {
 
 var self = {};
 var CalcCascades = function () {
+  var available = [];
   for (var k in getCoeffs) {
     self[k] = initCalcCoeffs(k);
+    available.push(k);
+  }
+  self.available = function () {
+    return available;
   }
   return self;
 };
