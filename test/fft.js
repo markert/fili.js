@@ -52,6 +52,18 @@ describe('fft.js', function () {
       original[777].should.be.a.Number;
     });
 
+    it('can calculate with all window functions', function () {
+      this.timeout(20000);
+      var w = fftCalc.windows();
+      for (var i = 0; i < w.length; i++) {
+        fftResult = fftCalc.forward(sinewave, w[i]);
+        fftResult.re.length.should.equal(8192);
+        fftResult.im.length.should.equal(8192);
+        fftResult.re[133].should.be.a.Number;
+        fftResult.im[133].should.be.a.Number;
+      }
+    });
+
   });
 
   describe('fft_helpers', function () {
