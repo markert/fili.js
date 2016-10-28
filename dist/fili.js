@@ -1,6 +1,6 @@
 /**
  * @name    fili
- * @version 1.4.0 | October 27th 2016
+ * @version 1.4.1 | October 28th 2016
  * @author  Florian Markert
  * @license MIT
  */
@@ -429,91 +429,81 @@ var Fft = function Fft(radix) {
       hpft: {
         calc: function calc(n, N, a) {
           var z = PI2 * n / (N - 1);
-          return 1.0 - 1.912510941 * cos(z) + 1.079173272 * cos(2 * z) - 0.1832630879 * cos(3 * z);
+          return (1.0 - 1.912510941 * cos(z) + 1.079173272 * cos(2 * z) - 0.1832630879 * cos(3 * z)) / N;
         },
         values: [],
         correction: 1
-        //N
       },
       srft: {
         calc: function calc(n, N, a) {
           var z = PI2 * n / (N - 1);
-          return 1.0 - 1.93 * cos(z) + 1.29 * cos(2 * z) - 0.388 * cos(3 * z) + 0.028 * cos(4 * z);
+          return (1.0 - 1.93 * cos(z) + 1.29 * cos(2 * z) - 0.388 * cos(3 * z) + 0.028 * cos(4 * z)) / N;
         },
         values: [],
         correction: 1
-        //N
       },
       hft70: {
         calc: function calc(n, N, a) {
           var z = PI2 * n / (N - 1);
-          return 1.0 - 1.90796 * cos(z) + 1.07349 * cos(2 * z) - 0.18199 * cos(3 * z);
+          return (1.0 - 1.90796 * cos(z) + 1.07349 * cos(2 * z) - 0.18199 * cos(3 * z)) / N;
         },
         correction: 1
-        //N
       },
       hft95: {
         calc: function calc(n, N, a) {
           var z = PI2 * n / (N - 1);
-          return 1.0 - 1.9383379 * cos(z) + 1.3045202 * cos(2 * z) - 0.402827 * cos(3 * z) + 0.0350665 * cos(4 * z);
+          return (1.0 - 1.9383379 * cos(z) + 1.3045202 * cos(2 * z) - 0.402827 * cos(3 * z) + 0.0350665 * cos(4 * z)) / N;
         },
         values: [],
         correction: 1
-        //N
       },
       hft90d: {
         calc: function calc(n, N, a) {
           var z = PI2 * n / (N - 1);
-          return 1.0 - 1.942604 * cos(z) + 1.340318 * cos(2 * z) - 0.440811 * cos(3 * z) + 0.043097 * cos(4 * z);
+          return (1.0 - 1.942604 * cos(z) + 1.340318 * cos(2 * z) - 0.440811 * cos(3 * z) + 0.043097 * cos(4 * z)) / N;
         },
         values: [],
         correction: 1
-        //N
       },
       hft116d: {
         calc: function calc(n, N, a) {
           var z = PI2 * n / (N - 1);
-          return 1.0 - 1.9575375 * cos(z) + 1.4780705 * cos(2 * z) - 0.6367431 * cos(3 * z) + 0.1228389 * cos(4 * z) - 0.0066288 * cos(5 * z);
+          return (1.0 - 1.9575375 * cos(z) + 1.4780705 * cos(2 * z) - 0.6367431 * cos(3 * z) + 0.1228389 * cos(4 * z) - 0.0066288 * cos(5 * z)) / N;
         },
         values: [],
         correction: 1
-        //N
       },
       hft144d: {
         calc: function calc(n, N, a) {
           var z = PI2 * n / (N - 1);
-          return 1.0 - 1.96760033 * cos(z) + 1.57983607 * cos(2 * z) - 0.81123644 * cos(3 * z) + 0.22583558 * cos(4 * z) - 0.02773848 * cos(5 * z) + 0.0009036 * cos(6 * z);
+          return (1.0 - 1.96760033 * cos(z) + 1.57983607 * cos(2 * z) - 0.81123644 * cos(3 * z) + 0.22583558 * cos(4 * z) - 0.02773848 * cos(5 * z) + 0.0009036 * cos(6 * z)) / N;
         },
         values: [],
         correction: 1
-        //N
       },
       hft196d: {
         calc: function calc(n, N, a) {
           var z = PI2 * n / (N - 1);
-          return 1.0 - 1.97441842 * cos(z) + 1.65409888 * cos(2 * z) - 0.95788186 * cos(3 * z) + 0.3367342 * cos(4 * z) - 0.06364621 * cos(5 * z) + 0.00521942 * cos(6 * z) - 0.00010599 * cos(7 * z);
+          return (1.0 - 1.97441842 * cos(z) + 1.65409888 * cos(2 * z) - 0.95788186 * cos(3 * z) + 0.3367342 * cos(4 * z) - 0.06364621 * cos(5 * z) + 0.00521942 * cos(6 * z) - 0.00010599 * cos(7 * z)) / N;
         },
         values: [],
         correction: 1
-        //N
       },
       hft223d: {
         calc: function calc(n, N, a) {
           var z = PI2 * n / (N - 1);
-          return 1.0 - 1.98298997309 * cos(z) + 1.75556083063 * cos(2 * z) - 1.19037717712 * cos(3 * z) + 0.56155440797 * cos(4 * z) - 0.17296769663 * cos(5 * z) + 0.03233247087 * cos(6 * z) - 0.00324954578 * cos(7 * z) + 0.00013801040 * cos(8 * z) - 0.00000132725 * cos(9 * z);
+          return (1.0 - 1.98298997309 * cos(z) + 1.75556083063 * cos(2 * z) - 1.19037717712 * cos(3 * z) + 0.56155440797 * cos(4 * z) - 0.17296769663 * cos(5 * z) + 0.03233247087 * cos(6 * z) - 0.00324954578 * cos(7 * z) + 0.00013801040 * cos(8 * z) - 0.00000132725 * cos(9 * z)) / N;
         },
         values: [],
         correction: 1
-        //N
       },
       hft248d: {
         calc: function calc(n, N, a) {
           var z = PI2 * n / (N - 1);
-          return 1.0 - 1.985844164102 * cos(z) + 1.791176438506 * cos(2 * z) - 1.282075284005 * cos(3 * z) + 0.667777530266 * cos(4 * z) - 0.240160796576 * cos(5 * z) + 0.056656381764 * cos(6 * z) - 0.008134974479 * cos(7 * z) + 0.00062454465 * cos(8 * z) - 0.000019808998 * cos(9 * z) + 0.000000132974 * cos(10 * z);
+          return (1.0 - 1.985844164102 * cos(z) + 1.791176438506 * cos(2 * z) - 1.282075284005 * cos(3 * z) + 0.667777530266 * cos(4 * z) - 0.240160796576 * cos(5 * z) + 0.056656381764 * cos(6 * z) - 0.008134974479 * cos(7 * z) + 0.00062454465 * cos(8 * z) - 0.000019808998 * cos(9 * z) + 0.000000132974 * cos(10 * z)) / N;
         },
         values: [],
         correction: 1
-        //N
       }
     };
 

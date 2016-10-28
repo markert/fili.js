@@ -1,6 +1,6 @@
 {
   "name": "fili",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "main": "dist/fili.min.js",
   "author": "Florian Markert",
   "license": "MIT",
