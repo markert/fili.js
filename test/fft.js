@@ -72,6 +72,11 @@ describe('fft.js', function () {
       w.length.should.not.equal(0);
       w[2].should.be.a.String;
     });
+
+    it('detects wrong radix', function () {
+      var fftCalcWrong = new Fft(1234);
+      fftCalcWrong.should.be.empty;
+    });
   });
 
 });
