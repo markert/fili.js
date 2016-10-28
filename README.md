@@ -77,6 +77,9 @@ and represents the dB value for the peak or dip.
 //  Instance of a filter coefficient calculator
 var iirCalculator = new Fili.CalcCascades();
 
+// get available filters
+var availableFilters = iirCalculator.available();
+
 // calculate filter coefficients
 var iirFilterCoeffs = iirCalculator.lowpass({
     order: 3, // cascade 3 biquad filters (max: 12)
@@ -259,6 +262,9 @@ for (var cnt = 0; cnt < 8192; cnt++) {
 // sft3f, sft4f, sft5f, sft3m, sft4m, sft5m
 // nift, hpft, srft, hft70, hft95, hft90d
 // hft116d, hft144d, hft196d, hft223d, hft248d
+
+// get available window functions
+var availableWindows = fft.windows();
 
 // buffer.length must be greater or equal fft radix
 var fftResult = fft.forward(buffer, 'hanning');
