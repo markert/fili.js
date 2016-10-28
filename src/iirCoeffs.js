@@ -256,6 +256,24 @@ var IirCoeffs = function () {
       coeffs.b.push((-2 * p.A * ((p.A - 1) + (p.A + 1) * p.cw)) / coeffs.a0);
       coeffs.b.push((p.A * ((p.A + 1) + (p.A - 1) * p.cw - sa)) / coeffs.a0);
       return coeffs;
+    },
+
+    // taken from: Design of digital filters for frequency weightings (A and C) required for risk assessments of workers exposed to noise
+    // use Butterworth one stage IIR filter to get the results from the paper
+    aweighting: function (params) {
+      var coeffs = initCoeffs();
+      coeffs.k = 1;
+      var wo = 2 * Math.PI * params.Fc / params.Fs;
+      var w = 2 * Math.tan(wo / 2);
+      var Q = params.Q;
+      var wsq = Math.pow(w, 2);
+      coeffs.a0 = 4 * Q + wsq * Q + 2 * w;
+      coeffs.a.push(2 * wsq * Q - 8 * Q);
+      coeffs.a.push((4 * Q + wsq * Q - 2 * w));
+      coeffs.b.push(wsq * Q);
+      coeffs.b.push(2 * wsq * Q);
+      coeffs.b.push(wsq * Q);
+      return coeffs;
     }
   };
 
