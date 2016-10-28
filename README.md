@@ -1,7 +1,7 @@
 # fili
 
 [![npm version](https://badge.fury.io/js/fili.svg)](http://badge.fury.io/js/fili)
-[![Build Status](https://travis-ci.org/markert/fili.svg?branch=master)](https://travis-ci.org/markert/fili)
+[![Build Status](https://travis-ci.org/markert/fili.js.svg?branch=master)](https://travis-ci.org/markert/fili.js)
 
 A digital filter library for JavaScript.
 
