@@ -426,6 +426,7 @@
      },
      inverse: function (re, im) {
        var i, j, n, k, k2, h, d, c, s, ik, dx, dy;
+       n = re.length;
        for (i = n; i--;) {
          j = fft.twiddle[i];
          fft.reI[i] = re[j];
