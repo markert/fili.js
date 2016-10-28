@@ -1,7 +1,9 @@
 'use strict';
 
 var {
-  complex, runMultiFilter, evaluatePhase
+  complex,
+  runMultiFilter,
+  evaluatePhase
 } = require('./utils');
 
 // params: array of biquad coefficient objects and z registers

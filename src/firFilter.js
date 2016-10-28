@@ -1,7 +1,9 @@
 'use strict';
 
 var {
-  runMultiFilter, complex, evaluatePhase
+  runMultiFilter,
+  complex,
+  evaluatePhase
 } = require('./utils');
 
 /**
