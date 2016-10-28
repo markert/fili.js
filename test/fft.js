@@ -3,8 +3,6 @@
 var should = require('should');
 var Fft = require('../src/fft.js');
 
-
-
 describe('fft.js', function () {
 
   var fftCalc;
@@ -12,8 +10,8 @@ describe('fft.js', function () {
 
   before(function () {
     fftCalc = new Fft(8192);
-    for (var cnt = 0; cnt<8192; cnt++) {
-      sinewave.push(Math.sin(2*Math.PI*(113.33232*cnt/8192)));
+    for (var cnt = 0; cnt < 8192; cnt++) {
+      sinewave.push(Math.sin(2 * Math.PI * (113.33232 * cnt / 8192)));
     }
   });
 
@@ -54,7 +52,6 @@ describe('fft.js', function () {
       original[777].should.be.a.Number;
     });
 
-
   });
 
   describe('fft_helpers', function () {
@@ -64,6 +61,5 @@ describe('fft.js', function () {
       w[2].should.be.a.String;
     });
   });
-
 
 });

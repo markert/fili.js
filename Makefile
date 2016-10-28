@@ -21,7 +21,7 @@ eslint: src/*.js
 test:
 	npm test
 
-beautify: index.js ./src/*.js
+beautify: index.js ./src/*.js ./test/*.js
 	$(BEAUTIFY) $^ --replace
 
 server:

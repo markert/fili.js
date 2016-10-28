@@ -5,8 +5,6 @@ var CalcCascades = require('../src/calcCascades');
 var IirCoeffs = require('../src/iirCoeffs');
 var IirFilter = require('../src/iirFilter');
 
-
-
 describe('iir.js', function () {
 
   var iirCascadeCalculator;
@@ -822,286 +820,285 @@ describe('iir.js', function () {
 
   });
 
-    describe('iir-more-filters', function () {
-      var filterCoeffs;
-      it('can calculate lowpass Bessel matched-Z', function () {
-        filterCoeffs = iirCascadeCalculator.lowpass({
-          order: 3,
-          characteristic: 'bessel',
-          transform: 'matchedZ',
-          Fs: 4000,
-          Fc: 500,
-          preGain: false
-        });
-        filterCoeffs.length.should.equal(3);
-        filterCoeffs[0].should.be.an.Object;
-        filterCoeffs[1].a.length.should.equal(2);
-        filterCoeffs[1].b.length.should.equal(3);
-        filterCoeffs[1].z.length.should.equal(2);
-        filterCoeffs[1].z[0].should.equal(0);
-        filterCoeffs[1].k.should.equal(1);
+  describe('iir-more-filters', function () {
+    var filterCoeffs;
+    it('can calculate lowpass Bessel matched-Z', function () {
+      filterCoeffs = iirCascadeCalculator.lowpass({
+        order: 3,
+        characteristic: 'bessel',
+        transform: 'matchedZ',
+        Fs: 4000,
+        Fc: 500,
+        preGain: false
       });
-
-      it('can calculate lowpass Butterworth matched-Z', function () {
-        filterCoeffs = iirCascadeCalculator.lowpass({
-          order: 3,
-          characteristic: 'butterworth',
-          transform: 'matchedZ',
-          Fs: 4000,
-          Fc: 500,
-          preGain: false
-        });
-        filterCoeffs.length.should.equal(3);
-        filterCoeffs[0].should.be.an.Object;
-        filterCoeffs[1].a.length.should.equal(2);
-        filterCoeffs[1].b.length.should.equal(3);
-        filterCoeffs[1].z.length.should.equal(2);
-        filterCoeffs[1].z[0].should.equal(0);
-        filterCoeffs[1].k.should.equal(1);
-      });
-
-      it('can calculate allpass matched-Z', function () {
-        filterCoeffs = iirCascadeCalculator.lowpass({
-          order: 3,
-          characteristic: 'allpass',
-          transform: 'matchedZ',
-          Fs: 4000,
-          Fc: 500,
-          preGain: false
-        });
-        filterCoeffs.length.should.equal(3);
-        filterCoeffs[0].should.be.an.Object;
-        filterCoeffs[1].a.length.should.equal(2);
-        filterCoeffs[1].b.length.should.equal(3);
-        filterCoeffs[1].z.length.should.equal(2);
-        filterCoeffs[1].z[0].should.equal(0);
-        filterCoeffs[1].k.should.equal(1);
-      });
-
-      it('can calculate lowpass Tschebyscheff05 matched-Z', function () {
-        filterCoeffs = iirCascadeCalculator.lowpass({
-          order: 3,
-          characteristic: 'tschebyscheff05',
-          transform: 'matchedZ',
-          Fs: 4000,
-          Fc: 500,
-          preGain: false
-        });
-        filterCoeffs.length.should.equal(3);
-        filterCoeffs[0].should.be.an.Object;
-        filterCoeffs[1].a.length.should.equal(2);
-        filterCoeffs[1].b.length.should.equal(3);
-        filterCoeffs[1].z.length.should.equal(2);
-        filterCoeffs[1].z[0].should.equal(0);
-        filterCoeffs[1].k.should.equal(1);
-      });
-
-      it('can calculate lowpass Tschebyscheff1 matched-Z', function () {
-        filterCoeffs = iirCascadeCalculator.lowpass({
-          order: 3,
-          characteristic: 'tschebyscheff1',
-          transform: 'matchedZ',
-          Fs: 4000,
-          Fc: 500,
-          preGain: false
-        });
-        filterCoeffs.length.should.equal(3);
-        filterCoeffs[0].should.be.an.Object;
-        filterCoeffs[1].a.length.should.equal(2);
-        filterCoeffs[1].b.length.should.equal(3);
-        filterCoeffs[1].z.length.should.equal(2);
-        filterCoeffs[1].z[0].should.equal(0);
-        filterCoeffs[1].k.should.equal(1);
-      });
-
-      it('can calculate lowpass Tschebyscheff2 matched-Z', function () {
-        filterCoeffs = iirCascadeCalculator.lowpass({
-          order: 3,
-          characteristic: 'tschebyscheff2',
-          transform: 'matchedZ',
-          Fs: 4000,
-          Fc: 500,
-          preGain: false
-        });
-        filterCoeffs.length.should.equal(3);
-        filterCoeffs[0].should.be.an.Object;
-        filterCoeffs[1].a.length.should.equal(2);
-        filterCoeffs[1].b.length.should.equal(3);
-        filterCoeffs[1].z.length.should.equal(2);
-        filterCoeffs[1].z[0].should.equal(0);
-        filterCoeffs[1].k.should.equal(1);
-      });
-
-      it('can calculate lowpass Tschebyscheff3 matched-Z', function () {
-        filterCoeffs = iirCascadeCalculator.lowpass({
-          order: 3,
-          characteristic: 'tschebyscheff3',
-          transform: 'matchedZ',
-          Fs: 4000,
-          Fc: 500,
-          preGain: false
-        });
-        filterCoeffs.length.should.equal(3);
-        filterCoeffs[0].should.be.an.Object;
-        filterCoeffs[1].a.length.should.equal(2);
-        filterCoeffs[1].b.length.should.equal(3);
-        filterCoeffs[1].z.length.should.equal(2);
-        filterCoeffs[1].z[0].should.equal(0);
-        filterCoeffs[1].k.should.equal(1);
-      });
-
-      it('can calculate allpass bilinear transform', function () {
-        filterCoeffs = iirCascadeCalculator.allpass({
-          order: 3,
-          characteristic: 'butterworth',
-          Fs: 4000,
-          Fc: 500
-        });
-        filterCoeffs.length.should.equal(3);
-        filterCoeffs[0].should.be.an.Object;
-        filterCoeffs[1].a.length.should.equal(2);
-        filterCoeffs[1].b.length.should.equal(3);
-        filterCoeffs[1].z.length.should.equal(2);
-        filterCoeffs[1].z[0].should.equal(0);
-        filterCoeffs[1].k.should.equal(1);
-      });
-
-      it('can calculate A weighting bilinear transform', function () {
-        filterCoeffs = iirCascadeCalculator.aweighting({
-          order: 3,
-          characteristic: 'butterworth',
-          Fs: 4000,
-          Fc: 500
-        });
-        filterCoeffs.length.should.equal(3);
-        filterCoeffs[0].should.be.an.Object;
-        filterCoeffs[1].a.length.should.equal(2);
-        filterCoeffs[1].b.length.should.equal(3);
-        filterCoeffs[1].z.length.should.equal(2);
-        filterCoeffs[1].z[0].should.equal(0);
-        filterCoeffs[1].k.should.equal(1);
-      });
-
-      it('can calculate highshelf bilinear transform', function () {
-        filterCoeffs = iirCascadeCalculator.highshelf({
-          order: 3,
-          characteristic: 'butterworth',
-          Fs: 4000,
-          Fc: 500
-        });
-        filterCoeffs.length.should.equal(3);
-        filterCoeffs[0].should.be.an.Object;
-        filterCoeffs[1].a.length.should.equal(2);
-        filterCoeffs[1].b.length.should.equal(3);
-        filterCoeffs[1].z.length.should.equal(2);
-        filterCoeffs[1].z[0].should.equal(0);
-        filterCoeffs[1].k.should.equal(1);
-      });
-
-      it('can calculate lowshelf bilinear transform', function () {
-        filterCoeffs = iirCascadeCalculator.lowshelf({
-          order: 3,
-          characteristic: 'butterworth',
-          Fs: 4000,
-          Fc: 500
-        });
-        filterCoeffs.length.should.equal(3);
-        filterCoeffs[0].should.be.an.Object;
-        filterCoeffs[1].a.length.should.equal(2);
-        filterCoeffs[1].b.length.should.equal(3);
-        filterCoeffs[1].z.length.should.equal(2);
-        filterCoeffs[1].z[0].should.equal(0);
-        filterCoeffs[1].k.should.equal(1);
-      });
-
-      it('can calculate peaking filter bilinear transform', function () {
-        filterCoeffs = iirCascadeCalculator.peak({
-          order: 3,
-          characteristic: 'butterworth',
-          Fs: 4000,
-          Fc: 500
-        });
-        filterCoeffs.length.should.equal(3);
-        filterCoeffs[0].should.be.an.Object;
-        filterCoeffs[1].a.length.should.equal(2);
-        filterCoeffs[1].b.length.should.equal(3);
-        filterCoeffs[1].z.length.should.equal(2);
-        filterCoeffs[1].z[0].should.equal(0);
-        filterCoeffs[1].k.should.equal(1);
-      });
-
-      it('can calculate bandpass bilinear transform', function () {
-        filterCoeffs = iirCascadeCalculator.bandpass({
-          order: 3,
-          characteristic: 'butterworth',
-          Fs: 4000,
-          Fc: 500
-        });
-        filterCoeffs.length.should.equal(3);
-        filterCoeffs[0].should.be.an.Object;
-        filterCoeffs[1].a.length.should.equal(2);
-        filterCoeffs[1].b.length.should.equal(3);
-        filterCoeffs[1].z.length.should.equal(2);
-        filterCoeffs[1].z[0].should.equal(0);
-        filterCoeffs[1].k.should.equal(1);
-      });
-
-      it('can calculate bandpass Q bilinear transform', function () {
-        filterCoeffs = iirCascadeCalculator.bandpassQ({
-          order: 3,
-          characteristic: 'butterworth',
-          Fs: 4000,
-          Fc: 500
-        });
-        filterCoeffs.length.should.equal(3);
-        filterCoeffs[0].should.be.an.Object;
-        filterCoeffs[1].a.length.should.equal(2);
-        filterCoeffs[1].b.length.should.equal(3);
-        filterCoeffs[1].z.length.should.equal(2);
-        filterCoeffs[1].z[0].should.equal(0);
-        filterCoeffs[1].k.should.equal(1);
-      });
-
-      it('can calculate lowpass BesselThomson bilinear transform', function () {
-        filterCoeffs = iirCascadeCalculator.lowpassBT({
-          order: 3,
-          characteristic: 'bessel',
-          Fs: 4000,
-          Fc: 500
-        });
-        filterCoeffs.length.should.equal(3);
-        filterCoeffs[0].should.be.an.Object;
-        filterCoeffs[1].a.length.should.equal(2);
-        filterCoeffs[1].b.length.should.equal(3);
-        filterCoeffs[1].z.length.should.equal(2);
-        filterCoeffs[1].z[0].should.equal(0);
-        filterCoeffs[1].k.should.equal(1);
-      });
-
-      it('can calculate highpass BesselThomson bilinear transform', function () {
-        filterCoeffs = iirCascadeCalculator.highpassBT({
-          order: 3,
-          characteristic: 'bessel',
-          Fs: 4000,
-          Fc: 500
-        });
-        filterCoeffs.length.should.equal(3);
-        filterCoeffs[0].should.be.an.Object;
-        filterCoeffs[1].a.length.should.equal(2);
-        filterCoeffs[1].b.length.should.equal(3);
-        filterCoeffs[1].z.length.should.equal(2);
-        filterCoeffs[1].z[0].should.equal(0);
-        filterCoeffs[1].k.should.equal(1);
-      });
-
-
+      filterCoeffs.length.should.equal(3);
+      filterCoeffs[0].should.be.an.Object;
+      filterCoeffs[1].a.length.should.equal(2);
+      filterCoeffs[1].b.length.should.equal(3);
+      filterCoeffs[1].z.length.should.equal(2);
+      filterCoeffs[1].z[0].should.equal(0);
+      filterCoeffs[1].k.should.equal(1);
     });
 
-    describe('iir-helpers', function () {
-      it('can get available filters', function () {
-        var av = iirCascadeCalculator.available();
-        av.length.should.not.equal(0);
-        av[1].should.be.a.String;
+    it('can calculate lowpass Butterworth matched-Z', function () {
+      filterCoeffs = iirCascadeCalculator.lowpass({
+        order: 3,
+        characteristic: 'butterworth',
+        transform: 'matchedZ',
+        Fs: 4000,
+        Fc: 500,
+        preGain: false
       });
-    })
+      filterCoeffs.length.should.equal(3);
+      filterCoeffs[0].should.be.an.Object;
+      filterCoeffs[1].a.length.should.equal(2);
+      filterCoeffs[1].b.length.should.equal(3);
+      filterCoeffs[1].z.length.should.equal(2);
+      filterCoeffs[1].z[0].should.equal(0);
+      filterCoeffs[1].k.should.equal(1);
+    });
+
+    it('can calculate allpass matched-Z', function () {
+      filterCoeffs = iirCascadeCalculator.lowpass({
+        order: 3,
+        characteristic: 'allpass',
+        transform: 'matchedZ',
+        Fs: 4000,
+        Fc: 500,
+        preGain: false
+      });
+      filterCoeffs.length.should.equal(3);
+      filterCoeffs[0].should.be.an.Object;
+      filterCoeffs[1].a.length.should.equal(2);
+      filterCoeffs[1].b.length.should.equal(3);
+      filterCoeffs[1].z.length.should.equal(2);
+      filterCoeffs[1].z[0].should.equal(0);
+      filterCoeffs[1].k.should.equal(1);
+    });
+
+    it('can calculate lowpass Tschebyscheff05 matched-Z', function () {
+      filterCoeffs = iirCascadeCalculator.lowpass({
+        order: 3,
+        characteristic: 'tschebyscheff05',
+        transform: 'matchedZ',
+        Fs: 4000,
+        Fc: 500,
+        preGain: false
+      });
+      filterCoeffs.length.should.equal(3);
+      filterCoeffs[0].should.be.an.Object;
+      filterCoeffs[1].a.length.should.equal(2);
+      filterCoeffs[1].b.length.should.equal(3);
+      filterCoeffs[1].z.length.should.equal(2);
+      filterCoeffs[1].z[0].should.equal(0);
+      filterCoeffs[1].k.should.equal(1);
+    });
+
+    it('can calculate lowpass Tschebyscheff1 matched-Z', function () {
+      filterCoeffs = iirCascadeCalculator.lowpass({
+        order: 3,
+        characteristic: 'tschebyscheff1',
+        transform: 'matchedZ',
+        Fs: 4000,
+        Fc: 500,
+        preGain: false
+      });
+      filterCoeffs.length.should.equal(3);
+      filterCoeffs[0].should.be.an.Object;
+      filterCoeffs[1].a.length.should.equal(2);
+      filterCoeffs[1].b.length.should.equal(3);
+      filterCoeffs[1].z.length.should.equal(2);
+      filterCoeffs[1].z[0].should.equal(0);
+      filterCoeffs[1].k.should.equal(1);
+    });
+
+    it('can calculate lowpass Tschebyscheff2 matched-Z', function () {
+      filterCoeffs = iirCascadeCalculator.lowpass({
+        order: 3,
+        characteristic: 'tschebyscheff2',
+        transform: 'matchedZ',
+        Fs: 4000,
+        Fc: 500,
+        preGain: false
+      });
+      filterCoeffs.length.should.equal(3);
+      filterCoeffs[0].should.be.an.Object;
+      filterCoeffs[1].a.length.should.equal(2);
+      filterCoeffs[1].b.length.should.equal(3);
+      filterCoeffs[1].z.length.should.equal(2);
+      filterCoeffs[1].z[0].should.equal(0);
+      filterCoeffs[1].k.should.equal(1);
+    });
+
+    it('can calculate lowpass Tschebyscheff3 matched-Z', function () {
+      filterCoeffs = iirCascadeCalculator.lowpass({
+        order: 3,
+        characteristic: 'tschebyscheff3',
+        transform: 'matchedZ',
+        Fs: 4000,
+        Fc: 500,
+        preGain: false
+      });
+      filterCoeffs.length.should.equal(3);
+      filterCoeffs[0].should.be.an.Object;
+      filterCoeffs[1].a.length.should.equal(2);
+      filterCoeffs[1].b.length.should.equal(3);
+      filterCoeffs[1].z.length.should.equal(2);
+      filterCoeffs[1].z[0].should.equal(0);
+      filterCoeffs[1].k.should.equal(1);
+    });
+
+    it('can calculate allpass bilinear transform', function () {
+      filterCoeffs = iirCascadeCalculator.allpass({
+        order: 3,
+        characteristic: 'butterworth',
+        Fs: 4000,
+        Fc: 500
+      });
+      filterCoeffs.length.should.equal(3);
+      filterCoeffs[0].should.be.an.Object;
+      filterCoeffs[1].a.length.should.equal(2);
+      filterCoeffs[1].b.length.should.equal(3);
+      filterCoeffs[1].z.length.should.equal(2);
+      filterCoeffs[1].z[0].should.equal(0);
+      filterCoeffs[1].k.should.equal(1);
+    });
+
+    it('can calculate A weighting bilinear transform', function () {
+      filterCoeffs = iirCascadeCalculator.aweighting({
+        order: 3,
+        characteristic: 'butterworth',
+        Fs: 4000,
+        Fc: 500
+      });
+      filterCoeffs.length.should.equal(3);
+      filterCoeffs[0].should.be.an.Object;
+      filterCoeffs[1].a.length.should.equal(2);
+      filterCoeffs[1].b.length.should.equal(3);
+      filterCoeffs[1].z.length.should.equal(2);
+      filterCoeffs[1].z[0].should.equal(0);
+      filterCoeffs[1].k.should.equal(1);
+    });
+
+    it('can calculate highshelf bilinear transform', function () {
+      filterCoeffs = iirCascadeCalculator.highshelf({
+        order: 3,
+        characteristic: 'butterworth',
+        Fs: 4000,
+        Fc: 500
+      });
+      filterCoeffs.length.should.equal(3);
+      filterCoeffs[0].should.be.an.Object;
+      filterCoeffs[1].a.length.should.equal(2);
+      filterCoeffs[1].b.length.should.equal(3);
+      filterCoeffs[1].z.length.should.equal(2);
+      filterCoeffs[1].z[0].should.equal(0);
+      filterCoeffs[1].k.should.equal(1);
+    });
+
+    it('can calculate lowshelf bilinear transform', function () {
+      filterCoeffs = iirCascadeCalculator.lowshelf({
+        order: 3,
+        characteristic: 'butterworth',
+        Fs: 4000,
+        Fc: 500
+      });
+      filterCoeffs.length.should.equal(3);
+      filterCoeffs[0].should.be.an.Object;
+      filterCoeffs[1].a.length.should.equal(2);
+      filterCoeffs[1].b.length.should.equal(3);
+      filterCoeffs[1].z.length.should.equal(2);
+      filterCoeffs[1].z[0].should.equal(0);
+      filterCoeffs[1].k.should.equal(1);
+    });
+
+    it('can calculate peaking filter bilinear transform', function () {
+      filterCoeffs = iirCascadeCalculator.peak({
+        order: 3,
+        characteristic: 'butterworth',
+        Fs: 4000,
+        Fc: 500
+      });
+      filterCoeffs.length.should.equal(3);
+      filterCoeffs[0].should.be.an.Object;
+      filterCoeffs[1].a.length.should.equal(2);
+      filterCoeffs[1].b.length.should.equal(3);
+      filterCoeffs[1].z.length.should.equal(2);
+      filterCoeffs[1].z[0].should.equal(0);
+      filterCoeffs[1].k.should.equal(1);
+    });
+
+    it('can calculate bandpass bilinear transform', function () {
+      filterCoeffs = iirCascadeCalculator.bandpass({
+        order: 3,
+        characteristic: 'butterworth',
+        Fs: 4000,
+        Fc: 500
+      });
+      filterCoeffs.length.should.equal(3);
+      filterCoeffs[0].should.be.an.Object;
+      filterCoeffs[1].a.length.should.equal(2);
+      filterCoeffs[1].b.length.should.equal(3);
+      filterCoeffs[1].z.length.should.equal(2);
+      filterCoeffs[1].z[0].should.equal(0);
+      filterCoeffs[1].k.should.equal(1);
+    });
+
+    it('can calculate bandpass Q bilinear transform', function () {
+      filterCoeffs = iirCascadeCalculator.bandpassQ({
+        order: 3,
+        characteristic: 'butterworth',
+        Fs: 4000,
+        Fc: 500
+      });
+      filterCoeffs.length.should.equal(3);
+      filterCoeffs[0].should.be.an.Object;
+      filterCoeffs[1].a.length.should.equal(2);
+      filterCoeffs[1].b.length.should.equal(3);
+      filterCoeffs[1].z.length.should.equal(2);
+      filterCoeffs[1].z[0].should.equal(0);
+      filterCoeffs[1].k.should.equal(1);
+    });
+
+    it('can calculate lowpass BesselThomson bilinear transform', function () {
+      filterCoeffs = iirCascadeCalculator.lowpassBT({
+        order: 3,
+        characteristic: 'bessel',
+        Fs: 4000,
+        Fc: 500
+      });
+      filterCoeffs.length.should.equal(3);
+      filterCoeffs[0].should.be.an.Object;
+      filterCoeffs[1].a.length.should.equal(2);
+      filterCoeffs[1].b.length.should.equal(3);
+      filterCoeffs[1].z.length.should.equal(2);
+      filterCoeffs[1].z[0].should.equal(0);
+      filterCoeffs[1].k.should.equal(1);
+    });
+
+    it('can calculate highpass BesselThomson bilinear transform', function () {
+      filterCoeffs = iirCascadeCalculator.highpassBT({
+        order: 3,
+        characteristic: 'bessel',
+        Fs: 4000,
+        Fc: 500
+      });
+      filterCoeffs.length.should.equal(3);
+      filterCoeffs[0].should.be.an.Object;
+      filterCoeffs[1].a.length.should.equal(2);
+      filterCoeffs[1].b.length.should.equal(3);
+      filterCoeffs[1].z.length.should.equal(2);
+      filterCoeffs[1].z[0].should.equal(0);
+      filterCoeffs[1].k.should.equal(1);
+    });
+
+  });
+
+  describe('iir-helpers', function () {
+    it('can get available filters', function () {
+      var av = iirCascadeCalculator.available();
+      av.length.should.not.equal(0);
+      av[1].should.be.a.String;
+    });
+  })
 });
