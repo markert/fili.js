@@ -389,4 +389,13 @@ describe('iir.js', function () {
 
   });
 
+  describe('fir-helpers', function () {
+
+    it('can get available filters', function () {
+      var av = firCalculator.available();
+      av.length.should.not.equal(0);
+      av[1].should.be.a.String;
+    });
+  });
+
 });
