@@ -126,6 +126,9 @@ var FirCoeffs = function () {
     },
     kbFilter: function (params) {
       return calcKImpulseResponse(params);
+    },
+    available: function () {
+      return ['lowpass', 'highpass', 'bandstop', 'bandpass', 'kbFilter'];
     }
   };
   return self;
