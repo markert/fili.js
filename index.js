@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 module.exports = {
 
@@ -10,4 +10,4 @@ module.exports = {
   IirFilter: require('./src/iirFilter'),
   TestFilter: require('./src/testFilter')
 
-};
+}

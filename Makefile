@@ -1,10 +1,8 @@
 
 BIN = ./node_modules/.bin
-ESLINT = $(BIN)/eslint
 BROWSERIFY = $(BIN)/browserify
-MOCHA = $(BIN)/mocha
 UGLIFY = $(BIN)/uglifyjs
-BEAUTIFY = $(BIN)/js-beautify
+STANDARD = $(BIN)/standard
 
 build:
 	$(BROWSERIFY) ./index.js \
@@ -15,14 +13,8 @@ build:
 	-o ./dist/fili.js
 	$(UGLIFY) ./dist/fili.js --compress --mangle --comments -o ./dist/fili.min.js
 
-eslint: src/*.js
-	$(ESLINT) $^
-
 test:
 	npm test
-
-beautify: index.js ./src/*.js ./test/*.js
-	$(BEAUTIFY) $^ --replace
 
 server:
 	python -m SimpleHTTPServer 8080
@@ -38,4 +30,7 @@ ghpages:
 	git push
 	git checkout master
 
-.PHONY: eslint test build beautify ghpages
+standard:
+	$(STANDARD)
+
+.PHONY: test build beautify ghpages standard
