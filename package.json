@@ -7,20 +7,18 @@
   "dependencies": {},
   "devDependencies": {
     "babel": "^5.5.8",
-    "babel-eslint": "^7.1.0",
     "babelify": "^6.1.2",
     "bannerify": "^1.0.1",
     "browserify": "^10.2.4",
     "envify": "^3.4.0",
-    "eslint": "^3.8.1",
     "istanbul": "^0.3.21",
-    "js-beautify": "^1.6.4",
     "mocha": "^2.2.5",
     "should": "^6.0.3",
+    "standard": "^8.5.0",
     "uglify-js": "^2.4.23"
   },
   "scripts": {
-    "test": "istanbul cover _mocha -- --compilers js:babel/register --recursive test"
+    "test": "standard && istanbul cover _mocha -- --compilers js:babel/register --recursive test"
   },
   "browserify": {
     "transform": [
@@ -30,6 +28,11 @@
           "stage": 0
         }
       ]
+    ]
+  },
+  "standard": {
+    "ignore": [
+      "dist/**"
     ]
   }
 }
