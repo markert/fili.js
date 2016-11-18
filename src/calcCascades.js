@@ -1,8 +1,8 @@
-'use strict';
+'use strict'
 
-var IirCoeffs = require('./iirCoeffs');
+var IirCoeffs = require('./iirCoeffs')
 
-var getCoeffs = new IirCoeffs();
+var getCoeffs = new IirCoeffs()
 
 var table = {
   // values from https://gist.github.com/endolith/4982787#file-all-values-txt
@@ -50,7 +50,7 @@ var table = {
       [6.71506056052, 6.25514029778, 5.9343616072, 5.69011422355, 5.49763642361, 5.34401973764, 5.22125973611, 5.12485045619, 5.05037962112, 4.99699982231, 4.96155789635, 4.94441828777]
     ]
   }
-};
+}
 
 // from Texas Instruments "Op Amps for Everyone" Chapter 16 "Active Filter Design Techniques"
 var tiTable = {
@@ -165,18 +165,18 @@ var tiTable = {
       [1.9420, 1.8300, 1.6101, 1.2822],
       [2.0490, 1.9714, 1.8184, 1.5923, 1.2877]
     ]
-  },
+  }
 }
 
 var calcCoeffs = function (params, behavior) {
-  var filter = [];
-  var cnt = 0;
+  var filter = []
+  var cnt = 0
   if (behavior !== 'fromPZ') {
     if (params.order > 12) {
-      params.order = 12;
+      params.order = 12
     }
     for (cnt = 0; cnt < params.order; cnt++) {
-      var q, f, fd;
+      var q, f, fd
       if (params.transform === 'matchedZ') {
         filter.push(getCoeffs['lowpassMZ']({
           Fs: params.Fs,
@@ -184,28 +184,28 @@ var calcCoeffs = function (params, behavior) {
           preGain: params.preGain,
           as: tiTable[params.characteristic].as[params.order - 1][cnt],
           bs: tiTable[params.characteristic].bs[params.order - 1][cnt]
-        }));
+        }))
       } else {
         if (params.characteristic === 'butterworth') {
-          q = 0.5 / (Math.sin((Math.PI / (params.order * 2)) * (cnt + 0.5)));
-          f = 1;
+          q = 0.5 / (Math.sin((Math.PI / (params.order * 2)) * (cnt + 0.5)))
+          f = 1
         } else {
-          q = table[params.characteristic].q[params.order - 1][cnt];
+          q = table[params.characteristic].q[params.order - 1][cnt]
           if (params.oneDb) {
-            f = table[params.characteristic].f1dB[params.order - 1][cnt];
+            f = table[params.characteristic].f1dB[params.order - 1][cnt]
           } else {
-            f = table[params.characteristic].f3dB[params.order - 1][cnt];
+            f = table[params.characteristic].f3dB[params.order - 1][cnt]
           }
         }
 
         if (behavior === 'highpass') {
-          fd = params.Fc / f;
+          fd = params.Fc / f
         } else {
-          fd = params.Fc * f;
+          fd = params.Fc * f
         }
         if (behavior === 'bandpass' || behavior === 'bandstop') {
           if (params.characteristic === 'bessel') {
-            fd = Math.sqrt(params.order) * fd / params.order;
+            fd = Math.sqrt(params.order) * fd / params.order
           }
         }
         filter.push(getCoeffs[behavior]({
@@ -215,36 +215,35 @@ var calcCoeffs = function (params, behavior) {
           BW: params.BW || 0,
           gain: params.gain || 0,
           preGain: params.preGain || false
-        }));
+        }))
       }
     }
   } else {
     for (cnt = 0; cnt < params.length; cnt++) {
-      filter.push(getCoeffs[behavior](params[cnt]));
+      filter.push(getCoeffs[behavior](params[cnt]))
     }
-
   }
 
-  return filter;
-};
+  return filter
+}
 
 var initCalcCoeffs = function (behavior) {
   return function (params) {
-    return calcCoeffs(params, behavior);
-  };
-};
+    return calcCoeffs(params, behavior)
+  }
+}
 
-var self = {};
+var self = {}
 var CalcCascades = function () {
-  var available = [];
+  var available = []
   for (var k in getCoeffs) {
-    self[k] = initCalcCoeffs(k);
-    available.push(k);
+    self[k] = initCalcCoeffs(k)
+    available.push(k)
   }
   self.available = function () {
-    return available;
+    return available
   }
-  return self;
-};
+  return self
+}
 
-module.exports = CalcCascades;
+module.exports = CalcCascades
