@@ -91,6 +91,48 @@ exports.besselFactors = function (n) {
   return res
 }
 
+var fractionToFp = function (fraction, fractionBits) {
+  var fpFraction = 0
+  for (var cnt = 0; cnt < fractionBits; cnt++) {
+    var bitVal = 1 / Math.pow(2, cnt + 1)
+    if (fraction > bitVal) {
+      fraction -= bitVal
+      fpFraction += bitVal
+    }
+  }
+  return fpFraction
+}
+
+var numberToFp = function (number, numberBits) {
+  return number & Math.pow(2, numberBits)
+}
+
+var valueToFp = function (value, numberBits, fractionBits) {
+  var number = Math.abs(value)
+  var fraction = value - number
+  var fpNumber = {
+    number: numberToFp(number, numberBits).toString(),
+    fraction: fractionToFp(fraction, fractionBits).toString(),
+    numberBits: numberBits,
+    fractionBits: fractionBits
+  }
+  return fpNumber
+}
+
+exports.fixedPoint = {
+  convert: function (value, numberBits, fractionBits) {
+    return valueToFp(value, numberBits, fractionBits)
+  },
+  add: function (fpVal1, fpVal2) {
+  },
+  sub: function (fpVal1, fpVal2) {
+  },
+  mul: function (fpVal1, fpVal2) {
+  },
+  div: function (fpVal1, fpVal2) {
+  }
+}
+
 /**
  * Complex
  */

@@ -1,6 +1,6 @@
 /**
  * @name    fili
- * @version 2.0.0 | October 28th 2016
+ * @version 2.0.1 | November 20th 2017
  * @author  Florian Markert
  * @license MIT
  */
@@ -299,10 +299,10 @@ var Fft = function Fft(radix) {
     },
     blackman: {
       calc: function calc(n, N, a) {
-        var a0 = (1 - a) / 2,
-            a1 = 0.5,
-            a2 = a / 2,
-            z = PI2 * n / (N - 1);
+        var a0 = (1 - a) / 2;
+        var a1 = 0.5;
+        var a2 = a / 2;
+        var z = PI2 * n / (N - 1);
         return a0 - a1 * cos(z) + a2 * cos(2 * z);
       },
       values: [],
@@ -513,7 +513,6 @@ var Fft = function Fft(radix) {
   };
 
   var windowFunctions = function windowFunctions(params) {
-
     if (windowCalculation[params.name].values.length !== params.N) {
       if (params.n === 0) {
         windowCalculation[params.name].values.length = 0;
@@ -647,7 +646,6 @@ module.exports = Fft;
 'use strict';
 
 var FirCoeffs = function FirCoeffs() {
-
   // Kaiser windowd filters
   // desired attenuation can be defined
   // better than windowd sinc filters
@@ -705,9 +703,9 @@ var FirCoeffs = function FirCoeffs() {
   // note: coefficients are equal to impulse response
   // windowd sinc filter
   var calcImpulseResponse = function calcImpulseResponse(params) {
-    var Fs = params.Fs,
-        Fc = params.Fc,
-        o = params.order;
+    var Fs = params.Fs;
+    var Fc = params.Fc;
+    var o = params.order;
     var omega = 2 * Math.PI * Fc / Fs;
     var cnt = 0;
     var dc = 0;
@@ -836,8 +834,8 @@ var FirFilter = function FirFilter(filter) {
   };
 
   var calcResponse = function calcResponse(params) {
-    var Fs = params.Fs,
-        Fr = params.Fr;
+    var Fs = params.Fs;
+    var Fr = params.Fr;
     // z = exp(j*omega*pi) = cos(omega*pi) + j*sin(omega*pi)
     // z^-1 = exp(-j*omega*pi)
     // omega is between 0 and 1. 1 is the Nyquist frequency.
@@ -901,11 +899,10 @@ module.exports = FirFilter;
 'use strict';
 
 var IirCoeffs = function IirCoeffs() {
-
   var preCalc = function preCalc(params, coeffs) {
-    var Q = params.Q,
-        Fc = params.Fc,
-        Fs = params.Fs;
+    var Q = params.Q;
+    var Fc = params.Fc;
+    var Fs = params.Fs;
     var pre = {};
     var w = 2 * Math.PI * Fc / Fs;
     if (params.BW) {
@@ -923,9 +920,9 @@ var IirCoeffs = function IirCoeffs() {
   };
 
   var preCalcGain = function preCalcGain(params) {
-    var Q = params.Q,
-        Fc = params.Fc,
-        Fs = params.Fs;
+    var Q = params.Q;
+    var Fc = params.Fc;
+    var Fs = params.Fs;
     var pre = {};
     var w = 2 * Math.PI * Fc / Fs;
     pre.alpha = Math.sin(w) / (2 * Q);
@@ -1228,6 +1225,7 @@ var IirFilter = function IirFilter(filter) {
       re: s.k,
       im: 0
     };
+    cf[cnt].z = [0, 0];
     cc[cnt] = {};
     cc[cnt].b1 = s.b[1] / s.b[0];
     cc[cnt].b2 = s.b[2] / s.b[0];
@@ -1236,8 +1234,8 @@ var IirFilter = function IirFilter(filter) {
   }
 
   var runStage = function runStage(s, input) {
-    var temp = input * s.k - s.a[0] * s.z[0] - s.a[1] * s.z[1];
-    var out = s.b[0] * temp + s.b[1] * s.z[0] + s.b[2] * s.z[1];
+    var temp = input * s.k.re - s.a1.re * s.z[0] - s.a2.re * s.z[1];
+    var out = s.b0.re * temp + s.b1.re * s.z[0] + s.b2.re * s.z[1];
     s.z[1] = s.z[0];
     s.z[0] = temp;
     return out;
@@ -1253,8 +1251,8 @@ var IirFilter = function IirFilter(filter) {
   };
 
   var biquadResponse = function biquadResponse(params, s) {
-    var Fs = params.Fs,
-        Fr = params.Fr;
+    var Fs = params.Fs;
+    var Fr = params.Fr;
     // z = exp(j*omega*pi) = cos(omega*pi) + j*sin(omega*pi)
     // z^-1 = exp(-j*omega*pi)
     // omega is between 0 and 1. 1 is the Nyquist frequency.
@@ -1296,9 +1294,30 @@ var IirFilter = function IirFilter(filter) {
     var tempF = [];
     for (var cnt = 0; cnt < f.length; cnt++) {
       tempF[cnt] = {
-        a: [f[cnt].a[0], f[cnt].a[1]],
-        b: [f[cnt].b[0], f[cnt].b[1], f[cnt].b[2]],
-        k: f[cnt].k,
+        b0: {
+          re: s.b[0],
+          im: 0
+        },
+        b1: {
+          re: s.b[1],
+          im: 0
+        },
+        b2: {
+          re: s.b[2],
+          im: 0
+        },
+        a1: {
+          re: s.a[0],
+          im: 0
+        },
+        a2: {
+          re: s.a[1],
+          im: 0
+        },
+        k: {
+          re: s.k,
+          im: 0
+        },
         z: [0, 0]
       };
     }
@@ -1373,10 +1392,10 @@ var IirFilter = function IirFilter(filter) {
 
   var self = {
     singleStep: function singleStep(input) {
-      return doStep(input, f);
+      return doStep(input, cf);
     },
     multiStep: function multiStep(input, overwrite) {
-      return runMultiFilter(input, f, doStep, overwrite);
+      return runMultiFilter(input, cf, doStep, overwrite);
     },
     simulate: function simulate(input) {
       return calcInputResponse(input);
@@ -1416,8 +1435,8 @@ var IirFilter = function IirFilter(filter) {
       return getPZ();
     },
     reinit: function reinit() {
-      for (cnt = 0; cnt < f.length; cnt++) {
-        f[cnt].z = [0, 0];
+      for (cnt = 0; cnt < cf.length; cnt++) {
+        cf[cnt].z = [0, 0];
       }
     }
   };
@@ -1631,16 +1650,54 @@ exports.besselFactors = function (n) {
   return res;
 };
 
+var fractionToFp = function fractionToFp(fraction, fractionBits) {
+  var fpFraction = 0;
+  for (var cnt = 0; cnt < fractionBits; cnt++) {
+    var bitVal = 1 / Math.pow(2, cnt + 1);
+    if (fraction > bitVal) {
+      fraction -= bitVal;
+      fpFraction += bitVal;
+    }
+  }
+  return fpFraction;
+};
+
+var numberToFp = function numberToFp(number, numberBits) {
+  return number & Math.pow(2, numberBits);
+};
+
+var valueToFp = function valueToFp(value, numberBits, fractionBits) {
+  var number = Math.abs(value);
+  var fraction = value - number;
+  var fpNumber = {
+    number: numberToFp(number, numberBits).toString(),
+    fraction: fractionToFp(fraction, fractionBits).toString(),
+    numberBits: numberBits,
+    fractionBits: fractionBits
+  };
+  return fpNumber;
+};
+
+exports.fixedPoint = {
+  convert: function convert(value, numberBits, fractionBits) {
+    return valueToFp(value, numberBits, fractionBits);
+  },
+  add: function add(fpVal1, fpVal2) {},
+  sub: function sub(fpVal1, fpVal2) {},
+  mul: function mul(fpVal1, fpVal2) {},
+  div: function div(fpVal1, fpVal2) {}
+};
+
 /**
  * Complex
  */
 exports.complex = {
 
   div: function div(p, q) {
-    var a = p.re,
-        b = p.im,
-        c = q.re,
-        d = q.im;
+    var a = p.re;
+    var b = p.im;
+    var c = q.re;
+    var d = q.im;
     var n = c * c + d * d;
     var x = {
       re: (a * c + b * d) / n,
@@ -1649,10 +1706,10 @@ exports.complex = {
     return x;
   },
   mul: function mul(p, q) {
-    var a = p.re,
-        b = p.im,
-        c = q.re,
-        d = q.im;
+    var a = p.re;
+    var b = p.im;
+    var c = q.re;
+    var d = q.im;
     var x = {
       re: a * c - b * d,
       im: (a + b) * (c + d) - a * c - b * d

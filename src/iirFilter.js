@@ -43,6 +43,7 @@ var IirFilter = function (filter) {
       re: s.k,
       im: 0
     }
+    cf[cnt].z = [0, 0]
     cc[cnt] = {}
     cc[cnt].b1 = s.b[1] / s.b[0]
     cc[cnt].b2 = s.b[2] / s.b[0]
@@ -51,8 +52,8 @@ var IirFilter = function (filter) {
   }
 
   var runStage = function (s, input) {
-    var temp = input * s.k - s.a[0] * s.z[0] - s.a[1] * s.z[1]
-    var out = s.b[0] * temp + s.b[1] * s.z[0] + s.b[2] * s.z[1]
+    var temp = input * s.k.re - s.a1.re * s.z[0] - s.a2.re * s.z[1]
+    var out = s.b0.re * temp + s.b1.re * s.z[0] + s.b2.re * s.z[1]
     s.z[1] = s.z[0]
     s.z[0] = temp
     return out
@@ -111,9 +112,30 @@ var IirFilter = function (filter) {
     var tempF = []
     for (var cnt = 0; cnt < f.length; cnt++) {
       tempF[cnt] = {
-        a: [f[cnt].a[0], f[cnt].a[1]],
-        b: [f[cnt].b[0], f[cnt].b[1], f[cnt].b[2]],
-        k: f[cnt].k,
+        b0: {
+          re: s.b[0],
+          im: 0
+        },
+        b1: {
+          re: s.b[1],
+          im: 0
+        },
+        b2: {
+          re: s.b[2],
+          im: 0
+        },
+        a1: {
+          re: s.a[0],
+          im: 0
+        },
+        a2: {
+          re: s.a[1],
+          im: 0
+        },
+        k: {
+          re: s.k,
+          im: 0
+        },
         z: [0, 0]
       }
     }
@@ -188,10 +210,10 @@ var IirFilter = function (filter) {
 
   var self = {
     singleStep: function (input) {
-      return doStep(input, f)
+      return doStep(input, cf)
     },
     multiStep: function (input, overwrite) {
-      return runMultiFilter(input, f, doStep, overwrite)
+      return runMultiFilter(input, cf, doStep, overwrite)
     },
     simulate: function (input) {
       return calcInputResponse(input)
@@ -231,8 +253,8 @@ var IirFilter = function (filter) {
       return getPZ()
     },
     reinit: function () {
-      for (cnt = 0; cnt < f.length; cnt++) {
-        f[cnt].z = [0, 0]
+      for (cnt = 0; cnt < cf.length; cnt++) {
+        cf[cnt].z = [0, 0]
       }
     }
   }
