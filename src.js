@@ -1,374 +1,733 @@
+/* global $, d3, Fili */
+
 $(document).ready(function () {
-  /* global CalcCascades, FirFilter, CalcCascades, FirCoeffs, IirFilter, TestFilter */
-  'use strict';
+  'use strict'
 
-  var fs = document.getElementById('fs_val');
-  var fc = document.getElementById('fc_val');
-  var fc2 = document.getElementById('fc2_val');
-  var io = document.getElementById('iir_val');
-  var fo = document.getElementById('fir_val');
-  var buir = document.getElementById('buir_val');
-  var sim = document.getElementById('f_sim');
-  var iirtxt = document.getElementById('iirtxt');
-  var iirbtxt = document.getElementById('iirbtxt');
-  var coefftxt = document.getElementById('coefftxt');
-  var pregain = document.getElementById('pregain');
-  var gain = document.getElementById('gain');
+  var fs = document.getElementById('fs_val')
+  var fc = document.getElementById('fc_val')
+  var io = document.getElementById('iir_val')
+  var fo = document.getElementById('fir_val')
+  var buir = document.getElementById('buir_val')
+  var beir = document.getElementById('beir_val')
+  var sim = document.getElementById('f_sim')
+  var iirtxt = document.getElementById('iirtxt')
+  var iirbtxt = document.getElementById('iirbtxt')
 
-  var seltrans = document.getElementById('seltrans');
-  var seltype = document.getElementById('seltype');
-  var bilinearchar = document.getElementById('bilinearchar');
-  var bilineartype = document.getElementById('bilineartype');
-  var matchedzchar = document.getElementById('matchedzchar');
-  var firtype = document.getElementById('firtype');
-  var firatt = document.getElementById('firatt');
+  var inval = document.getElementById('in_val')
+  var run = document.getElementById('f_run')
 
-  var inval = document.getElementById('in_val');
-  var run = document.getElementById('f_run');
+  fs.value = 1000
+  fc.value = 100
+  io.value = 3
+  fo.value = 100
+  beir.value = 20
+  buir.value = 40
+  inval.value = 1
 
-  var toggleFir = function (p) {
-    firtype.disabled = p;
-    firatt.disabled = p;
-    fo.disabled = p;
-    fc2.disabled = p;
-  };
-
-  var toggleIir = function (p) {
-    io.disabled = p;
-    bilinearchar.disabled = p;
-    bilineartype.disabled = p;
-    matchedzchar.disabled = p;
-    buir.disabled = p;
-    seltrans.disabled = p;
-    gain.disabled = p;
-    pregain.disabled = p;
-  };
-
-  var toggleBilinear = function (p) {
-    bilinearchar.disabled = !p;
-    bilineartype.disabled = !p;
-    matchedzchar.disabled = p;
-    gain.disabled = !p;
-  };
-
-  seltype.onchange = function () {
-    var sel = seltype.options[seltype.selectedIndex].value;
-    if (sel === 'iir') {
-      toggleFir(true);
-      toggleIir(false);
-    } else {
-      toggleFir(false);
-      toggleIir(true);
-    }
-  };
-
-  seltrans.onchange = function () {
-    var sel = seltrans.options[seltrans.selectedIndex].value;
-    if (sel === 'bilinear') {
-      toggleBilinear(true);
-    } else {
-      toggleBilinear(false);
-    }
-  };
-
-  toggleFir(true);
-  toggleIir(false);
-  toggleBilinear(true);
-
-
-
-  fs.value = 1000;
-  fc.value = 100;
-  io.value = 3;
-  fo.value = 100;
-  buir.value = 40;
-  inval.value = 1;
-
-  var unfilteredOut = [];
-  var iirCalculator = new Fili.CalcCascades();
-  var firCalculator = new Fili.FirCoeffs();
-  var runCounter = 0;
-
-  var filter = {};
-
-  var cnt = 0;
-
-  var beautifyZ = function (zo) {
-    var str = '';
-    for (var k = 0; k < zo.length; k++) {
-      str += 'stage ' + (k + 1) + ':<br>';
-      str += 'Zeros: ' + JSON.stringify(zo[k].z) + '<br>';
-      str += 'Poles: ' + JSON.stringify(zo[k].p) + '<br>';
-    }
-    return str;
-  };
-
-  var beautifyCoeffs = function (c) {
-    var str = '';
-    for (var k = 0; k < c.length; k++) {
-      str += 'stage ' + (k + 1) + ':<br>';
-      str += 'k: ' + c[k].k + '<br>';
-      str += 'a1: ' + c[k].a[0] + ' | a2: ' + c[k].a[1] + '<br>';
-      str += 'b0: ' + c[k].b[0] + ' | b1: ' + c[k].b[1] + ' | b2: ' + c[k].b[2] + '<br>';
-    }
-    str += '<br>';
-    return str;
-  };
-
-  var beautifyCoeffsBin = function (c) {
-    var str = '';
-    for (var k = 0; k < c.length; k++) {
-      str += 'stage (binary)' + (k + 1) + ':<br>';
-      str += 'k: ' + c[k].k.toString(2) + ' (' + c[k].k.toString(2).split(".").pop().length + ')' + '<br>';
-      str += 'a1: ' + c[k].a[0].toString(2) + ' (' + c[k].a[0].toString(2).split(".").pop().length + ')' + ' | a2: ' + c[k].a[1].toString(2) + ' (' + c[k].a[1].toString(2).split(".").pop().length + ')' + '<br>';
-      str += 'b0: ' + c[k].b[0].toString(2) + ' (' + c[k].b[0].toString(2).split(".").pop().length + ')' + ' | b1: ' + c[k].b[1].toString(2) + ' (' + c[k].b[1].toString(2).split(".").pop().length + ')' + ' | b2: ' + c[k].b[2].toString(2) + ' (' + c[k].b[2].toString(2).split(".").pop().length + ')' + '<br>';
-    }
-    return str;
-  };
-
-  var beautifyFirCoeffs = function (c) {
-    var str = '';
-    for (var k = 0; k < c.length; k++) {
-      str += 'stage ' + (k + 1) + ': ' + c[k] + '<br>';
-    }
-    return str;
-  };
-
-  var xSign = function (ctx, x, y, radius) {
-    var size = radius * Math.sqrt(Math.PI) / 2;
-    ctx.moveTo(x - size, y - size);
-    ctx.lineTo(x + size, y + size);
-    ctx.moveTo(x - size, y + size);
-    ctx.lineTo(x + size, y - size);
-  };
+  var besselOut = []
+  var butterworthOut = []
+  var firOut = []
+  var unfilteredOut = []
+  var iirCalculator = new Fili.CalcCascades()
+  var firCalculator = new Fili.FirCoeffs()
+  var filterBessel, filterButterworth, filterFir
+  var runCounter = 0
 
   sim.onclick = function () {
-    runCounter = 0;
-    unfilteredOut = [];
-    filter.out = [];
-    filter.type = seltype.options[seltype.selectedIndex].value;
-    filter.sampling = fs.value;
-    filter.cutoffLow = fc.value;
-    filter.cutoffHigh = fc2.value;
-    filter.gain = gain.value;
-    filter.preGain = pregain.checked;
+    besselOut.length = 0
+    butterworthOut.length = 0
+    firOut.length = 0
+    unfilteredOut.length = 0
+    runCounter = 0
 
-    if (filter.type === 'iir') {
-      filter.calculation = seltrans.options[seltrans.selectedIndex].value;
-      filter.order = io.value;
-      if (filter.calculation === 'bilinear') {
-        filter.behavior = bilineartype.options[bilineartype.selectedIndex].value;
-        filter.characteristic = bilinearchar.options[bilinearchar.selectedIndex].value;
-        filter.oneDb = false;
-        if (filter.characteristic === 'bessel1dB') {
-          filter.characteristic = 'bessel';
-          filter.oneDb = true;
-        } else if (filter.characteristic === 'bessel3dB') {
-          filter.characteristic = 'bessel';
-        }
+    var coeffsBessel = iirCalculator.lowpass({
+      order: io.value,
+      characteristic: 'bessel',
+      Fs: fs.value,
+      Fc: fc.value
+    })
 
-        filter.coeffs = iirCalculator[filter.behavior]({
-          order: filter.order,
-          characteristic: filter.characteristic,
-          Fs: filter.sampling,
-          Fc: filter.cutoffLow,
-          gain: filter.gain,
-          oneDb: filter.oneDb,
-          preGain: filter.preGain
-        });
-      } else {
-        filter.behavior = 'lowpass';
-        filter.characteristic = matchedzchar.options[matchedzchar.selectedIndex].value;
-        filter.coeffs = iirCalculator.lowpass({
-          order: filter.order,
-          characteristic: filter.characteristic,
-          Fs: filter.sampling,
-          Fc: filter.cutoffLow,
-          transform: 'matchedZ',
-          preGain: filter.preGain
-        });
+    var coeffsButterworth = iirCalculator.lowpass({
+      order: io.value,
+      characteristic: 'butterworth',
+      Fs: fs.value,
+      Fc: fc.value
+    })
 
+    var coeffsFir = firCalculator.lowpass({
+      order: fo.value,
+      Fs: fs.value,
+      Fc: fc.value
+    })
+
+    var cnt = 0
+    var beautifyZ = function (zo) {
+      var str = ''
+      for (var k = 0; k < zo.length; k++) {
+        str += 'stage ' + (k + 1) + ': '
+        str += 'Zeros: ' + JSON.stringify(zo[k].z) + ' ___|||||___ '
+        str += 'Poles: ' + JSON.stringify(zo[k].p) + '<br>'
       }
-      filter.instance = new Fili.IirFilter(filter.coeffs);
-
-      filter.pz = filter.instance.polesZeros();
-      filter.impulseResponse = filter.instance.impulseResponse(buir.value);
-      filter.resp = [];
-      for (cnt = 0; cnt < filter.impulseResponse.out.length; cnt++) {
-        filter.resp.push([cnt, filter.impulseResponse.out[cnt]]);
-      }
-
-      iirtxt.innerHTML = beautifyZ(filter.pz);
-
-      d3draw.polar({
-        values:filter.pz,
-        element: '#iirpz3d',
-        width: 350,
-        height:350
-      });
-
-      coefftxt.innerHTML = beautifyCoeffs(filter.coeffs) + beautifyCoeffsBin(filter.coeffs);
-
-    } else {
-      filter.calculation = firtype.options[firtype.selectedIndex].value;
-      filter.order = fo.value;
-      if (filter.calculation !== 'kb') {
-        var c = 'lowpass';
-        if (filter.calculation === 'sinc_hp') {
-          c = 'highpass';
-        } else if (filter.calculation === 'sinc_bp') {
-          c = 'bandpass';
-        } else if (filter.calculation === 'sinc_bs') {
-          c = 'bandstop';
-        }
-        filter.coeffs = firCalculator[c]({
-          order: filter.order,
-          Fs: filter.sampling,
-          Fc: filter.cutoffLow,
-          F1: filter.cutoffLow,
-          F1: filter.cutoffHigh
-        });
-      } else {
-        filter.attenuation = firatt.value;
-        filter.coeffs = firCalculator.kbFilter({
-          order: filter.order,
-          Fs: filter.sampling,
-          Fa: filter.cutoffLow,
-          Fb: filter.cutoffHigh,
-          Att: filter.attenuation
-        });
-      }
-
-        filter.instance = new Fili.FirFilter(filter.coeffs);
-
-        filter.resp = [];
-        for (cnt = 0; cnt < filter.coeffs.length; cnt++) {
-          filter.resp.push([cnt, filter.coeffs[cnt]]);
-        }
-        d3draw.polar({
-          values:[],
-          element: '#iirpz3d',
-          width: 350,
-          height:350
-        });
-        iirtxt.innerHTML = 'No poles/zeroes for FIR filters';
-        coefftxt.innerHTML = beautifyFirCoeffs(filter.coeffs);
+      return str
     }
 
-    filter.response = filter.instance.response(480);
-    filter.magnitude = [];
-    filter.magnitudedB = [];
-    filter.groupDelay = [];
-/*
-    $.plot($('#iirimp'), [{
-      data: filter.resp,
+    filterBessel = new Fili.IirFilter(coeffsBessel)
+    filterButterworth = new Fili.IirFilter(coeffsButterworth)
+    filterFir = new Fili.FirFilter(coeffsFir)
+    var pzButterworth = filterButterworth.polesZeros()
+    iirbtxt.innerHTML = beautifyZ(pzButterworth)
+    var colors = ['#00FF00', '#FF0000', '#0000FF']
+    var options = {
+      xaxis: {
+        min: -1,
+        max: 1
+      },
+      yaxis: {
+        min: -1,
+        max: 1
+      },
+      grid: {
+        markings: [{
+          yaxis: {
+            from: 0,
+            to: 0
+          },
+          color: '#000'
+        }, {
+          xaxis: {
+            from: 0,
+            to: 0
+          },
+          color: '#000'
+        }],
+        markingsLineWidth: 1
+      }
+    }
+    var xSign = function (ctx, x, y, radius) {
+      var size = radius * Math.sqrt(Math.PI) / 2
+      ctx.moveTo(x - size, y - size)
+      ctx.lineTo(x + size, y + size)
+      ctx.moveTo(x - size, y + size)
+      ctx.lineTo(x + size, y - size)
+    }
+    var iirBuPz = []
+    for (cnt = 0; cnt < pzButterworth.length; cnt++) {
+      iirBuPz[2 * cnt] = {
+        data: [
+          [pzButterworth[cnt].p[0].re, pzButterworth[cnt].p[0].im],
+          [pzButterworth[cnt].p[1].re, pzButterworth[cnt].p[1].im]
+        ],
+        color: colors[cnt],
+        points: {
+          radius: 4,
+          show: true,
+          symbol: xSign
+        }
+      }
+      iirBuPz[2 * cnt + 1] = {
+        data: [
+          [pzButterworth[cnt].z[0].re, pzButterworth[cnt].z[0].im],
+          [pzButterworth[cnt].z[1].re, pzButterworth[cnt].z[1].im]
+        ],
+        color: colors[cnt],
+        points: {
+          radius: 4,
+          show: true
+        }
+      }
+    }
+
+    $.plot($('#iirbpz'), iirBuPz, options)
+    var pzBessel = filterBessel.polesZeros()
+    iirtxt.innerHTML = beautifyZ(pzBessel)
+    var iirBePz = []
+    for (cnt = 0; cnt < pzBessel.length; cnt++) {
+      iirBePz[2 * cnt] = {
+        data: [
+          [pzBessel[cnt].p[0].re, pzBessel[cnt].p[0].im],
+          [pzBessel[cnt].p[1].re, pzBessel[cnt].p[1].im]
+        ],
+        color: colors[cnt],
+        points: {
+          radius: 3,
+          show: true,
+          symbol: xSign
+        }
+      }
+      iirBePz[2 * cnt + 1] = {
+        data: [
+          [pzBessel[cnt].z[0].re, pzBessel[cnt].z[0].im],
+          [pzBessel[cnt].z[1].re, pzBessel[cnt].z[1].im]
+        ],
+        color: colors[cnt],
+        points: {
+          radius: 3,
+          show: true
+        }
+      }
+    }
+    $.plot($('#iirpz'), iirBePz, options)
+    var tc = iirCalculator.lowpass({
+      order: io.value,
+      characteristic: 'butterworth',
+      Fs: fs.value,
+      Fc: fc.value
+    })
+    var tf = new Fili.IirFilter(tc)
+    var tester = new Fili.TestFilter(tf)
+    console.log(tester.directedRandomStability({
+      steps: 10000,
+      tests: 100,
+      offset: 5,
+      maxStable: 20,
+      minStable: -7,
+      pp: 10,
+      setup: 1000
+    }))
+    var iirBeRe = filterBessel.response(480)
+    var iirBeReMag = []
+    var fss = fs.value
+    for (cnt = 0; cnt < iirBeRe.length; cnt++) {
+      iirBeReMag.push([fss / 2 * cnt / iirBeRe.length, iirBeRe[cnt].magnitude])
+    }
+
+    (function draw () {
+      var margin = {
+        top: 35,
+        right: 20,
+        bottom: 50,
+        left: 90
+      }
+
+      var width = 700 - margin.left - margin.right
+      var height = 500 - margin.top - margin.bottom
+
+      var xMin = d3.min(iirBeReMag, function (d) {
+        return d[0]
+      })
+
+      var xMax = d3.max(iirBeReMag, function (d) {
+        return d[0]
+      })
+
+      var yMin = d3.min(iirBeReMag, function (d) {
+        return d[1]
+      })
+
+      var yMax = d3.max(iirBeReMag, function (d) {
+        return d[1]
+      })
+
+      var x = d3.scale.linear()
+        .range([0, width])
+        .domain([xMin, xMax])
+
+      var y = d3.scale.linear()
+        .range([height, 0])
+        .domain([yMin, yMax * 1.1])
+
+      var xAxis = d3.svg.axis()
+        .scale(x)
+        .orient('bottom')
+
+      var yAxis = d3.svg.axis()
+        .scale(y)
+        .ticks(10)
+        .tickFormat(function (d) {
+          return d3.format('%')(d)
+        })
+        .orient('left')
+
+      var line = d3.svg.line()
+        .x(function (d) {
+          return x(d[0])
+        })
+        .y(function (d) {
+          return y(d[1])
+        })
+
+      var parent = d3.select('#iirmag_d3')
+        .append('svg')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)
+
+      var svg = parent.append('g')
+        .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
+
+      // horizontal grid
+      svg.append('g')
+        .selectAll('line.grid')
+        .data(y.ticks(10))
+        .enter()
+        .append('line')
+        .attr('class', 'grid')
+        .attr('x1', 0)
+        .attr('y1', function (d) { return y(d) })
+        .attr('x2', width)
+        .attr('y2', function (d) { return y(d) })
+
+      // vertical grid
+      svg.append('g')
+        .selectAll('line.grid')
+        .data(x.ticks(10))
+        .enter()
+        .append('line')
+        .attr('class', 'grid')
+        .attr('x1', function (d) { return x(d) })
+        .attr('y1', 0)
+        .attr('x2', function (d) { return x(d) })
+        .attr('y2', height)
+
+      // x axis
+      svg.append('g')
+       .attr('class', 'x axis')
+       .attr('transform', 'translate(0,' + height + ')')
+       .call(xAxis)
+
+      // y axis
+      svg.append('g')
+        .attr('class', 'y axis')
+        .call(yAxis)
+
+      // line
+      svg.append('path')
+        .datum(iirBeReMag)
+        .attr('class', 'line')
+        .attr('d', line)
+
+      // x axis label
+      svg.append('text')
+        .attr('text-anchor', 'middle')
+        .attr('transform', 'translate(' + (width / 2) + ',' + (height + margin.bottom - 5) + ')')
+        .text('Frequency [Hz]')
+
+      // y axis label
+      svg.append('text')
+        .attr('text-anchor', 'middle')
+        .attr('transform', 'translate(' + (-margin.left / 1.5) + ',' + (height / 2) + ') rotate(-90)')
+        .text('Attenuation [%]')
+
+      // add label for current value when hovering
+      var value = parent.append('text')
+        .attr('text-anchor', 'end')
+        .attr('transform', 'translate(' + (width + margin.left) + ',' + (20) + ')')
+        .text('')
+
+      // area below line
+      var area = d3.svg.area()
+        .x(function (d) { return x(d[0]) })
+        .y0(height)
+        .y1(function (d) { return y(d[1]) })
+
+      svg.append('path')
+        .datum(iirBeReMag)
+        .attr('class', 'area')
+        .attr('d', area)
+
+      // add mouse interaction - we need to have a transparent overlay to catch mouse events
+      var bisect = d3.bisector(function (d) {
+        return d[0]
+      }).left
+
+      // add vertical line
+      var hover = svg.append('line')
+        .attr('class', 'hover')
+        .attr('x1', 0)
+        .attr('y1', 0)
+        .attr('x2', 0)
+        .attr('y2', height)
+
+      // add circle
+      var circle = svg.append('circle')
+        .attr('class', 'circle')
+        .attr('cx', 0)
+        .attr('cy', 0)
+        .attr('r', 4)
+
+      function over () {
+        circle
+          .style('opacity', 1)
+        hover
+          .style('opacity', 1)
+      }
+
+      function move () {
+        var mouseX = d3.mouse(this)[0]
+        var x0 = x.invert(mouseX)
+        var i = bisect(iirBeReMag, x0)
+        var y0 = iirBeReMag[i][1]
+
+        // update hover line position
+        hover
+          .attr('x1', mouseX)
+          .attr('x2', mouseX)
+
+        // update circle position
+        circle
+          .attr('cx', mouseX)
+          .attr('cy', y(y0))
+
+        // update current value
+        value.text('Frequency ' + x0.toFixed(2) + ' Hz, Attenuation ' + (y0 * 100).toFixed(2) + ' %')
+      }
+
+      function out () {
+        circle
+          .style('opacity', 0)
+        hover
+          .style('opacity', 0)
+      }
+
+      svg.append('rect')
+        .attr('width', width)
+        .attr('height', height)
+        .attr('class', 'overlay')
+        .on('mouseover', over)
+        .on('touchstart', over)
+        .on('mousemove', move)
+        .on('touchmove', move)
+        .on('mouseout', out)
+        .on('touchend', out)
+    })();
+
+    (function circle () {
+      var margin = {
+        top: 40,
+        right: 40,
+        bottom: 40,
+        left: 40
+      }
+
+      var width = 500 - margin.left - margin.right
+      var height = 500 - margin.top - margin.bottom
+
+      var r = d3.scale.linear()
+        .domain([-1, 1])
+        .range([0, width])
+
+      var test = d3.scale.linear()
+        .domain([0, 1])
+        .range([0, width / 2])
+
+      var y = d3.scale.linear()
+        .domain([-1, 1])
+        .range([height, 0])
+
+      var parent = d3.select('#iirbpz_d3_polar').append('svg')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)
+
+      var svg = parent.append('g')
+        .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
+
+      var gr = svg.append('g')
+        .attr('class', 'r axis')
+        .attr('transform', 'translate(' + width / 2 + ',' + height / 2 + ')')
+        .selectAll('g')
+        .data(test.ticks(5).slice(1))
+        .enter().append('g')
+
+      gr.append('circle')
+        .attr('r', test)
+
+      var xAxis = d3.svg.axis()
+        .scale(r)
+        .tickFormat(function (d) {
+          if (d === 0) { return '' }
+          return d3.format()(d)
+        })
+        .orient('bottom')
+
+      // x axis
+      svg.append('g')
+       .attr('class', 'x axis')
+       .attr('transform', 'translate(0,' + height / 2 + ')')
+       .call(xAxis)
+
+      var yAxis = d3.svg.axis()
+        .scale(y)
+        .tickFormat(function (d) {
+          if (d === 0) { return '' }
+          return d3.format()(d)
+        })
+        .orient('left')
+
+      // x axis
+      svg.append('g')
+        .attr('class', 'y axis')
+        .attr('transform', 'translate(' + width / 2 + ',' + 0 + ')')
+        .call(yAxis)
+
+      // label for current value
+      var value = parent.append('text')
+        .attr('text-anchor', 'end')
+        .attr('transform', 'translate(' + (width + margin.left) + ',' + (20) + ')')
+        .text('awesome')
+
+      var zeroes = iirBuPz.filter(function (data, index) {
+        if (index % 2 !== 0) {
+          return data
+        }
+      })
+
+      var poles = iirBuPz.filter(function (data, index) {
+        if (index % 2 === 0) {
+          return data
+        }
+      })
+
+      // draw cross for imaginary numbers
+      var size = 4 * Math.sqrt(Math.PI) / 2
+
+      function radiansToDegrees (rad) {
+        return rad * (180 / Math.PI)
+      }
+
+      svg.append('g')
+        .selectAll('line.cross')
+        .data(poles)
+        .enter()
+        .append('g')
+        .attr('transform', function (d) {
+          // use group around circle for setting position via transform
+          // so we can use path's transform for scaling on mouse interactions
+          return 'translate(' + r(d.data[0][0]) + ',' + y(d.data[0][1]) + ')'
+        })
+        .append('path')
+        .attr('class', 'cross')
+        .style('stroke', function (d) {
+          return d.color
+        })
+        .attr('d', function () {
+          // draw cross, i.e. x
+          return (
+            'M' + (-size) + ',' + (-size) +
+            'L' + (size) + ',' + (size) +
+            'M' + (-size) + ',' + (size) +
+            'L' + (size) + ',' + (-size)
+          )
+        })
+        .on('mouseover', function (d) {
+          // update current value
+          var x = d.data[0][0]
+          var y = d.data[0][1]
+          var angle = radiansToDegrees(Math.atan2(y, x))
+          var length = Math.sqrt(x * x + y * y)
+          value.text('real ' + x.toFixed(2) + ', imaginary ' + y.toFixed(2) + ', angle ' + angle.toFixed(2) + '°, length ' + length.toFixed(2))
+          d3.select(this).style('stroke', 'steelblue')
+          d3.select(this).style('transform', 'scale(1.5)')
+        })
+        .on('mouseout', function (d) {
+          d3.select(this).style('stroke', d.color)
+          d3.select(this).style('transform', 'scale(1)')
+        })
+
+      svg.append('g')
+        .selectAll('line.cross')
+        .data(poles)
+        .enter()
+        .append('g')
+        .attr('transform', function (d) {
+          return 'translate(' + r(d.data[1][0]) + ',' + y(d.data[1][1]) + ')'
+        })
+        .append('path')
+        .attr('class', 'cross')
+        .style('stroke', function (d) {
+          return d.color
+        })
+        .attr('d', function () {
+          // draw cross, i.e. x
+          return (
+            'M' + (-size) + ',' + (-size) +
+            'L' + (size) + ',' + (size) +
+            'M' + (-size) + ',' + (size) +
+            'L' + (size) + ',' + (-size)
+          )
+        })
+        .on('mouseover', function (d) {
+          // update current value
+          var x = d.data[1][0]
+          var y = d.data[1][1]
+          var angle = radiansToDegrees(Math.atan2(y, x))
+          var length = Math.sqrt(x * x + y * y)
+          value.text('real ' + x.toFixed(2) + ', imaginary ' + y.toFixed(2) + ', angle ' + angle.toFixed(2) + '°, length ' + length.toFixed(2))
+          d3.select(this).style('stroke', 'steelblue')
+          d3.select(this).style('transform', 'scale(1.5)')
+        })
+        .on('mouseout', function (d) {
+          d3.select(this).style('stroke', d.color)
+          d3.select(this).style('transform', 'scale(1)')
+        })
+
+      svg.append('g')
+        .selectAll('circle.zero')
+        .data(zeroes)
+        .enter()
+        .append('circle')
+        .attr('class', 'zero')
+        .style('stroke', function (d) {
+          return d.color
+        })
+        .attr('cx', function (d) {
+          return r(d.data[1][0])
+        })
+        .attr('cy', function (d) {
+          return r(d.data[1][1])
+        })
+        .attr('r', 4)
+
+      svg.append('g')
+        .selectAll('circle.zero')
+        .data(zeroes)
+        .enter()
+        .append('g')
+        .attr('transform', function (d) {
+          // use group around circle for setting position via transform
+          // so we can use path's transform for scaling on mouse interactions
+          return 'translate(' + r(d.data[0][0]) + ',' + y(d.data[0][1]) + ')'
+        })
+        .append('circle')
+        .attr('class', 'zero')
+        .style('stroke', function (d) {
+          return d.color
+        })
+        .attr('cx', 0)
+        .attr('cy', 0)
+        .attr('r', 4)
+        .on('mouseover', function (d) {
+          var x = d.data[0][0]
+          var y = d.data[0][1]
+          var angle = radiansToDegrees(Math.atan2(y, x))
+          var length = Math.sqrt(x * x + y * y)
+          value.text('real ' + x.toFixed(2) + ', imaginary ' + y.toFixed(2) + ', angle ' + angle.toFixed(2) + '°, length ' + length.toFixed(2))
+          d3.select(this).style('stroke', 'steelblue')
+          d3.select(this).style('transform', 'scale(1.5)')
+        })
+        .on('mouseout', function (d) {
+          d3.select(this).style('stroke', d.color)
+          d3.select(this).style('transform', 'scale(1)')
+        })
+    })()
+
+    $.plot($('#iirmag'), [{
+      data: iirBeReMag,
       color: '#FF0000'
-    }]);
-*/
-    d3draw.linestrip({
-      values:filter.resp,
-      element: '#iirimp3d',
-      width: 600,
-      height:350,
-      xLabel: 'Time [samples]',
-      yLabel: 'Input Value',
-      xFormatter: function (v) {
-        return v.toFixed(2) + ' s';
-      },
-      yFormatter: function (v) {
-        return (v).toFixed(2) + '';
-      }
-    });
-
-    for (cnt = 0; cnt < filter.response.length; cnt++) {
-      filter.magnitude.push([filter.sampling / 2 * cnt / filter.response.length, filter.response[cnt].magnitude]);
-      filter.magnitudedB.push([filter.sampling / 2 * cnt / filter.response.length, filter.response[cnt].dBmagnitude]);
-      filter.groupDelay.push([filter.sampling / 2 * cnt / filter.response.length, filter.response[cnt].groupDelay]);
+    }])
+    var iirBeReGrp = []
+    for (cnt = 0; cnt < iirBeRe.length; cnt++) {
+      iirBeReGrp.push([fss / 2 * cnt / iirBeRe.length, iirBeRe[cnt].groupDelay])
     }
+    $.plot($('#iirgroup'), [{
+      data: iirBeReGrp,
+      color: '#FF0000'
+    }])
+    var iirBeReSr = filterBessel.impulseResponse(beir.value)
+    var iirBeReImp = []
+    for (cnt = 0; cnt < iirBeReSr.out.length; cnt++) {
+      iirBeReImp.push([cnt, iirBeReSr.out[cnt]])
+    }
+    $.plot($('#iirimp'), [{
+      data: iirBeReImp,
+      color: '#FF0000'
+    }])
 
-    d3draw.linestrip({
-      values:filter.magnitude,
-      element: '#iirmag3d',
-      width: 600,
-      height:350,
-      xLabel: 'Frequency [Hz]',
-      yLabel: 'Attenuation [%]',
-      xFormatter: function (v) {
-        return v.toFixed(2) + ' Hz';
-      },
-      yFormatter: function (v) {
-        return (100 * v).toFixed(2) + ' %';
-      }
-    });
+    var iirBuRe = filterButterworth.response(480)
+    var iirBuReMag = []
+    for (cnt = 0; cnt < iirBuRe.length; cnt++) {
+      iirBuReMag.push([fss / 2 * cnt / iirBuRe.length, iirBuRe[cnt].magnitude])
+    }
+    $.plot($('#iirbmag'), [{
+      data: iirBuReMag,
+      color: '#00FF00'
+    }])
+    var iirBuReGrp = []
+    for (cnt = 0; cnt < iirBuRe.length; cnt++) {
+      iirBuReGrp.push([fss / 2 * cnt / iirBuRe.length, iirBuRe[cnt].groupDelay])
+    }
+    $.plot($('#iirbgroup'), [{
+      data: iirBuReGrp,
+      color: '#00FF00'
+    }])
+    var iirBuReSr = filterButterworth.impulseResponse(buir.value)
+    var iirBuReImp = []
+    for (cnt = 0; cnt < iirBuReSr.out.length; cnt++) {
+      iirBuReImp.push([cnt, iirBuReSr.out[cnt]])
+    }
+    $.plot($('#iirbimp'), [{
+      data: iirBuReImp,
+      color: '#00FF00'
+    }])
 
-    d3draw.linestrip({
-      values:filter.magnitudedB,
-      element: '#iirbmag3d',
-      width: 600,
-      height:350,
-      xLabel: 'Frequency [Hz]',
-      yLabel: 'Attenuation [dB]',
-      xFormatter: function (v) {
-        return v.toFixed(2) + ' Hz';
-      },
-      yFormatter: function (v) {
-        return v.toFixed(2) + ' dB';
-      }
-    });
+    var firRe = filterFir.response(480)
 
-    d3draw.linestrip({
-      values:filter.groupDelay,
-      element: '#iirgroup3d',
-      width: 600,
-      height:350,
-      xLabel: 'Frequency [Hz]',
-      yLabel: 'Group Delay [samples]',
-      xFormatter: function (v) {
-        return v.toFixed(2) + ' Hz';
-      },
-      yFormatter: function (v) {
-        return v.toFixed(2) + '';
-      }
-    });
+    var firReMag = []
+    for (cnt = 0; cnt < firRe.length; cnt++) {
+      firReMag.push([fss / 2 * cnt / firRe.length, firRe[cnt].dBmagnitude])
+    }
+    $.plot($('#firmag'), [{
+      data: firReMag,
+      color: '#0000FF'
+    }])
+    var firReGrp = []
+    for (cnt = 0; cnt < firRe.length; cnt++) {
+      firReGrp.push([fss / 2 * cnt / firRe.length, firRe[cnt].groupDelay])
+    }
+    $.plot($('#firgroup'), [{
+      data: firReGrp,
+      color: '#0000FF'
+    }])
 
-    d3draw.linestrip({
-      values1: unfilteredOut,
-      values: filter.out,
-      element: '#unrun3d',
-      width: 600,
-      height:350,
-      xLabel: 'Time [samples]',
-      yLabel: 'Input Value',
-      xFormatter: function (v) {
-        return v.toFixed(2) + ' s';
-      },
-      yFormatter: function (v) {
-        return (v).toFixed(2) + '';
-      }
-    });
-  };
+    var firReImp = []
+    for (cnt = 0; cnt < coeffsFir.length; cnt++) {
+      firReImp.push([cnt, coeffsFir[cnt]])
+    }
+    $.plot($('#firimp'), [{
+      data: firReImp,
+      color: '#0000FF'
+    }])
+  }
 
   run.onclick = function () {
-    filter.out.push([runCounter, filter.instance.singleStep(parseFloat(inval.value))]);
-    unfilteredOut.push([runCounter, parseFloat(inval.value)]);
-    runCounter++;
-    d3draw.linestrip({
-      values1: unfilteredOut,
-      values: filter.out,
-      element: '#unrun3d',
-      width: 600,
-      height:350,
-      xLabel: 'Time [samples]',
-      yLabel: 'Input Value',
-      xFormatter: function (v) {
-        return v.toFixed(2) + ' s';
-      },
-      yFormatter: function (v) {
-        return (v).toFixed(2) + '';
-      }
-    });
-  };
+    besselOut.push([runCounter, filterBessel.singleStep(parseFloat(inval.value))])
+    butterworthOut.push([runCounter, filterButterworth.singleStep(parseFloat(inval.value))])
+    firOut.push([runCounter, filterFir.singleStep(parseFloat(inval.value))])
+    unfilteredOut.push([runCounter, parseFloat(inval.value)])
+    runCounter++
+    $.plot($('#unrun'), [{
+      data: unfilteredOut,
+      color: '#FFFF00',
+      label: 'Original'
+    }, {
+      data: besselOut,
+      color: '#FF0000',
+      label: 'Bessel'
+    }, {
+      data: butterworthOut,
+      color: '#00FF00',
+      label: 'Butterworth'
+    }, {
+      data: firOut,
+      color: '#0000FF',
+      label: 'FIR'
+    }])
+  }
+  $.plot($('#unrun'), [{
+    data: unfilteredOut,
+    color: '#FFFF00',
+    label: 'original'
+  }, {
+    data: besselOut,
+    color: '#FF0000',
+    label: 'bessel'
+  }, {
+    data: butterworthOut,
+    color: '#00FF00',
+    label: 'butterworth'
+  }, {
+    data: firOut,
+    color: '#0000FF',
+    label: 'FIR'
+  }])
 
-  sim.click();
-
-});
+  sim.click()
+})
