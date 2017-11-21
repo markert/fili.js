@@ -6,67 +6,87 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <title>fili</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
     <link rel="stylesheet" href="styles.css">
   </head>
 
   <body>
-
+    Type:
+    <select id="seltype">
+      <option value="iir">IIR</option>
+      <option value="fir">FIR</option>
+    </select><br>
     Fs:
     <input id="fs_val" type="text" name="fsval">
-    <br> Fc:
+    Fc:
     <input id="fc_val" type="text" name="fcval">
-    <br> IIR Biquad cascades:
-    <input id="iir_val" type="text" name="iirval">
-    <br> Bessel Impulse Response Length:
-    <input id="beir_val" type="text" name="beirval">
-    <br> Butterworth Impulse Response Length:
-    <input id="buir_val" type="text" name="beirval">
-    <br> FIR order:
+    Fc2:
+    <input id="fc2_val" type="text" value="200"><br>
+    <br> Biquad cascades:
+    <input id="iir_val" type="text" name="iirval"><br>
+    Transform: <select id="seltrans">
+      <option value="bilinear">bilinear</option>
+      <option value="matchedz">matchedZ</option>
+    </select><br>
+    Bilinear Characteristic: <select id="bilinearchar">
+      <option value="bessel3dB">Bessel 3dB</option>
+      <option value="bessel1dB">Bessel 1dB</option>
+      <option value="butterworth">Butterworth</option>
+    </select>
+    Bilinear Type: <select id="bilineartype">
+      <option value="lowpass">Lowpass</option>
+      <option value="highpass">Highpass</option>
+      <option value="bandpass">Bandpass</option>
+      <option value="bandstop">Bandstop</option>
+      <option value="peak">Peak</option>
+      <option value="lowshelf">Lowshelf</option>
+      <option value="highshelf">Highshelf</option>
+      <option value="lowpassBT">Lowpass BT</option>
+      <option value="highpassBT">Highpass BT</option>
+      <option value="aweighting">A Weighting</option>
+    </select><br>
+    MatchedZ Characteristic: <select id="matchedzchar">
+      <option value="bessel">Bessel</option>
+      <option value="butterworth">Butterworth</option>
+      <option value="tschebyscheff05">Tschebyscheff 0.5dB</option>
+      <option value="tschebyscheff1">Tschebyscheff 1dB</option>
+      <option value="tschebyscheff2">Tschebyscheff 2dB</option>
+      <option value="tschebyscheff3">Tschebyscheff 3dB</option>
+      <option value="allpass">Allpass</option>
+    </select><br> Impulse Response Length:
+    <input id="buir_val" type="text" name="beirval"><br>
+    preGain: <input id="pregain" type="checkbox" value="enable">
+    Gain (dB): <input id="gain" type="text" value="0"><br><br>
+    FIR order:
     <input id="fir_val" type="text" name="firval">
+    Calculation <select id="firtype">
+      <option value="sinc_lp">Sinc Lowpass</option>
+      <option value="sinc_hp">Sinc Highpass</option>
+      <option value="sinc_bp">Sinc Bandpass</option>
+      <option value="sinc_bs">Sinc Bandstop</option>
+      <option value="kb">Kaiser-Bessel</option>
+    </select> Attenuation (dB):
+    <input id="firatt" type="text" value="100">
     <br>
-    <br>Calculate
-    <input id="f_sim" type="button" value="sim">
     <br>
-    <br>IIR Bessel Magnitude
-    <div id="iirmag" style="width:600px;height:300px;"></div>
-    <div id="iirmag_d3"></div>
+    <input id="f_sim" type="button" value="calculate">
     <br>
-    <br>IIR Bessel Group Delay
-    <div id="iirgroup" style="width:600px;height:300px;"></div>
+    <br>Magnitude Percent
+    <div id="iirmag3d" style="width:600px;height:350px;"></div>
     <br>
-    <br>IIR Bessel PZ
-    <div id="iirpz" style="width:300px;height:300px;"></div>
+    <br>Magnitude dB
+    <div id="iirbmag3d" style="width:600px;height:350px;"></div>
+    <br>
+    <br>Group Delay
+    <div id="iirgroup3d" style="width:600px;height:350px;"></div>
+    <br>
+    <br>Impulse Response
+    <div id="iirimp3d" style="width:600px;height:350px;"></div>
+    <br>
+    <br>PoleZero
+    <div id="iirpz3d" style="width:350px;height:350px;"></div>
     <br>
     <span id="iirtxt">a</span>
-    <br>IIR Bessel Impulse Response
-    <div id="iirimp" style="width:600px;height:300px;"></div>
     <br>
-    <br>IIR Butterworth Magnitude
-    <div id="iirbmag" style="width:600px;height:300px;"></div>
-    <br>
-    <br>IIR Butterworth Group Delay
-    <div id="iirbgroup" style="width:600px;height:300px;"></div>
-    <br>
-    <br>IIR Butterworth PZ
-    <div id="iirbpz" style="width:300px;height:300px;"></div>
-    <div id="iirbpz_d3_polar"></div>
-    <br>
-    <span id="iirbtxt">a</span>
-    <br>IIR Butterworth Impulse Response
-    <div id="iirbimp" style="width:600px;height:300px;"></div>
-    <br>
-    <br>FIR Magnitude (dB)
-    <div id="firmag" style="width:600px;height:300px;"></div>
-    <br>
-    <br>FIR Group Delay
-    <div id="firgroup" style="width:600px;height:300px;"></div>
-    <br>
-    <br>FIR Impulse Response
-    <div id="firimp" style="width:600px;height:300px;"></div>
-
-    <br>
-
     <br> Input
     <input id="in_val" type="text" name="inval">
     <br>
@@ -74,13 +94,16 @@
     <input id="f_run" type="button" value="run">
     <br>
     <br>Simulation
-    <div id="unrun" style="width:600px;height:300px;"></div>
+    <div id="unrun3d" style="width:600px;height:300px;"></div>
+    <br>
+    Coefficients:<br>
+    <span id="coefftxt">a</span>
     <br>
 
     <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/flot/0.8.3/jquery.flot.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
     <script src="../dist/fili.js"></script>
+    <script src="d3draw.js"></script>
     <script src="src.js"></script>
 
   </body>
