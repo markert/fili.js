@@ -111,6 +111,18 @@ $(document).ready(function () {
       str += 'a1: ' + c[k].a[0] + ' | a2: ' + c[k].a[1] + '<br>';
       str += 'b0: ' + c[k].b[0] + ' | b1: ' + c[k].b[1] + ' | b2: ' + c[k].b[2] + '<br>';
     }
+    str += '<br>';
+    return str;
+  };
+
+  var beautifyCoeffsBin = function (c) {
+    var str = '';
+    for (var k = 0; k < c.length; k++) {
+      str += 'stage (binary)' + (k + 1) + ':<br>';
+      str += 'k: ' + c[k].k.toString(2) + ' (' + c[k].k.toString(2).split(".").pop().length + ')' + '<br>';
+      str += 'a1: ' + c[k].a[0].toString(2) + ' (' + c[k].a[0].toString(2).split(".").pop().length + ')' + ' | a2: ' + c[k].a[1].toString(2) + ' (' + c[k].a[1].toString(2).split(".").pop().length + ')' + '<br>';
+      str += 'b0: ' + c[k].b[0].toString(2) + ' (' + c[k].b[0].toString(2).split(".").pop().length + ')' + ' | b1: ' + c[k].b[1].toString(2) + ' (' + c[k].b[1].toString(2).split(".").pop().length + ')' + ' | b2: ' + c[k].b[2].toString(2) + ' (' + c[k].b[2].toString(2).split(".").pop().length + ')' + '<br>';
+    }
     return str;
   };
 
@@ -195,7 +207,7 @@ $(document).ready(function () {
         height:350
       });
 
-      coefftxt.innerHTML = beautifyCoeffs(filter.coeffs);
+      coefftxt.innerHTML = beautifyCoeffs(filter.coeffs) + beautifyCoeffsBin(filter.coeffs);
 
     } else {
       filter.calculation = firtype.options[firtype.selectedIndex].value;
