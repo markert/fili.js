@@ -25,6 +25,7 @@ ghpages:
 	cp demo/src.js src.js
 	cp demo/styles.css styles.css
 	cp demo/index.html index.html
+	cp demo/d3draw.js d3draw.js
 	rm -rf demo/
 	git add . --all
 	git commit -m "update gh-pages"
