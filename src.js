@@ -96,7 +96,7 @@ $(document).ready(function () {
   var beautifyZ = function (zo) {
     var str = '';
     for (var k = 0; k < zo.length; k++) {
-      str += 'stage ' + (k + 1) + ':<br>';
+      str += 'stage ' + (k + 1) + ': <br>';
       str += 'Zeros: ' + JSON.stringify(zo[k].z) + '<br>';
       str += 'Poles: ' + JSON.stringify(zo[k].p) + '<br>';
     }
