@@ -24,6 +24,7 @@ ghpages:
 	git checkout master demo/
 	cp demo/src.js src.js
 	cp demo/styles.css styles.css
+	cp demo/index.html index.html
 	rm -rf demo/
 	git add . --all
 	git commit -m "update gh-pages"
