@@ -41,11 +41,6 @@ body {
   opacity: 0.25;
 }
 
-.areasig {
-  fill: red;
-  opacity: 0.25;
-}
-
 .overlay {
   fill: none;
   pointer-events: all;
@@ -61,8 +56,7 @@ body {
 }
 
 .circle {
-  fill: none;
-  stroke: steelblue;
+  fill: steelblue;
   transition: opacity 0.2s;
   /*opacity: 0;*/
 }
@@ -75,7 +69,6 @@ body {
 
 .zero {
   fill: none;
-  stroke: steelblue;
   pointer-events: all;
   stroke-width: 2px;
 }

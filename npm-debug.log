@@ -1,0 +1,24 @@
+0 info it worked if it ends with ok
+1 verbose cli [ '/usr/bin/nodejs', '/usr/bin/npm', 'login' ]
+2 info using npm@3.10.10
+3 info using node@v6.9.4
+4 verbose stack Error: canceled
+4 verbose stack     at Interface.<anonymous> (/usr/lib/node_modules/npm/node_modules/read/lib/read.js:66:13)
+4 verbose stack     at emitNone (events.js:86:13)
+4 verbose stack     at Interface.emit (events.js:185:7)
+4 verbose stack     at Interface._ttyWrite (readline.js:726:16)
+4 verbose stack     at ReadStream.onkeypress (readline.js:126:10)
+4 verbose stack     at emitTwo (events.js:106:13)
+4 verbose stack     at ReadStream.emit (events.js:191:7)
+4 verbose stack     at emitKeys (internal/readline.js:389:14)
+4 verbose stack     at next (native)
+4 verbose stack     at ReadStream.onData (readline.js:972:36)
+5 verbose cwd /home/markert/dev/fili.js
+6 error Linux 4.4.0-59-generic
+7 error argv "/usr/bin/nodejs" "/usr/bin/npm" "login"
+8 error node v6.9.4
+9 error npm  v3.10.10
+10 error canceled
+11 error If you need help, you may report this error at:
+11 error     <https://github.com/npm/npm/issues>
+12 verbose exit [ 1, true ]
