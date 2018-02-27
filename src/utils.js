@@ -182,3 +182,55 @@ exports.complex = {
     return Math.sqrt(n.re * n.re + n.im * n.im)
   }
 }
+
+var math = require("mathjs");
+
+/*
+    A function that takes a and b coefficients and generates the intial state (zi) of a second order filter that corresponds to the steady state of the step response
+
+    Parameters: a, b: Array<number>, the IIR filter coefficients
+    Returns: zi: Array<number>, the initial state for the filter
+*/
+
+exports.computeInitialState = function(a, b) {
+    if (!Array.isArray(a) || !Array.isArray(b)) {
+      throw new Error("Coefficients must be arrays");
+    }
+    if (a[0].length != undefined || b[0].length != undefined) {
+      throw new Error("Coefficients must be 1D");
+    }
+  
+    while (a.length > 1 && a[0] == 0) {
+      a = a.slice(1);
+    }
+    if (a.length < 1) {
+      throw new Error("There must be at least one non-zero `a` coefficient");
+    }
+  
+    // Normalize coefficients
+    if (a[0] != 1) {
+      b = b.map(function(val) {
+        return val / a[0];
+      });
+      a = a.map(function(val) {
+        return val / a[0];
+      });
+    }
+  
+    var n = Math.max(a.length, b.length);
+  
+    // Pad a or b with zeros so they are the same length
+    if (a.length < n) {
+      a = a.concat(new Array(n - a.length).fill(0));
+    } else if (b.length < n) {
+      b = b.concat(new Array(n - b.length).fill(0));
+    }
+  
+    var IminusA = math.subtract(math.eye(n - 1), math.transpose(companion(a)));
+    var B = b.slice(1).map(function(val, index) {
+      return val - a[index + 1] * b[0];
+    });
+  
+    // Solve zi = A*zi + B
+    return (zi = math.lusolve(IminusA, B))._data.map(parseFloat);
+  };
