@@ -182,3 +182,73 @@ exports.complex = {
     return Math.sqrt(n.re * n.re + n.im * n.im)
   }
 }
+
+var math = require("mathjs");
+
+/*
+    A function that takes a and b coefficients and generates the intial state (zi) of a second order filter that corresponds to the steady state of the step response
+
+    Parameters: a, b: Array<number>, the IIR filter coefficients
+    Returns: zi: Array<number>, the initial state for the filter
+*/
+exports.computeInitialState = function(a, b) {
+  if (!Array.isArray(a) || !Array.isArray(b)) {
+    throw new Error("Coefficients must be arrays");
+  }
+  if (a[0].length != undefined || b[0].length != undefined) {
+    throw new Error("Coefficients must be 1D");
+  }
+
+  // Fili removes the 1 at the front of the a coefficients, unlike scipy
+  // We'll just add this back in so our code conforms more to the scipy implementation
+  if (a[0] != 1) {
+    a.unshift(1);
+  }
+  
+  if (a.length < 1) {
+    throw new Error("There must be at least one non-zero `a` coefficient");
+  }
+
+  // Normalize coefficients
+  if (a[0] != 1) {
+    b = b.map(function(val) {
+      return val / a[0];
+    });
+    a = a.map(function(val) {
+      return val / a[0];
+    });
+  }
+
+  var n = Math.max(a.length, b.length);
+
+  // Pad a or b with zeros so they are the same length
+  if (a.length < n) {
+    a = a.concat(new Array(n - a.length).fill(0));
+  } else if (b.length < n) {
+    b = b.concat(new Array(n - b.length).fill(0));
+  }
+  
+      // Companion matrix function
+  var companion = function(array) {
+  return new Array(array.length - 1)
+      .fill(new Array(array.length - 1).fill(0))
+      .map(function(row, i) {
+        if (i == 0) {
+          return array.slice(1).map(function(val) {
+            return math.subtract(0,math.divide(val, array[0]));
+          });
+        }
+        return row.map(function(_, j) {
+          return j == i - 1 ? 1 : 0;
+        });
+      })
+  };
+
+  var IminusA = math.subtract(math.eye(n - 1), math.transpose(companion(a)));
+  var B = b.slice(1).map(function(val, index) {
+    return val - a[index + 1] * b[0];
+  });
+
+  // Solve zi = A*zi + B
+  return math.lusolve(IminusA, B)._data.map(parseFloat);
+};

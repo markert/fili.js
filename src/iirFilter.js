@@ -3,12 +3,13 @@
 var {
   complex,
   runMultiFilter,
-  evaluatePhase
+  evaluatePhase,
+  computeInitialState
 } = require('./utils')
 
 // params: array of biquad coefficient objects and z registers
 // stage structure e.g. {k:1, a:[1.1, -1.2], b:[0.3, -1.2, -0.4], z:[0, 0]}
-var IirFilter = function (filter) {
+var IirFilter = function (filter, preCompute = false) {
   var f = filter
   var cone = {
     re: 1,
@@ -43,12 +44,12 @@ var IirFilter = function (filter) {
       re: s.k,
       im: 0
     }
-    cf[cnt].z = [0, 0]
     cc[cnt] = {}
     cc[cnt].b1 = s.b[1] / s.b[0]
     cc[cnt].b2 = s.b[2] / s.b[0]
     cc[cnt].a1 = s.a[0]
     cc[cnt].a2 = s.a[1]
+    cf[cnt].z = preCompute ? computeInitialState(s.a, s.b) : [0,0]
   }
 
   var runStage = function (s, input) {
@@ -136,7 +137,7 @@ var IirFilter = function (filter) {
           re: s.k,
           im: 0
         },
-        z: [0, 0]
+        z: preCompute ? computeInitialState(s.a, s.b) : [0,0]
       }
     }
     return tempF

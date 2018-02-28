@@ -73,6 +73,8 @@ Note: for peak, lowshelf and highshelf a gain attribute must be defined
 when generating the coefficients. Gain can be positive or negative
 and represents the dB value for the peak or dip.
 
+Note: fili uses cascades of 2nd-order filters (Biquads) with the number of 2nd-order filters defined by the `order` parameter. If you are trying to compare fili's filters to those generated in Matlab or scipy you should be aware that the actual order of fili's filters will be twice that of the order parameter.
+
 ```javascript
 //  Instance of a filter coefficient calculator
 var iirCalculator = new Fili.CalcCascades();
