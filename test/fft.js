@@ -65,6 +65,18 @@ describe('fft.js', function () {
         fftResult.im[133].should.be.a.Number
       }
     })
+
+    it('can handle input requiring zeropadding', function () {
+      var shortSinewave = []
+      for (var cnt = 0; cnt < 500; cnt++) {
+        shortSinewave.push(Math.sin(2 * Math.PI * (113.33232 * cnt / 500)))
+      }
+      fftResult = fftCalc.forward(shortSinewave, 'hanning')
+      fftResult.re.length.should.equal(8192)
+      fftResult.im.length.should.equal(8192)
+      fftResult.re[133].should.be.a.Number
+      fftResult.im[133].should.be.a.Number
+    })
   })
 
   describe('fft_helpers', function () {
