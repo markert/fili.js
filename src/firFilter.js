@@ -2,6 +2,7 @@
 
 var {
   runMultiFilter,
+  runMultiFilterReverse,
   complex,
   evaluatePhase
 } = require('./utils')
@@ -102,6 +103,10 @@ var FirFilter = function (filter) {
     },
     multiStep: function (input, overwrite) {
       return runMultiFilter(input, z, doStep, overwrite)
+    },
+    filtfilt: function (input, overwrite) {
+      return runMultiFilterReverse(runMultiFilter(
+        input, z, doStep, overwrite), z, doStep, true)
     },
     reinit: function () {
       z = initZero(f.length - 1)
