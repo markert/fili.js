@@ -3,6 +3,7 @@
 var {
   complex,
   runMultiFilter,
+  runMultiFilterReverse,
   evaluatePhase
 } = require('./utils')
 
@@ -214,6 +215,10 @@ var IirFilter = function (filter) {
     },
     multiStep: function (input, overwrite) {
       return runMultiFilter(input, cf, doStep, overwrite)
+    },
+    filtfilt: function (input, overwrite) {
+      return runMultiFilterReverse(runMultiFilter(
+          input, cf, doStep, overwrite), cf, doStep, true)
     },
     simulate: function (input) {
       return calcInputResponse(input)

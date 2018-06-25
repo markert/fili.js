@@ -64,6 +64,18 @@ exports.runMultiFilter = function (input, d, doStep, overwrite) {
   return out
 }
 
+exports.runMultiFilterReverse = function (input, d, doStep, overwrite) {
+  var out = []
+  if (overwrite) {
+    out = input
+  }
+  var i
+  for (i = input.length - 1; i >= 0; i--) {
+    out[i] = doStep(input[i], d)
+  }
+  return out
+}
+
 var factorial = function (n, a) {
   if (!a) {
     a = 1
