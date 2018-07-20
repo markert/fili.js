@@ -1,6 +1,6 @@
 /**
  * @name    fili
- * @version 2.0.1 | November 20th 2017
+ * @version 2.0.2 | March 3rd 2018
  * @author  Florian Markert
  * @license MIT
  */
@@ -523,6 +523,14 @@ var Fft = function Fft(radix) {
     return windowCalculation[params.name].values;
   };
 
+  var zeroPad = function zeroPad(buffer, fftLength) {
+    if (fftLength > buffer.length) {
+      console.log('buffer: ', buffer.length, ' fftLength: ', fftLength, ' output: ', buffer.concat(new Array(fftLength - buffer.length).fill(0)).length);
+      return buffer.concat(new Array(fftLength - buffer.length).fill(0));
+    }
+    return buffer;
+  };
+
   var self = {
     forward: function forward(b, window) {
       var i, j, n, k, k2, h, d, c, s, ik, dx, dy;
@@ -533,6 +541,7 @@ var Fft = function Fft(radix) {
         a: 0.5,
         n: 0
       };
+      b = zeroPad(b, n);
       var w = windowFunctions(winFunction);
       if (typeof w === 'number') {
         for (i = 0; i < n; ++i) {

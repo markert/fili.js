@@ -266,7 +266,7 @@ for (var cnt = 0; cnt < 8192; cnt++) {
 // get available window functions
 var availableWindows = fft.windows();
 
-// buffer.length must be greater or equal fft radix
+// if buffer.length < fft radix, buffer will be zeropadded
 var fftResult = fft.forward(buffer, 'hanning');
 
 // fftResult = {re: [], im: []}. The array length equals the FFT radix
