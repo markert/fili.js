@@ -1,6 +1,6 @@
 /**
  * @name    fili
- * @version 2.0.1 | November 20th 2017
+ * @version 2.0.2 | December 13th 2018
  * @author  Florian Markert
  * @license MIT
  */
@@ -786,6 +786,7 @@ module.exports = FirCoeffs;
 var _require = require('./utils');
 
 var runMultiFilter = _require.runMultiFilter;
+var runMultiFilterReverse = _require.runMultiFilterReverse;
 var complex = _require.complex;
 var evaluatePhase = _require.evaluatePhase;
 
@@ -885,6 +886,9 @@ var FirFilter = function FirFilter(filter) {
     },
     multiStep: function multiStep(input, overwrite) {
       return runMultiFilter(input, z, doStep, overwrite);
+    },
+    filtfilt: function filtfilt(input, overwrite) {
+      return runMultiFilterReverse(runMultiFilter(input, z, doStep, overwrite), z, doStep, true);
     },
     reinit: function reinit() {
       z = initZero(f.length - 1);
@@ -1186,6 +1190,7 @@ var _require = require('./utils');
 
 var complex = _require.complex;
 var runMultiFilter = _require.runMultiFilter;
+var runMultiFilterReverse = _require.runMultiFilterReverse;
 var evaluatePhase = _require.evaluatePhase;
 
 // params: array of biquad coefficient objects and z registers
@@ -1397,6 +1402,9 @@ var IirFilter = function IirFilter(filter) {
     multiStep: function multiStep(input, overwrite) {
       return runMultiFilter(input, cf, doStep, overwrite);
     },
+    filtfilt: function filtfilt(input, overwrite) {
+      return runMultiFilterReverse(runMultiFilter(input, cf, doStep, overwrite), cf, doStep, true);
+    },
     simulate: function simulate(input) {
       return calcInputResponse(input);
     },
@@ -1607,6 +1615,18 @@ exports.runMultiFilter = function (input, d, doStep, overwrite) {
   }
   var i;
   for (i = 0; i < input.length; i++) {
+    out[i] = doStep(input[i], d);
+  }
+  return out;
+};
+
+exports.runMultiFilterReverse = function (input, d, doStep, overwrite) {
+  var out = [];
+  if (overwrite) {
+    out = input;
+  }
+  var i;
+  for (i = input.length - 1; i >= 0; i--) {
     out[i] = doStep(input[i], d);
   }
   return out;
