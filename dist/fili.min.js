@@ -1,6 +1,6 @@
 /**
  * @name    fili
- * @version 2.0.2 | December 13th 2018
+ * @version 2.0.3 | December 13th 2018
  * @author  Florian Markert
  * @license MIT
  */
