@@ -93,7 +93,7 @@ var iirFilterCoeffs = iirCalculator.lowpass({
   });
 
 // create a filter instance from the calculated coeffs
-var iirFilter = new Fili.IirFilter(filterCoeffs);
+var iirFilter = new Fili.IirFilter(iirFilterCoeffs);
 ```
 
 ### Generate IIR Filters with matched-z transform
@@ -146,7 +146,7 @@ Possible filters are:
 
 ```javascript
 //  Instance of a filter coefficient calculator
-var firCalculator = new Fili.firCoeffs();
+var firCalculator = new Fili.FirCoeffs();
 
 // calculate filter coefficients
 var firFilterCoeffs = firCalculator.lowpass({
@@ -166,7 +166,7 @@ var firFilterCoeffsK = firCalculator.kbFilter({
   });
 
 // create a filter instance from the calculated coeffs
-var firFilter = new Fili.FirFilter(filterCoeffs);
+var firFilter = new Fili.FirFilter(firFilterCoeffs);
 ```
 
 ### Run Filter
